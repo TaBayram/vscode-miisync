@@ -3,6 +3,8 @@
   "displayName": "MIISync",
   "description": "",
   "publisher": "TaBayramNTT",
+  "author": {"name": "TaBayramNTT","url": "https://github.com/TaBayramNTT"},
+  "repository": {"url": "https://github.com/TaBayramNTT/miisync", "type": "github"},
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.77.0"

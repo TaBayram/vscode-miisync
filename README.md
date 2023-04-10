@@ -1,6 +1,6 @@
 # miisync README
 
-This is the README for your extension "miisync". After writing up a brief description, we recommend including the following sections.
+This extension should sync the file in mii workbench with local file whenever you save it
 
 ## Features
 
