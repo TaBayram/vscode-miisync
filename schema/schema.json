@@ -1,0 +1,35 @@
+{
+    "properties": {
+        "host": {
+            "type": "string",
+            "description": "IP of MII system"
+        },
+        "port": {
+            "type": "number",
+            "description": "port of MII system"
+        },
+        "username": {
+            "type": "string",
+            "description": "your username for mii"
+        },
+        "password": {
+            "type": "string",
+            "description": "your password for mii"
+        },
+        "context": {
+            "type": "string",
+            "description": "starting folder name to send"
+        },
+        "removeFromContext": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "any folder that is between file name and context that you want to remove"
+        },
+        "remotePath": {
+            "type": "string",
+            "description": "path of the target system \n Example: localFile: x/y/c/zz/controller/main.controller.js \n remoteFile: y/c/controller/main.controller.js \n "
+        }
+    }
+}

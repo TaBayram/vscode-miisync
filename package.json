@@ -2,6 +2,7 @@
   "name": "miisync",
   "displayName": "MIISync",
   "description": "",
+  "publisher": "TaBayramNTT",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.77.0"
@@ -9,7 +10,9 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -18,31 +21,12 @@
         "title": "Hello World"
       }
     ],
-    "configuration": {
-      "title": "MII Sync",
-      "properties": {
-        "host": {
-          "type": "string",
-          "default": "x.x.x.x",
-          "description": "IP of host mii."
-        },
-        "port": {
-          "type": "integer",
-          "default": "50000",
-          "description": "port of host mii."
-        },
-        "username": {
-          "type": "string",
-          "default": "x.y",
-          "description": "username that you login to mii."
-        },
-        "password": {
-          "type": ["string"],
-          "default": "x",
-          "description": "password that you login to mii."
-        }
+    "jsonValidation": [
+      {
+        "fileMatch": "/miisync.json",
+        "url": "./schema/schema.json"
       }
-    }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -53,9 +37,10 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@types/fs-extra": "^11.0.1",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
-    "@types/node": "16.x",
+    "@types/node": "^18.15.11",
     "@types/vscode": "^1.77.0",
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",
@@ -66,6 +51,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
+    "joi": "^17.9.1",
     "node-fetch": "^3.3.1"
   }
 }
