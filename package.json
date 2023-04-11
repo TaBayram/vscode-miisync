@@ -1,26 +1,43 @@
 {
   "name": "miisync",
-  "displayName": "MIISync",
-  "description": "",
+  "displayName": "MII Sync",
+  "description": "Sync projects in MII server",
   "publisher": "TaBayramNTT",
-  "author": {"name": "TaBayramNTT","url": "https://github.com/TaBayramNTT"},
-  "repository": {"url": "https://github.com/TaBayramNTT/miisync", "type": "github"},
-  "version": "0.0.1",
+  "author": {
+    "name": "TaBayramNTT",
+    "url": "https://github.com/TaBayramNTT"
+  },
+  "repository": {
+    "url": "https://github.com/TaBayramNTT/miisync",
+    "type": "github"
+  },
+  "icon": "resources/icon.png",
+  "version": "0.1.0",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onStartupFinished"
+  "keywords": [
+    "sync",
+    "remote",
+    "mii",
+    "workbench",
+    "ntt"
   ],
-  "main": "./out/extension.js",
+  "activationEvents": [
+    "onStartupFinished",
+    "workspaceContains:.vscode/miisync.json"
+  ],
+  "main": "./out/main.js",
   "contributes": {
     "commands": [
       {
-        "command": "miisync.helloWorld",
-        "title": "Hello World"
+        "command": "miisync.createconfig",
+        "title": "Create Config",
+        "category": "MIISYNC"
       }
     ],
     "jsonValidation": [
@@ -31,11 +48,15 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run esbuild-base -- --minify",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
+    "esbuild": "npm run esbuild-base -- --sourcemap",
+    "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+    "test-compile": "tsc -p ./",
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
@@ -47,6 +68,7 @@
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",
     "@vscode/test-electron": "^2.3.0",
+    "esbuild": "^0.17.16",
     "eslint": "^8.36.0",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
@@ -54,6 +76,6 @@
   },
   "dependencies": {
     "joi": "^17.9.1",
-    "node-fetch": "^3.3.1"
+    "node-fetch": "^2.6.9"
   }
 }
