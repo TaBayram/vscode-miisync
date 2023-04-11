@@ -1,20 +1,24 @@
+
 # miisync README
 
 This extension should sync the file in mii workbench with local file whenever you save it
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+ - Saves your file to the MII server.
+ - If the file doesn't exist it also creates it.
 
-For example if there is an image subfolder under your extension project workspace:
+## Planned Features
 
-\!\[feature X\]\(images/feature-x.png\)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+ 1. Retrieving files/folders
+ 2. Add 'ignore' property to ignore certain files.
+ 3. Option to toggle auto sync when a file is saved.
+ 4. Sync file with command.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+Visual Studio Code
 
 ## Extension Settings
 
