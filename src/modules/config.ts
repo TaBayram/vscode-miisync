@@ -2,19 +2,21 @@ import * as vscode from 'vscode';
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as Joi from 'joi';
-import { CONFIG_PATH } from '../constants';
-import { showTextDocument } from './vscode';
+import { CONFIG_PATH, EXTENSION_NAME } from '../constants';
+import { getWorkspaceFolders, showTextDocument } from './vscode';
 
 const nullable = schema => schema.optional().allow(null);
 
 const configScheme = Joi.object({
-    context: Joi.string(),
+    context: Joi.string().required(),
     removeFromContext: Joi.array<string>(),
-    remotePath: Joi.string(),
-    host: Joi.string().required(),
-    port: Joi.number().integer(),
+    remotePath: Joi.string().required(),
+    host: Joi.string().required().required(),
+    port: Joi.number().integer().required(),
     username: Joi.string().required(),
-    password: nullable(Joi.string()),
+    password: Joi.string().required(),
+    syncOnSave: Joi.boolean(),
+    ignore: Joi.array<string>()
 });
 
 export interface UserConfig {
@@ -25,7 +27,25 @@ export interface UserConfig {
     port: number,
     username: string,
     password: string,
+    syncOnSave: boolean,
+    ignore: string[],
 }
+
+function GetWorkspaceConfig(): UserConfig {
+    const conf = vscode.workspace.getConfiguration(EXTENSION_NAME);
+    return {
+        host: conf.get("host", "localhost"),
+        port: conf.get("port", 22),
+        username: conf.get("username", "username"),
+        password: conf.get("password", '1234'),
+        context: conf.get("context", '/'),
+        removeFromContext: conf.get("removeFromContext", ['webapp']),
+        remotePath: conf.get("remotePath", '/'),
+        syncOnSave: true,
+        ignore: conf.get('ignore', ['package.json', 'package-lock.json', 'tsconfig.json', '.*'])
+    }
+}
+
 
 const defaultConfig = {
 
@@ -70,6 +90,13 @@ export function tryLoadConfigs(workspace): Promise<any[]> {
     );
 }
 
+export async function LoadUserConfig(): Promise<UserConfig> {
+    const configs = await tryLoadConfigs(getWorkspaceFolders()[0].uri.fsPath);
+    if (configs && configs.length != 0 && configs)
+        return configs[0];
+    return null;
+}
+
 // export function getConfig(activityPath: string) {
 //   const config = configTrie.findPrefix(normalizePath(activityPath));
 //   if (!config) {
@@ -78,6 +105,8 @@ export function tryLoadConfigs(workspace): Promise<any[]> {
 
 //   return normalizeConfig(config);
 // }
+
+
 
 export function newConfig(basePath) {
     const configPath = getConfigPath(basePath);
@@ -88,22 +117,19 @@ export function newConfig(basePath) {
             if (exist) {
                 return showTextDocument(vscode.Uri.file(configPath));
             }
-
             return fse
                 .outputJson(
                     configPath,
-                    {
-                        host: 'localhost',
-                        port: 22,
-                        username: 'username',
-                        password: '',
-                        context: '/',
-                        removeFromContext: ['webapp'],
-                        remotePath: '/',
-                    },
+                    GetWorkspaceConfig(),
                     { spaces: 4 }
                 )
                 .then(() => showTextDocument(vscode.Uri.file(configPath)));
         })
         .catch(console.error);
+}
+
+
+export function updateConfig(userConfig: UserConfig,basePath) {
+    const configPath = getConfigPath(basePath);
+    fse.outputJson(configPath, userConfig, { spaces: 4 });
 }

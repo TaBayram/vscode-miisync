@@ -12,7 +12,7 @@
     "type": "github"
   },
   "icon": "resources/icon.png",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -37,7 +37,22 @@
       {
         "command": "miisync.createconfig",
         "title": "Create Config",
-        "category": "MIISYNC"
+        "category": "mii"
+      },
+      {
+        "command": "miisync.disablesyncsave",
+        "title": "Disable Sync Save",
+        "category": "mii"
+      },
+      {
+        "command": "miisync.enablesyncsave",
+        "title": "Enable Sync Save",
+        "category": "mii"
+      },
+      {
+        "command": "miisync.syncfile",
+        "title": "Sync Current File",
+        "category": "mii"
       }
     ],
     "jsonValidation": [
@@ -45,7 +60,57 @@
         "fileMatch": "/miisync.json",
         "url": "./schema/schema.json"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "MII Sync",
+      "properties": {
+        "host": {
+          "type": "string",
+          "default": "10.20.30.40",
+          "description": "IP of the target MII system."
+        },
+        "port": {
+          "type": "number",
+          "default": 50000,
+          "description": "Port of the target MII system."
+        },
+        "username": {
+          "type": "string",
+          "default": "x-name",
+          "description": ""
+        },
+        "password": {
+          "type": "string",
+          "default": "1234",
+          "description": ""
+        },
+        "context": {
+          "type": "string",
+          "default": "1234",
+          "description": "starting folder name to send"
+        },
+        "removeFromContext": {
+          "type": "array",
+          "default": "",
+          "items": {
+            "type": "string"
+          },
+          "description": "any folder that is between file name and context that you want to remove"
+        },
+        "remotePath": {
+          "type": "string",
+          "default": "/",
+          "description": "path of the target system"
+        },
+        "syncOnSave": {
+          "type": "boolean",
+          "default": true
+        },
+        "ignore": {
+          "type": "boolean"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run esbuild-base -- --minify",
@@ -53,11 +118,11 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
-    "test-compile": "tsc -p ./",
-    "test": "node ./out/test/runTest.js"
+    "test-compile": "tsc -p ./"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.1",

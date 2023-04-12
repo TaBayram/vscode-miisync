@@ -30,6 +30,12 @@
         "remotePath": {
             "type": "string",
             "description": "path of the target system \n Example: localFile: x/y/c/zz/controller/main.controller.js \n remoteFile: y/c/controller/main.controller.js \n "
+        },
+        "ignore": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
         }
     }
 }
