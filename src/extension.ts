@@ -1,31 +1,25 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { config } from './commands/commandConfig';
 import statusBar, { Icon, activateBar } from './ui/statusbar';
-import { OnCommandDisableSyncSave, OnCommandEnableSyncSave, OnCommandSyncFile, OnDidSaveTextDocument } from './extension/event';
+import { OnDidSaveTextDocument } from './extension/events';
 import { LoadUserConfig, UserConfig } from './modules/config';
+import { OnCommandCreateConfig } from './commands/commandconfig';
+import { OnCommandSyncFile } from './commands/commandsync';
+import { OnCommandDisableSyncSave, OnCommandEnableSyncSave } from './commands/commandtogglesync';
+import { OnCommandOpenScreen } from './commands/commandopenscreen';
 
 
 export function activate(context: vscode.ExtensionContext) {
 	activateBar(context);
 
-	let disposable = vscode.commands.registerCommand('miisync.createconfig', config);
-	context.subscriptions.push(disposable);
+	RegisterCommand('miisync.createconfig', OnCommandCreateConfig, context);
+	RegisterCommand('miisync.disablesyncsave', OnCommandDisableSyncSave, context);
+	RegisterCommand('miisync.enablesyncsave', OnCommandEnableSyncSave, context);
+	RegisterCommand('miisync.syncfile', OnCommandSyncFile, context);
+	RegisterCommand('miisync.openscreen', OnCommandOpenScreen, context);
 
-	disposable = vscode.commands.registerCommand('miisync.disablesyncsave', OnCommandDisableSyncSave);
-	context.subscriptions.push(disposable);
-
-	disposable = vscode.commands.registerCommand('miisync.enablesyncsave', OnCommandEnableSyncSave);
-	context.subscriptions.push(disposable);
-
-	disposable = vscode.commands.registerCommand('miisync.syncfile', OnCommandSyncFile);
-	context.subscriptions.push(disposable);
-
-
-	disposable = vscode.workspace.onDidSaveTextDocument(OnDidSaveTextDocument);
-
-	context.subscriptions.push(disposable);	
+	context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(OnDidSaveTextDocument));	
 
 	LoadUserConfig().then((value:UserConfig)=>{
 		if(value && value.syncOnSave){
@@ -41,5 +35,11 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() { 
 
 	
+}
+
+
+
+function RegisterCommand(command: string, callback: (...args: any[])=>any, {subscriptions}: vscode.ExtensionContext){
+	subscriptions.push(vscode.commands.registerCommand(command, callback));
 }
 

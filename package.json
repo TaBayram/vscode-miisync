@@ -52,6 +52,12 @@
       {
         "command": "miisync.syncfile",
         "title": "Sync Current File",
+        "category": "mii",
+        "enablement": "editorIsOpen"
+      },
+      {
+        "command": "miisync.openscreen",
+        "title": "Open Current Screen",
         "category": "mii"
       }
     ],
@@ -91,7 +97,9 @@
         },
         "removeFromContext": {
           "type": "array",
-          "default": "",
+          "default": [
+            "webapp"
+          ],
           "items": {
             "type": "string"
           },
@@ -107,7 +115,14 @@
           "default": true
         },
         "ignore": {
-          "type": "boolean"
+          "type": "array",
+          "default": [
+            ""
+          ],
+          "items": {
+            "type": "string"
+          },
+          "description": "files to ignore"
         }
       }
     }

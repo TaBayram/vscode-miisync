@@ -4,7 +4,7 @@ export function getWorkspaceFolders() {
     return vscode.workspace.workspaceFolders;
 }
 
-export function GetCurrentWorkspaceFolderUri(){
+export function GetCurrentWorkspaceFolderUri() {
     return getWorkspaceFolders()[0].uri;
 }
 
@@ -35,6 +35,7 @@ export function getActiveTextEditor() {
 export function getOpenTextDocuments(): readonly vscode.TextDocument[] {
     return vscode.workspace.textDocuments;
 }
+
 
 export async function showConfirmMessage(
     message: string,

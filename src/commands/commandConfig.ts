@@ -2,7 +2,7 @@ import { newConfig } from "../modules/config";
 import * as vscode from 'vscode';
 import { addWorkspaceFolder, getWorkspaceFolders, openFolder, showConfirmMessage, showOpenDialog } from "../modules/vscode";
 
-export async function config() {
+export async function OnCommandCreateConfig() {
     const workspaceFolders = getWorkspaceFolders();
     if (!workspaceFolders) {
         const result = await showConfirmMessage(
@@ -10,11 +10,9 @@ export async function config() {
             'Open Folder',
             'Ok'
         );
-
         if (!result) {
             return;
         }
-
         return openFolder();
     }
     if (workspaceFolders.length <= 0) {
@@ -23,17 +21,14 @@ export async function config() {
             'Add Folder to Workspace',
             'Ok'
         );
-
         if (!result) {
             return;
         }
-
         const resources = await showOpenDialog({
             canSelectFiles: false,
             canSelectFolders: true,
             canSelectMany: true,
         });
-
         if (!resources) {
             return;
         }
@@ -61,7 +56,6 @@ export async function config() {
             if (item === undefined) {
                 return;
             }
-
             newConfig(item.value);
         });
 }

@@ -9,6 +9,7 @@ This extension should sync the file in mii workbench with local file whenever yo
  - If the file doesn't exist it also creates it.
  - Option to toggle auto sync when a file is saved.
  - Sync file with command.
+ - Open screen with command.
 
 ## Planned Features
 
