@@ -12,7 +12,7 @@
     "type": "github"
   },
   "icon": "resources/icon.png",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -28,7 +28,6 @@
     "ntt"
   ],
   "activationEvents": [
-    "onStartupFinished",
     "workspaceContains:.vscode/miisync.json"
   ],
   "main": "./out/main.js",
