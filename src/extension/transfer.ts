@@ -16,7 +16,7 @@ export async function SyncFile(document: TextDocument, userConfig: UserConfig) {
     const validationError = validateConfig(userConfig);
     if (validationError) {
         logger.error(validationError.message)
-        throw new Error(`Config validation fail: ${validationError.message}.`);
+        return;
     }
     if (!ValidatePath(filePath, userConfig)) return;
     const sourcePath = GetRemotePath(filePath, userConfig);

@@ -16,7 +16,9 @@ const configScheme = Joi.object({
     username: Joi.string().required(),
     password: Joi.string().required(),
     syncOnSave: Joi.boolean(),
-    ignore: Joi.array<string>()
+    ignore: Joi.array<string>(),
+    rootConfig: Joi.string(),
+    useRootConfig: Joi.boolean()
 });
 
 export interface UserConfig {
@@ -29,6 +31,8 @@ export interface UserConfig {
     password: string,
     syncOnSave: boolean,
     ignore: string[],
+    useRootConfig: boolean,
+    rootConfig: string,
 }
 
 function GetWorkspaceConfig(): UserConfig {
@@ -42,7 +46,9 @@ function GetWorkspaceConfig(): UserConfig {
         removeFromContext: conf.get("removeFromContext", ['webapp']),
         remotePath: conf.get("remotePath", '/'),
         syncOnSave: true,
-        ignore: conf.get('ignore', ['package.json', 'package-lock.json', 'tsconfig.json', '.*'])
+        ignore: conf.get('ignore', ['package.json', 'package-lock.json', 'tsconfig.json', '.*']),
+        useRootConfig: conf.get('useRootConfig', false),
+        rootConfig: conf.get('rootConfig', '')
     }
 }
 
@@ -90,10 +96,18 @@ export function tryLoadConfigs(workspace): Promise<any[]> {
     );
 }
 
-export async function LoadUserConfig(): Promise<UserConfig> {
-    const configs = await tryLoadConfigs(getWorkspaceFolders()[0].uri.fsPath);
-    if (configs && configs.length != 0 && configs)
-        return configs[0];
+export async function LoadUserConfig(fsPath?: string): Promise<UserConfig> {
+    fsPath = fsPath ? fsPath : getWorkspaceFolders()[0].uri.fsPath;
+    let configs = await tryLoadConfigs(fsPath);
+    if (configs && configs.length != 0 && configs) {
+        let userConfig: UserConfig = configs[0];
+        if (userConfig.useRootConfig && path.relative(userConfig.rootConfig, fsPath).trim() != '') {
+            let parentConfig = await LoadUserConfig(path.resolve(fsPath, userConfig.rootConfig));
+            if (parentConfig)
+                return parentConfig;
+        }
+        return userConfig;
+    }
     return null;
 }
 
@@ -129,7 +143,7 @@ export function newConfig(basePath) {
 }
 
 
-export function updateConfig(userConfig: UserConfig,basePath) {
+export function updateConfig(userConfig: UserConfig, basePath) {
     const configPath = getConfigPath(basePath);
     fse.outputJson(configPath, userConfig, { spaces: 4 });
 }

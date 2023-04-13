@@ -10,6 +10,7 @@ This extension should sync the file in mii workbench with local file whenever yo
  - Option to toggle auto sync when a file is saved.
  - Sync file with command.
  - Open screen with command.
+ - One miisync.json to rule them all
 
 ## Planned Features
 
@@ -17,6 +18,8 @@ This extension should sync the file in mii workbench with local file whenever yo
  1. Retrieving files/folders
  2. Add 'ignore' property to ignore certain files. (the current state matches file name only)
  3. Confirmation on file creating when syncing 
+ 4. Min status text time (stack )
+ 
 
 
 ## Requirements

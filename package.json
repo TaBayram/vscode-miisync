@@ -12,7 +12,7 @@
     "type": "github"
   },
   "icon": "resources/icon.png",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -30,7 +30,7 @@
   "activationEvents": [
     "workspaceContains:.vscode/miisync.json"
   ],
-  "main": "./out/main.js",
+  "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
@@ -69,6 +69,16 @@
     "configuration": {
       "title": "MII Sync",
       "properties": {
+        "useRootConfig": {
+          "type": "boolean",
+          "default": false,
+          "description": "Gets the config from specified miisync.json file."
+        },
+        "rootConfig": {
+          "type": "string",
+          "default": "10.20.30.40",
+          "description": "Gets the config from specified miisync.json file."
+        },
         "host": {
           "type": "string",
           "default": "10.20.30.40",
@@ -133,7 +143,7 @@
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
     "test-compile": "tsc -p ./"

@@ -11,12 +11,12 @@ export interface ILogger {
 }
 
 export class Logger implements ILogger {
-    isVisible: false;
+    isVisible: boolean = false;
     outputChannel: vscode.OutputChannel;
 
     constructor() {
         this.outputChannel = vscode.window.createOutputChannel(EXTENSION_NAME);
-        this.outputChannel.show(false);
+        this.outputChannel.show(true);
     }
 
     info(message: string, ...args: any[]): void {

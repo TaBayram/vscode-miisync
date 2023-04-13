@@ -36,6 +36,14 @@
             "items": {
                 "type": "string"
             }
+        },
+        "useRootConfig": {
+            "type": "boolean",
+            "description": "Enables use of root config."
+        },
+        "rootConfig": {
+            "type": "string",
+            "description": "Gets the config from other miisync.json file. Can be relative or absolute path. \nMust point to where .vscode is located"
         }
     }
 }
