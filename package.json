@@ -49,8 +49,8 @@
         "category": "mii"
       },
       {
-        "command": "miisync.syncfile",
-        "title": "Sync Current File",
+        "command": "miisync.uploadfile",
+        "title": "Upload Current File",
         "category": "mii",
         "enablement": "editorIsOpen"
       },
@@ -119,7 +119,7 @@
           "default": "/",
           "description": "path of the target system"
         },
-        "syncOnSave": {
+        "uploadOnSave": {
           "type": "boolean",
           "default": true
         },
@@ -164,6 +164,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
+    "fast-xml-parser": "^4.2.0",
     "joi": "^17.9.1",
     "node-fetch": "^2.6.9"
   }

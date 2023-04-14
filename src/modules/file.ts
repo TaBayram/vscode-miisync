@@ -1,15 +1,23 @@
 import path = require("path");
 import { UserConfig } from "./config";
-import { exists, existsSync, lstat, lstatSync, readdir, readdirSync } from "fs-extra";
+import { exists, lstat, readdir } from "fs-extra";
 import logger from "../ui/logger";
+import '../extends/string';
 
+export function InsertWeb(path: string) {
+    const web = "/WEB";
+    const index = path.indexOf('/');
+    return path.splice(index != -1 ? index : path.length, 0, web);
+}
 
-export function GetRemotePath(filePath: string, userConfig: UserConfig) {
-    let sourcePath = filePath.substring(filePath.indexOf(userConfig.context));
-    for (const remove of userConfig.removeFromContext) {
+export function GetRemotePath(filePath: string, { remotePath, context, removeFromContext }: UserConfig, addWeb = true) {
+    let sourcePath = filePath.substring(filePath.indexOf(context));
+    for (const remove of removeFromContext) {
         sourcePath = sourcePath.replace(remove + path.sep, '');
     }
-    return (userConfig.remotePath + path.sep + sourcePath).replaceAll(path.sep, '/');
+    sourcePath = sourcePath.length != 0 ? path.sep + sourcePath : sourcePath;
+    const startPath = addWeb ? InsertWeb(remotePath) : remotePath;
+    return (startPath + sourcePath).replaceAll(path.sep, '/');
 }
 
 export function ValidatePath(filePath: string, userConfig: UserConfig): boolean {
@@ -18,8 +26,10 @@ export function ValidatePath(filePath: string, userConfig: UserConfig): boolean 
 
     if (filePath.indexOf(userConfig.context) == -1 ||
         userConfig.ignore.findIndex((value) => value.toLocaleLowerCase() == fileName.toLocaleLowerCase()) != -1 ||
-        firstFolderName.startsWith('.'))
+        firstFolderName.startsWith('.')) {
+        logger.error('path not valid');
         return false;
+    }
 
 
     logger.info('path validated');

@@ -18,7 +18,7 @@ This extension should sync the file in mii workbench with local file whenever yo
  1. Retrieving files/folders
  2. Add 'ignore' property to ignore certain files. (the current state matches file name only)
  3. Confirmation on file creating when syncing 
- 4. Min status text time (stack )
+ 5. Get created time & updated time
  
 
 

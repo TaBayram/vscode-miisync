@@ -13,15 +13,20 @@ export enum Icon {
 }
 
 export interface StatusOptions {
+    immediate?: boolean,
     duration?: number
 }
 
 class StatusBar {
-
     private bar: vscode.StatusBarItem;
     private text: string = EXTENSION_NAME;
     private icon: Icon = Icon.testingUnset;
 
+    public defaultIcon: Icon = Icon.testingUnset;
+
+    private readonly minDuration = 1;
+    private timeout: NodeJS.Timeout;
+    private stack: { text: string, icon: Icon, duration: number }[] = [];
 
     public set Text(text: string) {
         this.text = text.trim();
@@ -43,19 +48,37 @@ class StatusBar {
 
 
     public updateBar(text: string, icon: Icon, options?: StatusOptions) {
-        this.Text = text;
-        this.Icon = icon;
+        let dur = 0;
         if (options) {
-            if (options.duration) {
-                setTimeout(()=> this.default(), options.duration * 1000)
+            if (options.immediate) {
+                clearTimeout(this.timeout);
+                this.timeout = null;
+                this.stack = [];
             }
+            dur = options.duration || 0;
         }
+
+        this.stack.push({ text: text.trim(), icon: icon, duration: dur });
+        if (!this.timeout) this.popStack();
     }
 
+    private popStack() {
+        if (this.stack.length == 0) {
+            clearTimeout(this.timeout);
+            this.timeout = null;
+            this.default();
+            return;
+        }
+        const item = this.stack.splice(0, 1)[0];
+        this.text = item.text;
+        this.Icon = item.icon;
+        this.timeout = setTimeout(() => this.popStack(), Math.max(this.minDuration * 1000 * (1 - this.stack.length / 50), item.duration))
+
+    }
 
     private default() {
         this.Text = EXTENSION_NAME;
-        this.Icon = Icon.syncEnabled;
+        this.Icon = this.defaultIcon;
     }
 
     private update() {

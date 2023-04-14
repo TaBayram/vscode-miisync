@@ -5,7 +5,7 @@ import statusBar, { Icon, activateBar } from './ui/statusbar';
 import { OnDidSaveTextDocument } from './extension/events';
 import { LoadUserConfig, UserConfig } from './modules/config';
 import { OnCommandCreateConfig } from './commands/commandconfig';
-import { OnCommandSyncFile } from './commands/commandsync';
+import { OnCommandUploadFile } from './commands/commandupload';
 import { OnCommandDisableSyncSave, OnCommandEnableSyncSave } from './commands/commandtogglesync';
 import { OnCommandOpenScreen } from './commands/commandopenscreen';
 
@@ -16,17 +16,19 @@ export function activate(context: vscode.ExtensionContext) {
 	RegisterCommand('miisync.createconfig', OnCommandCreateConfig, context);
 	RegisterCommand('miisync.disablesyncsave', OnCommandDisableSyncSave, context);
 	RegisterCommand('miisync.enablesyncsave', OnCommandEnableSyncSave, context);
-	RegisterCommand('miisync.syncfile', OnCommandSyncFile, context);
+	RegisterCommand('miisync.uploadfile', OnCommandUploadFile, context);
 	RegisterCommand('miisync.openscreen', OnCommandOpenScreen, context);
 
 	context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(OnDidSaveTextDocument));	
 
 	LoadUserConfig().then((value:UserConfig)=>{
-		if(value && value.syncOnSave){
+		if(value && value.uploadOnSave){
 			statusBar.Icon = Icon.syncEnabled
+			statusBar.defaultIcon = Icon.syncEnabled;
 		}
 		else{
 			statusBar.Icon = Icon.syncDisabled;
+			statusBar.defaultIcon = Icon.syncDisabled;
 		}
 	});
 }

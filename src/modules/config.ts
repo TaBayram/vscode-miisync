@@ -15,7 +15,7 @@ const configScheme = Joi.object({
     port: Joi.number().integer().required(),
     username: Joi.string().required(),
     password: Joi.string().required(),
-    syncOnSave: Joi.boolean(),
+    uploadOnSave: Joi.boolean(),
     ignore: Joi.array<string>(),
     rootConfig: Joi.string(),
     useRootConfig: Joi.boolean()
@@ -29,7 +29,7 @@ export interface UserConfig {
     port: number,
     username: string,
     password: string,
-    syncOnSave: boolean,
+    uploadOnSave: boolean,
     ignore: string[],
     useRootConfig: boolean,
     rootConfig: string,
@@ -45,7 +45,7 @@ function GetWorkspaceConfig(): UserConfig {
         context: conf.get("context", '/'),
         removeFromContext: conf.get("removeFromContext", ['webapp']),
         remotePath: conf.get("remotePath", '/'),
-        syncOnSave: true,
+        uploadOnSave: true,
         ignore: conf.get('ignore', ['package.json', 'package-lock.json', 'tsconfig.json', '.*']),
         useRootConfig: conf.get('useRootConfig', false),
         rootConfig: conf.get('rootConfig', '')
