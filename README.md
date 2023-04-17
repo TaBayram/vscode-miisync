@@ -11,14 +11,13 @@ This extension should sync the file in mii workbench with local file whenever yo
  - Sync file with command.
  - Open screen with command.
  - One miisync.json to rule them all
+ - Confirmation on file creating when saving
 
 ## Planned Features
 
-
  1. Retrieving files/folders
  2. Add 'ignore' property to ignore certain files. (the current state matches file name only)
- 3. Confirmation on file creating when syncing 
- 5. Get created time & updated time
+ 4. Get created time & updated time
  
 
 

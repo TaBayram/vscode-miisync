@@ -12,6 +12,10 @@ export function openFolder(uri?: vscode.Uri, newWindow?: boolean) {
     vscode.commands.executeCommand('vscode.openFolder', uri, newWindow);
 }
 
+export function openLink(url: string){
+    vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(url));
+}
+
 export function addWorkspaceFolder(...workspaceFoldersToAdd: { uri: vscode.Uri; name?: string }[]) {
     return vscode.workspace.updateWorkspaceFolders(0, 0, ...workspaceFoldersToAdd);
 }
@@ -48,5 +52,12 @@ export async function showConfirmMessage(
         { title: cancelLabel }
     );
 
-    return Boolean(result && result.title === confirmLabel);
+    return (result && result.title === confirmLabel);
+}
+
+export async function showInputBox(
+    options?: vscode.InputBoxOptions,
+    token?: vscode.CancellationToken
+) {
+    return await vscode.window.showInputBox(options, token    );
 }

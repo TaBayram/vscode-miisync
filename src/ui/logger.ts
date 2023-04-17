@@ -28,6 +28,9 @@ export class Logger implements ILogger {
     error(message: string | Error, ...args: any[]): void {
         this.log('[error]', message, ...args);
     }
+    failure(message: string | Error, ...args: any[]): void{
+        this.log('[failure]', message, ...args);
+    }
 
     log(message: string, ...args: any[]) {
         const now = new Date();

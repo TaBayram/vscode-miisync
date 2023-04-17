@@ -1,27 +1,26 @@
 import path = require("path");
-import { UserConfig, validateConfig } from "../modules/config";
-import statusBar, { Icon } from "../ui/statusbar";
 import { TextDocument } from "vscode";
-import fetch from 'node-fetch';
+import { readFilePropertiesService } from "../miiservice/readfilepropertiesservice";
+import { UserConfig, validateConfig } from "../modules/config";
+import { GetRemotePath, ValidatePath } from "../modules/file";
+import { showConfirmMessage, showInputBox } from "../modules/vscode";
 import logger from "../ui/logger";
-import { GetRemotePath, InsertWeb, ValidatePath } from "../modules/file";
-import { getFileService, listFoldersService, saveFileService } from "../modules/miiservice";
-import { XMLParser } from "fast-xml-parser";
+import statusBar, { Icon } from "../ui/statusbar";
+import { listFoldersService } from "../miiservice/listfoldersservice";
+import { saveFileService } from "../miiservice/savefileservice";
 
 async function ValidateContext(userConfig: UserConfig, auth: string) {
     let folderPath = GetRemotePath("", userConfig);
-    const url = listFoldersService.get(userConfig.host, userConfig.port, folderPath);
-
-    const data = await SimpleFetch("Validate Context", url, { auth: auth });
-    const parser = new XMLParser({
-        ignoreAttributes: false, isArray(tagName, jPath, isLeafNode, isAttribute) {
-            return tagName == "Row";
-        },
-    });
-    let folders = parser.parse(data);
+    const folders = await listFoldersService.call({ host: userConfig.host, port: userConfig.port, options: { auth: auth } }, folderPath);
     return folders?.Rowsets?.Rowset?.Row?.length > 0;
 }
 
+async function FileExists(remoteFilePath: string, { host, port }: UserConfig, auth: string) {
+    const file = await readFilePropertiesService.call({ host: host, port: port, options: { auth: auth } }, remoteFilePath);
+    return file?.Rowsets?.Rowset?.Row?.length > 0;
+}
+
+let gPassword: string;
 
 export async function UploadFile(document: TextDocument, userConfig: UserConfig) {
     const filePath = document.fileName;
@@ -33,7 +32,22 @@ export async function UploadFile(document: TextDocument, userConfig: UserConfig)
     if (!ValidatePath(filePath, userConfig)) return;
     const fileName = filePath.substring(filePath.lastIndexOf(path.sep)).replace(path.sep, '');
     const sourcePath = GetRemotePath(filePath, userConfig);
-    const url = saveFileService.get(userConfig.host, userConfig.port, sourcePath);
+
+    if (!userConfig.password?.trim().length && !gPassword) {
+        const password = await showInputBox({ password: true, placeHolder: "Enter Password", title: "Password" });
+        if (password) {
+            userConfig.password = password;
+            gPassword = password;
+        }
+        else {
+            logger.info("No password given")
+            return;
+        }
+    }
+    else if(gPassword){
+        userConfig.password = gPassword;
+    }
+
 
     const auth = encodeURIComponent(Buffer.from(userConfig.username + ":" + userConfig.password).toString('base64'));
     const base64Content = encodeURIComponent(Buffer.from(document.getText() || " ").toString('base64'));
@@ -41,40 +55,13 @@ export async function UploadFile(document: TextDocument, userConfig: UserConfig)
         logger.error("Context doesn't exist");
         return;
     }
+    if (!await FileExists(sourcePath, userConfig, auth) &&
+        !await showConfirmMessage("File does not exists. Do you want to create it?")) {
+        return;
+    }
+
 
     statusBar.updateBar('Sending', Icon.spinLoading);
-    await SimpleFetch("Upload File", url, { body: "Content=" + base64Content, auth })
+    await saveFileService.call({ host: userConfig.host, port: userConfig.port, options: { auth: auth, body: "Content=" + base64Content } }, sourcePath);
     statusBar.updateBar("Done " + fileName, Icon.success, { duration: 3 });
-}
-
-
-
-async function SimpleFetch(source: string, url: string, fetchProperties?: { body?: string, auth?: string }, callbacks?: { then?: (data: string) => any, catch?: (error: any) => any }) {
-    let headers = { "Content-Type": "application/x-www-form-urlencoded" }
-    if (fetchProperties?.auth)
-        headers["Authorization"] = 'Basic ' + fetchProperties?.auth;
-    const body = fetchProperties?.body ? fetchProperties.body : null;
-    return await fetch(url, {
-        method: "POST",
-        body,
-        headers
-    })
-        .then((response) => {
-            logger.info(source + ": " + response.status + "-" + response.statusText);
-            return response.text()
-        }).then((data) => {
-            if (callbacks?.then)
-                callbacks.then(data);
-            else
-                logger.info(source + ": " + data);
-
-            return data;
-        })
-        .catch((error) => {
-            if (callbacks?.catch)
-                callbacks.catch(error);
-            else
-                logger.error(source + ": " + error);
-            return error;
-        });
 }

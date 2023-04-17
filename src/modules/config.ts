@@ -14,7 +14,7 @@ const configScheme = Joi.object({
     host: Joi.string().required().required(),
     port: Joi.number().integer().required(),
     username: Joi.string().required(),
-    password: Joi.string().required(),
+    password: Joi.string(),
     uploadOnSave: Joi.boolean(),
     ignore: Joi.array<string>(),
     rootConfig: Joi.string(),
