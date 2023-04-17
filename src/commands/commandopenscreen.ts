@@ -4,7 +4,7 @@ import { FindFileInDir, GetRemotePath } from "../modules/file";
 import { GetCurrentWorkspaceFolderUri, getActiveTextEditor } from "../modules/vscode";
 import * as vscode from 'vscode';
 import path = require("path");
-import { openScreenService } from "../miiservice/OpenScreenService";
+import { openScreenService } from "../miiservice/openscreenservice";
 
 
 export async function OnCommandOpenScreen() {
@@ -13,7 +13,7 @@ export async function OnCommandOpenScreen() {
         const workspaceUri = GetCurrentWorkspaceFolderUri();
         const name = await FindFileInDir(workspaceUri.fsPath, 'index.html');
         if (!name) return;
-        const remotePath = GetRemotePath(name, userConfig);
+        const remotePath = GetRemotePath(name, userConfig, false);
         openScreenService.call({ host: userConfig.host, port: userConfig.port }, remotePath);
     }
 
