@@ -1,13 +1,13 @@
 import { pathExists } from "fs-extra";
 import { DownloadFile, UploadFile } from "../extension/transfer";
-import { LoadUserConfig } from "../modules/config";
 import { getActiveTextEditor } from "../modules/vscode";
 import logger from "../ui/logger";
 import { Uri } from "vscode";
+import { configManager } from "../modules/config";
 
 
 export async function OnCommandDownloadFile(uri: Uri) {
-    const userConfig = await LoadUserConfig();
+    const userConfig = await configManager.load();
     if (!userConfig) return;
 
     if (uri) {
@@ -29,7 +29,7 @@ export async function OnCommandDownloadFile(uri: Uri) {
 }
 
 export async function OnCommandDownloadFolder(uri: Uri) {
-    const userConfig = await LoadUserConfig();
+    const userConfig = await configManager.load();
     if (!userConfig) return;
 
     if (uri) {

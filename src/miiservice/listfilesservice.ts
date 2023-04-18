@@ -2,7 +2,8 @@ import logger from '../ui/logger';
 import { Service, Request } from './miiservice';
 import { GeneralColumn2, MII, Row } from './responsetypes';
 
-interface File extends Row {
+export interface File extends Row {
+    ITYPE: "File",
     ObjectName: string
     FilePath: string
     Type: string

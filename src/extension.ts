@@ -2,15 +2,15 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import statusBar, { Icon, activateBar } from './ui/statusbar';
-import { OnDidOpenTextDocument, OnDidSaveTextDocument } from './extension/events';
-import { LoadUserConfig, UserConfig } from './modules/config';
+import { OnDidChangeActiveTextEditor, OnDidOpenTextDocument, OnDidSaveTextDocument } from './extension/events';
+import { UserConfig, configManager } from './modules/config';
 import { OnCommandCreateConfig } from './commands/commandconfig';
 import { OnCommandUploadFile } from './commands/commandupload';
 import { OnCommandDisableSyncSave, OnCommandEnableSyncSave } from './commands/commandtogglesync';
 import { OnCommandOpenScreen } from './commands/commandopenscreen';
 import { setContextValue } from './modules/vscode';
-import { OnCommandDownloadFile } from './commands/commanddownload';
-import { activateTree } from './ui/treeproperties';
+import { OnCommandDownloadFile, OnCommandDownloadFolder } from './commands/commanddownload';
+import { activateTree } from './ui/viewtree';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -22,12 +22,14 @@ export function activate(context: vscode.ExtensionContext) {
 	RegisterCommand('miisync.enablesyncsave', OnCommandEnableSyncSave, context);
 	RegisterCommand('miisync.uploadfile', OnCommandUploadFile, context);
 	RegisterCommand('miisync.downloadfile', OnCommandDownloadFile, context);
+	RegisterCommand('miisync.downloadfolder', OnCommandDownloadFolder, context);
 	RegisterCommand('miisync.openscreen', OnCommandOpenScreen, context);
 
 	context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(OnDidSaveTextDocument));
-	context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(OnDidOpenTextDocument))
+	context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(OnDidOpenTextDocument));
+	context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(OnDidChangeActiveTextEditor));
 
-	LoadUserConfig().then((value:UserConfig)=>{
+	configManager.load().then((value:UserConfig)=>{
 		if(value?.uploadOnSave){
 			statusBar.Icon = Icon.syncEnabled
 			statusBar.defaultIcon = Icon.syncEnabled;
@@ -51,4 +53,5 @@ export function deactivate() {
 function RegisterCommand(command: string, callback: (...args: any[])=>any, {subscriptions}: vscode.ExtensionContext){
 	subscriptions.push(vscode.commands.registerCommand(command, callback));
 }
+
 

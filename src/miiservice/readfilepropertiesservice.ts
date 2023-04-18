@@ -1,5 +1,4 @@
 import logger from '../ui/logger';
-import fileProperties from '../ui/treeproperties';
 import { Service, Request } from './miiservice';
 import { GeneralColumn, GeneralColumn2, MII, Row } from './responsetypes';
 

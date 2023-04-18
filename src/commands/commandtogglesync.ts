@@ -1,25 +1,26 @@
 import { pathExists } from "fs-extra";
 import { UploadFile } from "../extension/transfer";
-import { LoadUserConfig, updateConfig } from "../modules/config";
+
 import { getCurrentWorkspaceFolderUri, getActiveTextEditor } from "../modules/vscode";
 import logger from "../ui/logger";
 import statusBar, { Icon } from "../ui/statusbar";
+import { configManager } from "../modules/config";
 
 export async function OnCommandEnableSyncSave() {
-    const userConfig = await LoadUserConfig();
+    const userConfig = await configManager.load();
     if (userConfig) {
         userConfig.uploadOnSave = true;
-        updateConfig(userConfig, getCurrentWorkspaceFolderUri().fsPath);
+        configManager.update(userConfig);
         statusBar.Icon = Icon.syncEnabled
         statusBar.defaultIcon = Icon.syncEnabled;
     }
 }
 
 export async function OnCommandDisableSyncSave() {
-    const userConfig = await LoadUserConfig();
+    const userConfig = await configManager.load();
     if (userConfig) {
         userConfig.uploadOnSave = false;
-        updateConfig(userConfig, getCurrentWorkspaceFolderUri().fsPath);
+        configManager.update(userConfig);
         statusBar.Icon = Icon.syncDisabled
         statusBar.defaultIcon = Icon.syncDisabled;
     }

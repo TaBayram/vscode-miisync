@@ -2,9 +2,11 @@ import { Root } from 'joi';
 import logger from '../ui/logger';
 import { Service, Request } from './miiservice';
 import { Column, GeneralColumn2, MII, Row } from './responsetypes';
+import { File } from './listfilesservice';
 
 
-interface Folder extends Row {
+export interface Folder extends Row {
+    ITYPE: "Folder",
     FolderName: string
     ParentFolderName: string
     Path: string
@@ -16,7 +18,8 @@ interface Folder extends Row {
     ChildFileCount: number
     RemotePath: string
     ComponentName: string
-    State: string
+    State: string,
+    children?: (File | Folder)[];
 }
 
 class ListFoldersService extends Service {

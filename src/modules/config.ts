@@ -22,17 +22,17 @@ const configScheme = Joi.object({
 });
 
 export interface UserConfig {
-    context: string,
-    removeFromContext: string[],
-    remotePath: string,
-    host: string,
-    port: number,
-    username: string,
-    password: string,
-    uploadOnSave: boolean,
-    ignore: string[],
-    useRootConfig: boolean,
-    rootConfig: string,
+    context?: string,
+    removeFromContext?: string[],
+    remotePath?: string,
+    host?: string,
+    port?: number,
+    username?: string,
+    password?: string,
+    uploadOnSave?: boolean,
+    ignore?: string[],
+    useRootConfig?: boolean,
+    rootConfig?: string,
 }
 
 function GetWorkspaceConfig(): UserConfig {
@@ -52,10 +52,7 @@ function GetWorkspaceConfig(): UserConfig {
     }
 }
 
-
-const defaultConfig = {
-
-};
+const defaultConfig = {};
 
 function mergedDefault(config) {
     return {
@@ -68,22 +65,14 @@ function getConfigPath(basePath) {
     return path.join(basePath, CONFIG_PATH);
 }
 
-export function validateConfig(config) {
-    const { error } = configScheme.validate(config, {
-        allowUnknown: true,
-        convert: false,
-    });
-    return error;
-}
-
-export function readConfigsFromFile(configPath): Promise<any[]> {
+function readConfigsFromFile(configPath): Promise<any[]> {
     return fse.readJson(configPath).then(config => {
         const configs = Array.isArray(config) ? config : [config];
         return configs.map(mergedDefault);
     });
 }
 
-export function tryLoadConfigs(workspace): Promise<any[]> {
+function tryLoadConfigs(workspace): Promise<any[]> {
     const configPath = getConfigPath(workspace);
     return fse.pathExists(configPath).then(
         exist => {
@@ -95,31 +84,6 @@ export function tryLoadConfigs(workspace): Promise<any[]> {
         _ => []
     );
 }
-
-export async function LoadUserConfig(fsPath?: string): Promise<UserConfig> {
-    fsPath = fsPath ? fsPath : getWorkspaceFolders()[0].uri.fsPath;
-    let configs = await tryLoadConfigs(fsPath);
-    if (configs && configs.length != 0 && configs) {
-        let userConfig: UserConfig = configs[0];
-        if (userConfig.useRootConfig && path.relative(userConfig.rootConfig, fsPath).trim() != '') {
-            let parentConfig = await LoadUserConfig(path.resolve(fsPath, userConfig.rootConfig));
-            if (parentConfig)
-                return parentConfig;
-        }
-        return userConfig;
-    }
-    return null;
-}
-
-// export function getConfig(activityPath: string) {
-//   const config = configTrie.findPrefix(normalizePath(activityPath));
-//   if (!config) {
-//     throw new Error(`(${activityPath}) config file not found`);
-//   }
-
-//   return normalizeConfig(config);
-// }
-
 
 
 export function newConfig(basePath) {
@@ -143,7 +107,73 @@ export function newConfig(basePath) {
 }
 
 
-export function updateConfig(userConfig: UserConfig, basePath) {
-    const configPath = getConfigPath(basePath);
-    fse.outputJson(configPath, userConfig, { spaces: 4 });
+class ConfigManager {
+    private useRoot: boolean;
+    private rootfsPath: string;
+    private rootConfig: UserConfig;
+
+    private selffsPath: string;
+    private selfConfig: UserConfig;
+
+    get Config(){
+        return this.useRoot ? this.rootConfig : this.selfConfig;
+    }
+
+    constructor(){
+
+    }
+    validate() {
+        const { error } = configScheme.validate(this.Config, {
+            allowUnknown: true,
+            convert: false,
+        });
+        return error;
+    }
+
+
+    async load() {
+        this.selffsPath = getWorkspaceFolders()[0].uri.fsPath;
+        this.selfConfig = (await this.loadRoot(this.selffsPath, true)).config;
+        this.useRoot = false;
+        if (this.selfConfig.useRootConfig) {
+            const root = await this.loadRoot(this.selffsPath, false);
+            if (root) {
+                this.rootConfig = root.config;
+                this.rootfsPath = root.fsPath;
+                this.useRoot = true;
+                return root.config;
+            }
+        }
+        return this.selfConfig;
+    }
+
+    async update(config: UserConfig) {
+        if (!this.useRoot) {
+            this.selfConfig = config;
+            fse.outputJson(getConfigPath(this.selffsPath), config, { spaces: 4 });
+        }
+        else {
+            this.rootConfig = config;
+            fse.outputJson(getConfigPath(this.rootfsPath), config, { spaces: 4 });
+        }
+    }
+
+    private async loadRoot(fsPath: string, self: boolean): Promise<{ config: UserConfig, fsPath: string }> {
+        const configs = await tryLoadConfigs(fsPath);
+        if (configs?.length) {
+            const config: UserConfig = configs[0];
+            if (!self && config.useRootConfig && path.relative(config.rootConfig, fsPath).trim() != '') {
+                const parentConfig = await this.loadRoot(path.resolve(fsPath, config.rootConfig), false);
+                if (parentConfig) {
+                    return parentConfig;
+                }
+            }
+            return { config, fsPath };
+        }
+        return null;
+    }
 }
+
+
+
+export const configManager = new ConfigManager();

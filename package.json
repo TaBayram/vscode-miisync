@@ -12,7 +12,7 @@
     "type": "github"
   },
   "icon": "resources/icon.png",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -93,18 +93,23 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "miisync",
+          "id": "miisyncbar",
           "title": "Mii Sync",
-          "icon": "resources/icon.svg",
-          "when": "miisync.enabled" 
+          "icon": "resources/icon.svg"
         }
       ]
     },
     "views": {
-      "miisync": [
+      "miisyncbar": [
+        {
+          "id": "remotedirectory",
+          "name": "Remote Directory",
+          "when": "miisync.enabled"
+        },
         {
           "id": "fileproperties",
-          "name": "File Properties"
+          "name": "File Properties",
+          "when": "miisync.enabled"
         }
       ]
     },

@@ -14,6 +14,9 @@ export enum Icon {
 
 export interface StatusOptions {
     immediate?: boolean,
+    /**
+     * -1 if you want it to be replaced when other status comes
+     */
     duration?: number
 }
 
@@ -72,8 +75,13 @@ class StatusBar {
         const item = this.stack.splice(0, 1)[0];
         this.text = item.text;
         this.Icon = item.icon;
-        this.timeout = setTimeout(() => this.popStack(), Math.max(this.minDuration * 1000 * (1 - this.stack.length / 50), item.duration))
-
+        if(item.duration != -1){
+            this.timeout = setTimeout(() => this.popStack(), Math.max(this.minDuration * 1000 * (1 - this.stack.length / 50), item.duration))
+        }
+        else{
+            clearTimeout(this.timeout);
+            this.timeout = null;
+        }
     }
 
     private default() {

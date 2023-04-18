@@ -1,7 +1,7 @@
 import path = require("path");
 import { TextDocument, Uri } from "vscode";
 import { readFilePropertiesService } from "../miiservice/readfilepropertiesservice";
-import { UserConfig, validateConfig } from "../modules/config";
+import { UserConfig, configManager } from "../modules/config";
 import { GetRemotePath, ValidatePath } from "../modules/file";
 import { showConfirmMessage, showInputBox } from "../modules/vscode";
 import logger from "../ui/logger";
@@ -24,7 +24,7 @@ async function FileExists(remoteFilePath: string, { host, port }: UserConfig, au
 
 
 let gPassword: string;
-async function ValidatePassword(userConfig:UserConfig) {
+async function ValidatePassword(userConfig: UserConfig) {
     if (!userConfig.password?.trim().length && !gPassword) {
         const password = await showInputBox({ password: true, placeHolder: "Enter Password", title: "Password" });
         if (password) {
@@ -45,9 +45,9 @@ async function ValidatePassword(userConfig:UserConfig) {
 
 
 export async function UploadFile(document: TextDocument, userConfig: UserConfig) {
-    statusBar.updateBar('Checking', Icon.spinLoading);
+    statusBar.updateBar('Checking', Icon.spinLoading, { duration: -1 });
     const filePath = document.fileName;
-    const validationError = validateConfig(userConfig);
+    const validationError = configManager.validate();
     if (validationError) {
         logger.error(validationError.message)
         return;
@@ -56,7 +56,7 @@ export async function UploadFile(document: TextDocument, userConfig: UserConfig)
     const fileName = filePath.substring(filePath.lastIndexOf(path.sep)).replace(path.sep, '');
     const sourcePath = GetRemotePath(filePath, userConfig);
 
-    if(!ValidatePassword(userConfig)) return;
+    if (!ValidatePassword(userConfig)) return;
 
     const auth = encodeURIComponent(Buffer.from(userConfig.username + ":" + userConfig.password).toString('base64'));
     const base64Content = encodeURIComponent(Buffer.from(document.getText() || " ").toString('base64'));
@@ -77,9 +77,9 @@ export async function UploadFile(document: TextDocument, userConfig: UserConfig)
 
 
 export async function DownloadFile(uri: Uri, userConfig: UserConfig) {
-    statusBar.updateBar('Checking', Icon.spinLoading);
+    statusBar.updateBar('Checking', Icon.spinLoading, { duration: -1 });
     const filePath = uri.fsPath;
-    const validationError = validateConfig(userConfig);
+    const validationError = configManager.validate();
     if (validationError) {
         logger.error(validationError.message)
         return;
@@ -88,7 +88,7 @@ export async function DownloadFile(uri: Uri, userConfig: UserConfig) {
     const fileName = filePath.substring(filePath.lastIndexOf(path.sep)).replace(path.sep, '');
     const sourcePath = GetRemotePath(filePath, userConfig);
 
-    if(!ValidatePassword(userConfig)) return;
+    if (!ValidatePassword(userConfig)) return;
 
     const auth = encodeURIComponent(Buffer.from(userConfig.username + ":" + userConfig.password).toString('base64'));
     if (!await ValidateContext(userConfig, auth)) {
@@ -104,6 +104,6 @@ export async function DownloadFile(uri: Uri, userConfig: UserConfig) {
     statusBar.updateBar('Downloading', Icon.spinLoading);
     const file = await readFileService.call({ host: userConfig.host, port: userConfig.port, auth }, sourcePath);
     const payload = file.Rowsets.Rowset.Row.find((row) => row.Name == "Payload");
-    await writeFile(filePath, Buffer.from(payload.Value, 'base64'), {encoding:"utf8"})
+    await writeFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" })
     statusBar.updateBar("Done " + fileName, Icon.success, { duration: 3 });
 }
