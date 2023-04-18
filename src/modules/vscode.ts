@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
+import { EXTENSION_NAME } from '../constants';
 
 export function getWorkspaceFolders() {
     return vscode.workspace.workspaceFolders;
 }
 
-export function GetCurrentWorkspaceFolderUri() {
+export function getCurrentWorkspaceFolderUri() {
     return getWorkspaceFolders()[0].uri;
 }
 
@@ -12,7 +13,7 @@ export function openFolder(uri?: vscode.Uri, newWindow?: boolean) {
     vscode.commands.executeCommand('vscode.openFolder', uri, newWindow);
 }
 
-export function openLink(url: string){
+export function openLink(url: string) {
     vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(url));
 }
 
@@ -59,5 +60,16 @@ export async function showInputBox(
     options?: vscode.InputBoxOptions,
     token?: vscode.CancellationToken
 ) {
-    return await vscode.window.showInputBox(options, token    );
+    return await vscode.window.showInputBox(options, token);
 }
+
+
+export function executeCommand(command: string, ...rest: any[]): Thenable<any> {
+    return vscode.commands.executeCommand(command, ...rest);
+}
+
+export function setContextValue(key: string, value: any) {
+    executeCommand('setContext', EXTENSION_NAME + '.' + key, value);
+}
+
+

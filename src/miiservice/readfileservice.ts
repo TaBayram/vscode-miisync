@@ -9,14 +9,14 @@ interface FileBinary extends Row {
 
 class ReadFileService extends Service {
     name: string = "Get File";
-    mode: string = "XMII/Catalog?Mode=LoadBinary&Class=Content&TemporaryFile=false&Content-Type=text/json";
+    mode: string = "XMII/Catalog?Mode=LoadBinary&Class=Content&TemporaryFile=false&Content-Type=text/xml";
 
-    async call({ host, port, options }: Request, filePath: string) {
+    async call({ host, port, auth }: Request & { auth: string }, filePath: string) {
         const url = this.get(host, port, filePath);
-        const { value, error, isError } = await this.fetch(url, options);
+        const { value, error, isError } = await this.fetch(url, auth);
         let data: MII<FileBinary, GeneralColumn> = null;
         if (!isError) {
-            data = JSON.parse(value);
+            data = this.parseXML(value.replaceAll("&#13;",""));
             logger.info(this.name + ": " + data?.Rowsets?.Rowset?.Row?.length);
         }
         return data;

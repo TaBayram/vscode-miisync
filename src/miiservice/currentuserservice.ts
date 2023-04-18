@@ -15,9 +15,9 @@ class CurrentUsersService extends Service {
     name: string;
     mode: string = "XMII/Illuminator?service=admin&mode=SessionList&content-type=text/json";
 
-    async call({ host, port, options }: Request) {
+    async call({ host, port, auth }: Request & { auth: string }) {
         const url = this.get(host, port);
-        const { value, error, isError } = await this.fetch(url, options);
+        const { value, error, isError } = await this.fetch(url, auth);
         let data: MII<CurrentUser, GeneralColumn> = null;
         if (!isError) {
             data = JSON.parse(value)

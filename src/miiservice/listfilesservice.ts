@@ -23,9 +23,9 @@ class ListFilesService extends Service {
     name: string = "List Files";
     mode: string = "XMII/Catalog?Mode=List&Session=true&DoStateCheck=true&Content-Type=text/xml";
 
-    async call({ host, port, options }: Request, folderPath: string) {
+    async call({ host, port, auth }: Request & { auth: string }, folderPath: string) {
         const url = this.get(host, port, folderPath);
-        const { value, error, isError } = await this.fetch(url, options);
+        const { value, error, isError } = await this.fetch(url, auth);
         let data: MII<File, GeneralColumn2> = null;
         if (!isError) {
             data = this.parseXML(value);

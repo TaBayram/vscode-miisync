@@ -1,7 +1,7 @@
 import { pathExists } from "fs-extra";
 import { LoadUserConfig } from "../modules/config";
 import { FindFileInDir, GetRemotePath } from "../modules/file";
-import { GetCurrentWorkspaceFolderUri, getActiveTextEditor } from "../modules/vscode";
+import { getCurrentWorkspaceFolderUri, getActiveTextEditor } from "../modules/vscode";
 import * as vscode from 'vscode';
 import path = require("path");
 import { openScreenService } from "../miiservice/openscreenservice";
@@ -10,7 +10,7 @@ import { openScreenService } from "../miiservice/openscreenservice";
 export async function OnCommandOpenScreen() {
     const userConfig = await LoadUserConfig();
     if (userConfig) {
-        const workspaceUri = GetCurrentWorkspaceFolderUri();
+        const workspaceUri = getCurrentWorkspaceFolderUri();
         const name = await FindFileInDir(workspaceUri.fsPath, 'index.html');
         if (!name) return;
         const remotePath = GetRemotePath(name, userConfig, false);

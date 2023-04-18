@@ -2,14 +2,11 @@ import fetch from 'node-fetch';
 import logger from '../ui/logger';
 import { XMLParser } from 'fast-xml-parser';
 
-interface Options {
-    body?: string,
-    auth?: string;
-}
 export interface Request {
     host: string,
     port: number,
-    options?: Options
+    auth?: string,
+    body?: string
 }
 
 export abstract class Service {
@@ -25,11 +22,10 @@ export abstract class Service {
     protected generateURL(host: string, port: number, protocol: 'http' | 'https' = 'http') {
         return `${protocol}://${host}:${port}/${this.mode}`;
     }
-    protected async fetch(url: string, options?: Options): Promise<{ value: string, error: Error, isError: boolean }> {
+    protected async fetch(url: string, auth?: string, body?: string): Promise<{ value: string, error: Error, isError: boolean }> {
         let headers = { "Content-Type": "application/x-www-form-urlencoded" }
-        if (options?.auth)
-            headers["Authorization"] = 'Basic ' + options?.auth;
-        const body = options?.body ? options.body : null;
+        if (auth)
+            headers["Authorization"] = 'Basic ' + auth;
         return fetch(url, {
             method: "POST",
             body,
@@ -43,6 +39,8 @@ export abstract class Service {
             logger.error(this.name + ": " + error);
             return { error: error, isError: true };
         });
+
+
     }
 
     protected parseXML(data: string) {

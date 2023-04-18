@@ -22,9 +22,9 @@ interface Folder extends Row {
 class ListFoldersService extends Service {
     name: string = "List Folders";
     mode: string = "XMII/Catalog?Mode=ListFolders&Session=true&DoStateCheck=true&Content-Type=text/xml";
-    async call({ host, port, options }: Request, folderPath: string) {
+    async call({ host, port, auth }: Request & { auth: string }, folderPath: string) {
         const url = this.get(host, port, folderPath);
-        const { value, error, isError } = await this.fetch(url, options);
+        const { value, error, isError } = await this.fetch(url, auth);
         let data: MII<Folder, GeneralColumn2> = null;
         if (!isError) {
             data = this.parseXML(value);

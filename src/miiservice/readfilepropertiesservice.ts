@@ -1,8 +1,9 @@
 import logger from '../ui/logger';
+import fileProperties from '../ui/treeproperties';
 import { Service, Request } from './miiservice';
 import { GeneralColumn, GeneralColumn2, MII, Row } from './responsetypes';
 
-interface FileProperties extends Row {
+export interface FileProperties extends Row {
     ObjectName: string
     FilePath: string
     Type: string
@@ -23,9 +24,9 @@ class ReadFilePropertiesService extends Service {
     name: string = "File Properties";
     mode: string = "XMII/Catalog?Mode=ListFileProperties&Content-Type=text/xml";
 
-    async call({ host, port, options }: Request, folderPath: string) {
+    async call({ host, port, auth }: Request & { auth: string }, folderPath: string) {
         const url = this.get(host, port, folderPath);
-        const { value, error, isError } = await this.fetch(url, options);
+        const { value, error, isError } = await this.fetch(url, auth);
         let data: MII<FileProperties, GeneralColumn2> = null
         if (!isError) {
             data = this.parseXML(value);

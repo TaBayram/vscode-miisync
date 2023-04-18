@@ -5,9 +5,9 @@ class SaveFileService extends Service {
     name: string = "Save File";
     mode: string = "XMII/Catalog?Mode=SaveBinary&Class=Content";
 
-    async call({ host, port, options }: Request, sourcePath: string) {
+    async call({ host, port, auth, body }: Request & { auth: string, body: string }, sourcePath: string) {
         const url = this.get(host, port, sourcePath);
-        const { value, error, isError } = await this.fetch(url, options);
+        const { value, error, isError } = await this.fetch(url, auth, body);
         if (!isError) {
             const data = this.parseXML(value);
             logger.info(this.name + ": " + data?.Rowsets?.Messages?.Message);

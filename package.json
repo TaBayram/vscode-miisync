@@ -12,7 +12,7 @@
     "type": "github"
   },
   "icon": "resources/icon.png",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -41,25 +41,73 @@
       {
         "command": "miisync.disablesyncsave",
         "title": "Disable Sync Save",
-        "category": "mii"
+        "category": "mii",
+        "enablement": "miisync.enabled"
       },
       {
         "command": "miisync.enablesyncsave",
         "title": "Enable Sync Save",
-        "category": "mii"
+        "category": "mii",
+        "enablement": "miisync.enabled"
       },
       {
         "command": "miisync.uploadfile",
         "title": "Upload Current File",
         "category": "mii",
-        "enablement": "editorIsOpen"
+        "enablement": "editorIsOpen && miisync.enabled"
+      },
+      {
+        "command": "miisync.downloadfile",
+        "title": "Download Current File",
+        "category": "mii",
+        "enablement": "miisync.enabled"
+      },
+      {
+        "command": "miisync.downloadfolder",
+        "title": "Download Folder",
+        "category": "mii",
+        "enablement": "miisync.enabled",
+        "when": false
       },
       {
         "command": "miisync.openscreen",
         "title": "Open Current Screen",
-        "category": "mii"
+        "category": "mii",
+        "enablement": "miisync.enabled"
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "miisync.downloadfile",
+          "group": "miisync",
+          "when": "miisync.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
+        },
+        {
+          "command": "miisync.downloadfolder",
+          "group": "miisync",
+          "when": "miisync.enabled && !explorerResourceIsRoot && explorerResourceIsFolder"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "miisync",
+          "title": "Mii Sync",
+          "icon": "resources/icon.svg",
+          "when": "miisync.enabled" 
+        }
+      ]
+    },
+    "views": {
+      "miisync": [
+        {
+          "id": "fileproperties",
+          "name": "File Properties"
+        }
+      ]
+    },
     "jsonValidation": [
       {
         "fileMatch": "/miisync.json",
