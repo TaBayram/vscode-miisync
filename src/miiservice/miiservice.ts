@@ -1,6 +1,6 @@
-import fetch from 'node-fetch';
-import logger from '../ui/logger';
+import logger from '../ui/logger.js';
 import { XMLParser } from 'fast-xml-parser';
+
 
 export interface Request {
     host: string,
@@ -8,6 +8,15 @@ export interface Request {
     auth?: string,
     body?: string
 }
+
+
+
+const http = require('http');
+const https = require('https');
+
+const httpAgent = new http.Agent({ keepAlive: true });
+const httpsAgent = new https.Agent({ keepAlive: true });
+const agent = (_parsedURL) => _parsedURL.protocol == 'http:' ? httpAgent : httpsAgent;
 
 export abstract class Service {
     readonly abstract name: string;
@@ -29,15 +38,17 @@ export abstract class Service {
         return fetch(url, {
             method: "POST",
             body,
-            headers
+            headers,
+            keepalive: true
         }).then((response) => {
-            logger.info(this.name + ": " + response.status + "-" + response.statusText);
+            if(response.status != 200)
+                logger.error(this.name + ": " + response.status + "-" + response.statusText);
             return response.text();
         }).then(data => {
-            return { value: data, isError: false };
+            return { value: data, error:null, isError: false };
         }).catch((error: Error) => {
             logger.error(this.name + ": " + error);
-            return { error: error, isError: true };
+            return { error: error, value:null, isError: true };
         });
 
 

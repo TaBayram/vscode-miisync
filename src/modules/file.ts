@@ -1,8 +1,9 @@
-import path = require("path");
-import { UserConfig } from "./config";
+
+import { UserConfig } from "./config.js";
 import { exists, lstat, readdir } from "fs-extra";
-import logger from "../ui/logger";
-import '../extends/string';
+import logger from "../ui/logger.js";
+import '../extends/string.js';
+import path = require("path");
 
 export function InsertWeb(path: string) {
     const web = "/WEB";
@@ -13,6 +14,7 @@ export function InsertWeb(path: string) {
 export function GetRemotePath(filePath: string, { remotePath, context, removeFromContext }: UserConfig, addWeb = true) {
     let sourcePath = filePath.substring(filePath.indexOf(context));
     for (const remove of removeFromContext) {
+        sourcePath = sourcePath.replace(path.sep + remove, '');
         sourcePath = sourcePath.replace(remove + path.sep, '');
     }
     sourcePath = sourcePath.length != 0 ? path.sep + sourcePath : sourcePath;

@@ -1,4 +1,4 @@
-import logger from '../ui/logger';
+import logger from '../ui/logger.js';
 import { Service, Request } from './miiservice';
 import { Column, GeneralColumn, MII, Row } from './responsetypes';
 

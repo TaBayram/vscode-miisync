@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { GeneralColumn2, Row } from '../miiservice/responsetypes';
-import { FileProperties } from '../miiservice/readfilepropertiesservice';
-import { File } from '../miiservice/listfilesservice';
-import { Folder } from '../miiservice/listfoldersservice';
+import { GeneralColumn2, Row } from '../miiservice/responsetypes.js';
+import { FileProperties } from '../miiservice/readfilepropertiesservice.js';
+import { File } from '../miiservice/listfilesservice.js';
+import { Folder } from '../miiservice/listfoldersservice.js';
 
 
 abstract class TreeDataProvider implements vscode.TreeDataProvider<TreeItem>{
@@ -71,7 +71,7 @@ class RemoteDirectoryPropertiesTree extends TreeDataProvider {
 
     private generate(directory: (File | Folder)[], items: TreeItem[] = []): TreeItem[] {
         for (const item of directory) {
-            if (item.ITYPE === 'Folder') {
+            if ('FolderName' in item) {
                 const folder = new TreeItem(item.FolderName, []);
                 if (item.children) {
                     folder.children = this.generate(item.children, folder.children)
@@ -91,7 +91,7 @@ class RemoteDirectoryPropertiesTree extends TreeDataProvider {
 
 
 
-export let remoteDirectoryTree: FilePropertiesTree = new FilePropertiesTree();
+export let remoteDirectoryTree: RemoteDirectoryPropertiesTree = new RemoteDirectoryPropertiesTree();
 export let fileProperties: FilePropertiesTree = new FilePropertiesTree();
 export function activateTree({ subscriptions }: vscode.ExtensionContext) {
     subscriptions.push(vscode.window.registerTreeDataProvider('fileproperties', fileProperties));

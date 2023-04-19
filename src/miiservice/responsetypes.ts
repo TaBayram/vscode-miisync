@@ -1,3 +1,6 @@
+import { File } from "./listfilesservice.js"
+import { Folder } from "./listfoldersservice.js"
+
 export interface MII<T extends Row, Y extends Column> {
     "?xml": Xml
     Rowsets: Rowsets<T, Y>
@@ -50,3 +53,5 @@ export interface GeneralColumn2 extends Column {
     "@_SQLDataType": string
     "@_SourceColumn": string
 }
+
+export type Directory = (File | Folder)[];

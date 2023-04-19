@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as Joi from 'joi';
-import { CONFIG_PATH, EXTENSION_NAME } from '../constants';
+import { CONFIG_PATH, EXTENSION_NAME } from '../constants.js';
 import { getWorkspaceFolders, showTextDocument } from './vscode';
 
 const nullable = schema => schema.optional().allow(null);
@@ -115,11 +115,16 @@ class ConfigManager {
     private selffsPath: string;
     private selfConfig: UserConfig;
 
+    public onConfigChange: vscode.EventEmitter<UserConfig> = new vscode.EventEmitter();
+
     get Config(){
         return this.useRoot ? this.rootConfig : this.selfConfig;
     }
 
+    
+
     constructor(){
+        
 
     }
     validate() {
@@ -141,9 +146,13 @@ class ConfigManager {
                 this.rootConfig = root.config;
                 this.rootfsPath = root.fsPath;
                 this.useRoot = true;
+
+                this.onConfigChange.fire(root.config);
                 return root.config;
             }
         }
+
+        this.onConfigChange.fire(this.selfConfig);
         return this.selfConfig;
     }
 
@@ -156,8 +165,10 @@ class ConfigManager {
             this.rootConfig = config;
             fse.outputJson(getConfigPath(this.rootfsPath), config, { spaces: 4 });
         }
+        this.onConfigChange.fire(config);
     }
 
+  
     private async loadRoot(fsPath: string, self: boolean): Promise<{ config: UserConfig, fsPath: string }> {
         const configs = await tryLoadConfigs(fsPath);
         if (configs?.length) {

@@ -1,4 +1,4 @@
-import { openLink } from '../modules/vscode';
+import { openLink } from '../modules/vscode.js';
 import { Service, Request } from './miiservice';
 
 class OpenScreenService extends Service {

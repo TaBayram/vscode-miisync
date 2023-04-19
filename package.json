@@ -74,6 +74,12 @@
         "title": "Open Current Screen",
         "category": "mii",
         "enablement": "miisync.enabled"
+      },
+      {
+        "command": "miisync.downloadremotedirectory",
+        "title": "Download Remote Directory",
+        "category": "mii",
+        "enablement": "miisync.enabled"
       }
     ],
     "menus": {
@@ -218,7 +224,6 @@
   },
   "dependencies": {
     "fast-xml-parser": "^4.2.0",
-    "joi": "^17.9.1",
-    "node-fetch": "^2.6.9"
+    "joi": "^17.9.1"
   }
 }

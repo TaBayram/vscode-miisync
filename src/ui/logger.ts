@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { EXTENSION_NAME } from '../constants';
+import { EXTENSION_NAME } from '../constants.js';
 
 const paddingTime = time => ('00' + time).slice(-2);
 

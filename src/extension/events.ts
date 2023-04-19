@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
-import { UploadFile } from "./transfer";
-import logger from "../ui/logger";
-import { readFilePropertiesService } from "../miiservice/readfilepropertiesservice";
-import { GetRemotePath, ValidatePath } from "../modules/file";
-import { fileProperties } from "../ui/viewtree";
-import { configManager } from "../modules/config";
+import { UploadFile } from "./transfer.js";
+import logger from "../ui/logger.js";
+import { readFilePropertiesService } from "../miiservice/readfilepropertiesservice.js";
+import { GetRemotePath, ValidatePath } from "../modules/file.js";
+import { fileProperties } from "../ui/viewtree.js";
+import { configManager } from "../modules/config.js";
 
 
 export async function OnDidSaveTextDocument(document: vscode.TextDocument) {

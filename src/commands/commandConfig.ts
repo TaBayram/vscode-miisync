@@ -1,6 +1,6 @@
-import { newConfig } from "../modules/config";
+import { newConfig } from "../modules/config.js";
 import * as vscode from 'vscode';
-import { addWorkspaceFolder, getWorkspaceFolders, openFolder, showConfirmMessage, showOpenDialog } from "../modules/vscode";
+import { addWorkspaceFolder, getWorkspaceFolders, openFolder, showConfirmMessage, showOpenDialog } from "../modules/vscode.js";
 
 export async function OnCommandCreateConfig() {
     const workspaceFolders = getWorkspaceFolders();

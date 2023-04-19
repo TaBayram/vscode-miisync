@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { EXTENSION_NAME } from '../constants';
+import { EXTENSION_NAME } from '../constants.js';
+import { UserConfig, configManager } from '../modules/config.js';
 
 export enum Icon {
     loading = 'loading',
@@ -47,7 +48,20 @@ class StatusBar {
         this.bar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 10);
         this.update();
         subscriptions.push(this.bar);
+        configManager.onConfigChange.event(this.onConfigChanged);
     }
+
+    private async onConfigChanged({ uploadOnSave }: UserConfig) {
+        if (uploadOnSave) {
+            statusBar.Icon = Icon.syncEnabled
+            statusBar.defaultIcon = Icon.syncEnabled;
+        }
+        else {
+            statusBar.Icon = Icon.syncDisabled;
+            statusBar.defaultIcon = Icon.syncDisabled;
+        }
+    }
+
 
 
     public updateBar(text: string, icon: Icon, options?: StatusOptions) {
@@ -75,12 +89,17 @@ class StatusBar {
         const item = this.stack.splice(0, 1)[0];
         this.text = item.text;
         this.Icon = item.icon;
-        if(item.duration != -1){
+        if (item.duration != -1) {
             this.timeout = setTimeout(() => this.popStack(), Math.max(this.minDuration * 1000 * (1 - this.stack.length / 50), item.duration))
         }
-        else{
-            clearTimeout(this.timeout);
-            this.timeout = null;
+        else {
+            if(this.stack.length == 0){
+                clearTimeout(this.timeout);
+                this.timeout = null;
+            }
+            else{
+                this.timeout = setTimeout(() => this.popStack(), this.minDuration * 0.10);
+            }
         }
     }
 

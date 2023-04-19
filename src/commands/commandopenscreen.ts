@@ -1,11 +1,7 @@
-import { pathExists } from "fs-extra";
-
-import { FindFileInDir, GetRemotePath } from "../modules/file";
-import { getCurrentWorkspaceFolderUri, getActiveTextEditor } from "../modules/vscode";
-import * as vscode from 'vscode';
-import path = require("path");
-import { openScreenService } from "../miiservice/openscreenservice";
-import { configManager } from "../modules/config";
+import { FindFileInDir, GetRemotePath } from "../modules/file.js";
+import { getCurrentWorkspaceFolderUri, getActiveTextEditor } from "../modules/vscode.js";
+import { openScreenService } from "../miiservice/openscreenservice.js";
+import { configManager } from "../modules/config.js";
 
 
 export async function OnCommandOpenScreen() {

@@ -11,6 +11,7 @@ import { OnCommandOpenScreen } from './commands/commandopenscreen';
 import { setContextValue } from './modules/vscode';
 import { OnCommandDownloadFile, OnCommandDownloadFolder } from './commands/commanddownload';
 import { activateTree } from './ui/viewtree';
+import { DownloadContextDirectory, DownloadDirectory } from './extension/transfer';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -24,22 +25,17 @@ export function activate(context: vscode.ExtensionContext) {
 	RegisterCommand('miisync.downloadfile', OnCommandDownloadFile, context);
 	RegisterCommand('miisync.downloadfolder', OnCommandDownloadFolder, context);
 	RegisterCommand('miisync.openscreen', OnCommandOpenScreen, context);
+	RegisterCommand('miisync.downloadremotedirectory', (e)=>{
+		configManager.load().then((config)=>{
+			//DownloadContextDirectory(config);
+		});
+	}, context);
 
 	context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(OnDidSaveTextDocument));
 	context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(OnDidOpenTextDocument));
 	context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(OnDidChangeActiveTextEditor));
 
-	configManager.load().then((value:UserConfig)=>{
-		if(value?.uploadOnSave){
-			statusBar.Icon = Icon.syncEnabled
-			statusBar.defaultIcon = Icon.syncEnabled;
-		}
-		else{
-			statusBar.Icon = Icon.syncDisabled;
-			statusBar.defaultIcon = Icon.syncDisabled;
-		}
-	});
-
+	configManager.load();
 }
 
 

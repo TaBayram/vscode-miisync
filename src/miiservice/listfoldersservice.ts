@@ -1,12 +1,12 @@
 import { Root } from 'joi';
-import logger from '../ui/logger';
+import logger from '../ui/logger.js';
 import { Service, Request } from './miiservice';
 import { Column, GeneralColumn2, MII, Row } from './responsetypes';
 import { File } from './listfilesservice';
 
 
 export interface Folder extends Row {
-    ITYPE: "Folder",
+    ITYPE: 'Folder';
     FolderName: string
     ParentFolderName: string
     Path: string

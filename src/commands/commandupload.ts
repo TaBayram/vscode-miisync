@@ -1,8 +1,8 @@
 import { pathExists } from "fs-extra";
-import { UploadFile } from "../extension/transfer";
-import { getActiveTextEditor } from "../modules/vscode";
-import logger from "../ui/logger";
-import { configManager } from "../modules/config";
+import { UploadFile } from "../extension/transfer.js";
+import { getActiveTextEditor } from "../modules/vscode.js";
+import logger from "../ui/logger.js";
+import { configManager } from "../modules/config.js";
 
 
 export async function OnCommandUploadFile() {
