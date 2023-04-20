@@ -12,7 +12,7 @@
     "type": "github"
   },
   "icon": "resources/icon.png",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -224,6 +224,7 @@
   },
   "dependencies": {
     "fast-xml-parser": "^4.2.0",
-    "joi": "^17.9.1"
+    "joi": "^17.9.1",
+    "node-fetch": "^2.6.1"
   }
 }

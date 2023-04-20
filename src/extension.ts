@@ -12,12 +12,16 @@ import { setContextValue } from './modules/vscode';
 import { OnCommandDownloadFile, OnCommandDownloadFolder } from './commands/commanddownload';
 import { activateTree } from './ui/viewtree';
 import { DownloadContextDirectory, DownloadDirectory } from './extension/transfer';
+import { Session } from './extension/session';
+import { currentUsersService } from './miiservice/currentuserservice';
 
 
 export function activate(context: vscode.ExtensionContext) {
 	activateBar(context);
 	activateTree(context);
 	setContextValue("enabled", true);
+	Session.Instance.Context = context;
+
 	RegisterCommand('miisync.createconfig', OnCommandCreateConfig, context);
 	RegisterCommand('miisync.disablesyncsave', OnCommandDisableSyncSave, context);
 	RegisterCommand('miisync.enablesyncsave', OnCommandEnableSyncSave, context);
@@ -25,9 +29,9 @@ export function activate(context: vscode.ExtensionContext) {
 	RegisterCommand('miisync.downloadfile', OnCommandDownloadFile, context);
 	RegisterCommand('miisync.downloadfolder', OnCommandDownloadFolder, context);
 	RegisterCommand('miisync.openscreen', OnCommandOpenScreen, context);
-	RegisterCommand('miisync.downloadremotedirectory', (e)=>{
-		configManager.load().then((config)=>{
-			//DownloadContextDirectory(config);
+	RegisterCommand('miisync.downloadremotedirectory', (e) => {
+		configManager.load().then((config) => {
+			DownloadContextDirectory(config);
 		});
 	}, context);
 
@@ -35,18 +39,22 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(OnDidOpenTextDocument));
 	context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(OnDidChangeActiveTextEditor));
 
-	configManager.load();
+	configManager.load().then(({ host, port, username, password }) => {
+		currentUsersService.call({ host, port, auth: currentUsersService.generateAuth({username, password})});
+
+	});
+
 }
 
 
-export function deactivate() { 
+export function deactivate() {
 
-	
+
 }
 
 
 
-function RegisterCommand(command: string, callback: (...args: any[])=>any, {subscriptions}: vscode.ExtensionContext){
+function RegisterCommand(command: string, callback: (...args: any[]) => any, { subscriptions }: vscode.ExtensionContext) {
 	subscriptions.push(vscode.commands.registerCommand(command, callback));
 }
 

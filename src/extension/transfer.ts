@@ -118,12 +118,12 @@ export async function DownloadDirectory(folderUri: Uri | string, userConfig: Use
         for (const file of files?.Rowsets?.Rowset?.Row || []) {
             mainFolder.children.push(file)
 
-            /* const filePath = folderPath + path.sep +
+            const filePath = folderPath + path.sep +
                 (path.relative(sourcePath, file.FilePath) != '' ? path.relative(sourcePath, file.FilePath) + path.sep : '') +
                 file.ObjectName
             const fileBinary = await readFileService.call({ host: userConfig.host, port: userConfig.port, auth }, file.FilePath + "/" + file.ObjectName);
             const payload = fileBinary.Rowsets.Rowset.Row.find((row) => row.Name == "Payload");
-            writeFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" }) */
+            writeFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" })
         }
 
 
@@ -184,27 +184,30 @@ async function DownloadDirDepth(mainFolder: Folder, userConfig: UserConfig, auth
     mainFolder.children = [];
 
     const folders = await listFoldersService.call({ host: userConfig.host, port: userConfig.port, auth }, mainFolder.Path);
-    /*20 sec*/
-
+    /*20+ sec
     for (const folder of (folders?.Rowsets?.Rowset?.Row || [])) {
         mainFolder.children.push(folder);
         promises.push(DownloadDirDepth(folder, userConfig, auth, promises));
-    }
-    /* await Promise.all((folders?.Rowsets?.Rowset?.Row || []).map(folder => {
-        mainFolder.children.push(folder);
-        return DownloadDirDepth(folder, userConfig, auth, promises)
-    })); */
-
+    } */
     /* 2min30sec
-        for (const folder of folders?.Rowsets?.Rowset?.Row || []) {
+    for (const folder of folders?.Rowsets?.Rowset?.Row || []) {
         mainFolder.children.push(folder);
         await DownloadDirDepth(folder, userConfig, auth, promises);
     } */
 
-    const files = await listFilesService.call({ host: userConfig.host, port: userConfig.port, auth }, mainFolder.Path);
-    for (const file of files?.Rowsets?.Rowset?.Row || []) {
-        mainFolder.children.push(file)
+    if (mainFolder.ChildFolderCount != 0) {
+        await Promise.all((folders?.Rowsets?.Rowset?.Row || []).map(folder => {
+            mainFolder.children.push(folder);
+            return DownloadDirDepth(folder, userConfig, auth, promises)
+        }));
     }
 
-    return await Promise.all(promises);
+    if (mainFolder.ChildFileCount != 0) {
+        const files = await listFilesService.call({ host: userConfig.host, port: userConfig.port, auth }, mainFolder.Path);
+        for (const file of files?.Rowsets?.Rowset?.Row || []) {
+            mainFolder.children.push(file)
+        }
+    }
+
+    return promises;
 }
