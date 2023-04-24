@@ -14,6 +14,7 @@ import { listFilesService } from "../miiservice/listfilesservice.js";
 import { Directory } from "../miiservice/responsetypes.js";
 import { remoteDirectoryTree } from "../ui/viewtree.js";
 import path = require("path");
+import { loadFilesInsideService } from "../miiservice/loadfilesinsideservice.js";
 
 
 export async function UploadFile(document: TextDocument, userConfig: UserConfig) {
@@ -137,10 +138,6 @@ export async function DownloadDirectory(folderUri: Uri | string, userConfig: Use
 }
 
 
-/**
- * 
- * needs threads
- */
 export async function DownloadContextDirectory(userConfig: UserConfig) {
     statusBar.updateBar('Checking', Icon.spinLoading, { duration: -1 });
     if (!userConfig.context) return;
@@ -156,6 +153,14 @@ export async function DownloadContextDirectory(userConfig: UserConfig) {
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
     logger.info("Download Context Directory Starting")
     const directory: Directory = [];
+
+
+    const files = await loadFilesInsideService.call({ host: userConfig.host, port: userConfig.port, auth }, sourcePath);
+    remoteDirectoryTree.generateItemsByFiles(files?.Rowsets?.Rowset?.Row);
+    logger.info("Download Context Directory Done")
+    return;
+
+    //UPPER METHOD IS MUCH FASTER BUT DOESN'T GET THE EMPTY FOLDERS
 
     const rootFolders = await listFoldersService.call({ host: userConfig.host, port: userConfig.port, auth }, parentPath);
 

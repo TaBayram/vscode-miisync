@@ -3,6 +3,7 @@ import { XMLParser } from 'fast-xml-parser';
 import fetch from "node-fetch";
 import { Session } from '../extension/session.js';
 import { UserConfig } from '../modules/config.js';
+import { Column, MII, Row } from './responsetypes.js';
 
 export interface Request {
     host: string,
@@ -17,7 +18,7 @@ export abstract class Service {
 
     constructor() { }
 
-    abstract call(request: Request, ...args: any): any;
+    abstract call(request: Request, ...args: any):Promise<MII<Row, Column> | void>;
     abstract get(host: string, port: number, ...args: any);
     protected abstract generateParams(...args: any);
 
@@ -28,7 +29,7 @@ export abstract class Service {
     protected generateURL(host: string, port: number, protocol: 'http' | 'https' = 'http') {
         return `${protocol}://${host}:${port}/${this.mode}`;
     }
-    protected async fetch(url: string, auth?: string, body?: string): Promise<{ value: string, error: Error, isError: boolean }> {
+    protected async fetch(url: string, auth?: string, body?: string, convert: 'text' | 'blob' = 'text'): Promise<{ value: string, error: Error, isError: boolean }> {
         let headers = {
             "Content-Type": "application/x-www-form-urlencoded",
             "cookie": Session.Instance.getCookies()
@@ -44,11 +45,11 @@ export abstract class Service {
         }).then((response) => {
             if (response.status != 200)
                 logger.error(this.name + ": " + response.status + "-" + response.statusText);
-            else if (!Session.Instance.hasMIICookies) {
+            else if (!Session.Instance.HasMIICookies) {
                 Session.Instance.parseCookies(response);
-                Session.Instance.hasMIICookies = true;
+                Session.Instance.HasMIICookies = true;
             }
-            return response.text();
+            return response[convert]();
         }).then(data => {
             return { value: data, error: null, isError: false };
         }).catch((error: Error) => {

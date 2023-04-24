@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { setContextValue } from "../modules/vscode";
 
 export class Session {
     private static instance: Session;
@@ -14,7 +15,15 @@ export class Session {
     private cookies: string[] = [];
     private lastUpdated: Date;
 
-    public hasMIICookies: boolean = false;
+    private hasMIICookies: boolean = false;
+
+    public set HasMIICookies(value: boolean){
+        this.hasMIICookies = value;
+        setContextValue("session", value);
+    }
+    public get HasMIICookies(){
+        return this.hasMIICookies;
+    }
 
     public set Context(value: vscode.ExtensionContext) {
         this.context = value;
@@ -24,6 +33,11 @@ export class Session {
 
     private constructor() {
         
+    }
+
+    clear(){
+        this.HasMIICookies = false;
+        this.cookies = [];
     }
 
 
@@ -45,7 +59,7 @@ export class Session {
 
     getCookies(): string {
         if(!this.isExpired(this.lastUpdated, 60)){
-            this.hasMIICookies = false;
+            this.HasMIICookies = false;
         }
         return this.cookies.join(";");
     }

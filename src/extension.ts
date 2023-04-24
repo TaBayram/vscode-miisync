@@ -9,11 +9,12 @@ import { OnCommandUploadFile } from './commands/commandupload';
 import { OnCommandDisableSyncSave, OnCommandEnableSyncSave } from './commands/commandtogglesync';
 import { OnCommandOpenScreen } from './commands/commandopenscreen';
 import { setContextValue } from './modules/vscode';
-import { OnCommandDownloadFile, OnCommandDownloadFolder } from './commands/commanddownload';
+import { OnCommandDownloadFile, OnCommandDownloadFolder, OnCommandDownloadProject } from './commands/commanddownload';
 import { activateTree } from './ui/viewtree';
 import { DownloadContextDirectory, DownloadDirectory } from './extension/transfer';
 import { Session } from './extension/session';
 import { currentUsersService } from './miiservice/currentuserservice';
+import { OnCommandEndSession } from './commands/commandsession';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -29,6 +30,8 @@ export function activate(context: vscode.ExtensionContext) {
 	RegisterCommand('miisync.downloadfile', OnCommandDownloadFile, context);
 	RegisterCommand('miisync.downloadfolder', OnCommandDownloadFolder, context);
 	RegisterCommand('miisync.openscreen', OnCommandOpenScreen, context);
+	RegisterCommand('miisync.endcurrentsession', OnCommandEndSession, context);
+	RegisterCommand('miisync.downloadproject', OnCommandDownloadProject, context);
 	RegisterCommand('miisync.downloadremotedirectory', (e) => {
 		configManager.load().then((config) => {
 			DownloadContextDirectory(config);
