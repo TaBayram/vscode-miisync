@@ -3,7 +3,7 @@ import { UploadFile } from "./transfer.js";
 import logger from "../ui/logger.js";
 import { readFilePropertiesService } from "../miiservice/readfilepropertiesservice.js";
 import { GetRemotePath, ValidatePath } from "../modules/file.js";
-import { fileProperties } from "../ui/viewtree.js";
+import { fileProperties } from "../ui/explorer/filepropertiestree.js";
 import { configManager } from "../modules/config.js";
 
 

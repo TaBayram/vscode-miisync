@@ -9,12 +9,12 @@ import { OnCommandUploadFile } from './commands/commandupload';
 import { OnCommandDisableSyncSave, OnCommandEnableSyncSave } from './commands/commandtogglesync';
 import { OnCommandOpenScreen } from './commands/commandopenscreen';
 import { setContextValue } from './modules/vscode';
-import { OnCommandDownloadFile, OnCommandDownloadFolder, OnCommandDownloadProject } from './commands/commanddownload';
-import { activateTree } from './ui/viewtree';
+import { OnCommandDownloadFile, OnCommandDownloadFolder, OnCommandDownloadProject, OnCommandDownloadRemoteFolder } from './commands/commanddownload';
 import { DownloadContextDirectory, DownloadDirectory } from './extension/transfer';
 import { Session } from './extension/session';
 import { currentUsersService } from './miiservice/currentuserservice';
 import { OnCommandEndSession } from './commands/commandsession';
+import { activateTree } from './ui/explorer/tree';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -32,6 +32,7 @@ export function activate(context: vscode.ExtensionContext) {
 	RegisterCommand('miisync.openscreen', OnCommandOpenScreen, context);
 	RegisterCommand('miisync.endcurrentsession', OnCommandEndSession, context);
 	RegisterCommand('miisync.downloadproject', OnCommandDownloadProject, context);
+	RegisterCommand('miisync.downloadremotefolder', OnCommandDownloadRemoteFolder, context);
 	RegisterCommand('miisync.downloadremotedirectory', (e) => {
 		configManager.load().then((config) => {
 			DownloadContextDirectory(config);
@@ -44,7 +45,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	configManager.load().then(({ host, port, username, password }) => {
 		currentUsersService.call({ host, port, auth: currentUsersService.generateAuth({username, password})});
-
 	});
 
 }
@@ -54,8 +54,6 @@ export function deactivate() {
 
 
 }
-
-
 
 function RegisterCommand(command: string, callback: (...args: any[]) => any, { subscriptions }: vscode.ExtensionContext) {
 	subscriptions.push(vscode.commands.registerCommand(command, callback));

@@ -2,29 +2,60 @@
 import { TextDocument, Uri } from "vscode";
 import { UserConfig, configManager } from "../modules/config.js";
 import { GetRemotePath, ValidatePath } from "../modules/file.js";
-import { showConfirmMessage } from "../modules/vscode.js";
+import { getCurrentWorkspaceFolderUri, showConfirmMessage } from "../modules/vscode.js";
 import logger from "../ui/logger.js";
 import statusBar, { Icon } from "../ui/statusbar.js";
 import { saveFileService } from "../miiservice/savefileservice.js";
 import { readFileService } from "../miiservice/readfileservice.js";
-import { writeFile } from "fs-extra";
+import { outputFile, writeFile } from "fs-extra";
 import { ValidatePassword, ValidateContext, FileExists } from "./gate.js";
 import { Folder, listFoldersService } from "../miiservice/listfoldersservice.js";
 import { listFilesService } from "../miiservice/listfilesservice.js";
 import { Directory } from "../miiservice/responsetypes.js";
-import { remoteDirectoryTree } from "../ui/viewtree.js";
 import path = require("path");
 import { loadFilesInsideService } from "../miiservice/loadfilesinsideservice.js";
+import { remoteDirectoryTree } from "../ui/explorer/remotedirectorytree.js";
+
+
+async function CheckFile(userConfig: UserConfig, filePath: string, sourcePath: string, auth: string, {promptCreationIfNotExists}: {promptCreationIfNotExists?: boolean}) {
+    const validationError = configManager.validate();
+    if (validationError) {
+        logger.error(validationError.message)
+        return false;
+    }
+    if (!ValidatePath(filePath, userConfig)){
+        return false;
+    } 
+
+    if (!ValidatePassword(userConfig)){
+        return false;
+    }
+
+    if (!await ValidateContext(userConfig, auth)) {
+        logger.error("Remote Path doesn't exist");
+        return false;
+    }
+    if (!await FileExists(sourcePath, userConfig, auth) &&
+        (promptCreationIfNotExists ||
+        !await showConfirmMessage("File does not exists. Do you want to create it?"))) {
+        return false;
+    }
+
+
+    return true;
+}
 
 
 export async function UploadFile(document: TextDocument, userConfig: UserConfig) {
     statusBar.updateBar('Checking', Icon.spinLoading, { duration: -1 });
     const filePath = document.fileName;
+
     const validationError = configManager.validate();
     if (validationError) {
         logger.error(validationError.message)
         return;
     }
+
     if (!ValidatePath(filePath, userConfig)) return;
     const fileName = filePath.substring(filePath.lastIndexOf(path.sep)).replace(path.sep, '');
     const sourcePath = GetRemotePath(filePath, userConfig);
@@ -137,6 +168,58 @@ export async function DownloadDirectory(folderUri: Uri | string, userConfig: Use
     statusBar.updateBar('Done', Icon.success, { duration: 1 });
 }
 
+
+export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig: UserConfig,) {
+    statusBar.updateBar('Checking', Icon.spinLoading, { duration: -1 });
+    const validationError = configManager.validate();
+    if (validationError) {
+        logger.error(validationError.message)
+        return;
+    }
+    if (!ValidatePassword(userConfig)) return;
+
+    const auth = encodeURIComponent(Buffer.from(userConfig.username + ":" + userConfig.password).toString('base64'));
+
+    if (!await ValidateContext(userConfig, auth)) {
+        logger.error("Remote Path doesn't exist");
+        return;
+    }
+    statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
+
+    const directory: Directory = [];
+    const workspaceFolder = getCurrentWorkspaceFolderUri().fsPath;
+    let parentPath = path.dirname(remoteFolderPath).replaceAll(path.sep, "/");
+    const rootFolders = await listFoldersService.call({ host: userConfig.host, port: userConfig.port, auth }, parentPath);
+
+    const root = rootFolders.Rowsets.Rowset.Row.find((folder: Folder) => folder.Path == remoteFolderPath);
+    if (root) {
+        directory.push(root);
+        await deep(root);
+    }
+
+    async function deep(mainFolder: Folder) {
+        mainFolder.children = [];
+        const files = await listFilesService.call({ host: userConfig.host, port: userConfig.port, auth }, mainFolder.Path);
+        for (const file of files?.Rowsets?.Rowset?.Row || []) {
+            mainFolder.children.push(file)
+
+            const filePath = workspaceFolder + path.sep + path.basename(remoteFolderPath) + path.sep + 
+                (path.relative(remoteFolderPath, file.FilePath) != '' ? path.relative(remoteFolderPath, file.FilePath) + path.sep : '') +
+                file.ObjectName
+            const fileBinary = await readFileService.call({ host: userConfig.host, port: userConfig.port, auth }, file.FilePath + "/" + file.ObjectName);
+            const payload = fileBinary.Rowsets.Rowset.Row.find((row) => row.Name == "Payload");
+            outputFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" })
+        }
+
+
+        const folders = await listFoldersService.call({ host: userConfig.host, port: userConfig.port, auth }, mainFolder.Path);
+        for (const folder of folders?.Rowsets?.Rowset?.Row || []) {
+            mainFolder.children.push(folder);
+            await deep(folder);
+        }
+    }
+    statusBar.updateBar('Done', Icon.success, { duration: 1 });
+}
 
 export async function DownloadContextDirectory(userConfig: UserConfig) {
     statusBar.updateBar('Checking', Icon.spinLoading, { duration: -1 });

@@ -29,12 +29,8 @@ export function ValidatePath(filePath: string, userConfig: UserConfig): boolean 
     if (filePath.indexOf(userConfig.context) == -1 ||
         userConfig.ignore.findIndex((value) => value.toLocaleLowerCase() == fileName.toLocaleLowerCase()) != -1 ||
         firstFolderName.startsWith('.')) {
-        logger.error('path not valid');
         return false;
     }
-
-
-    logger.info('path validated');
     return true;
 }
 

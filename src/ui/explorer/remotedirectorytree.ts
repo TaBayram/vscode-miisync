@@ -1,65 +1,9 @@
-import * as vscode from 'vscode';
-import { GeneralColumn2, Row } from '../miiservice/responsetypes.js';
-import { FileProperties } from '../miiservice/readfilepropertiesservice.js';
-import { File } from '../miiservice/listfilesservice.js';
-import { Folder } from '../miiservice/listfoldersservice.js';
+import { File } from "../../miiservice/listfilesservice";
+import { Folder } from "../../miiservice/listfoldersservice";
+import { TreeDataProvider, TreeItem } from "./tree";
+import * as vscode from "vscode";
 
-
-abstract class TreeDataProvider implements vscode.TreeDataProvider<TreeItem>{
-    protected _onDidChangeTreeData: vscode.EventEmitter<TreeItem | undefined | null | void> = new vscode.EventEmitter<TreeItem | undefined | null | void>();
-    readonly onDidChangeTreeData: vscode.Event<TreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
-
-    protected items: TreeItem[];
-
-    abstract generateItems(...args: any)
-
-    refresh() {
-        this._onDidChangeTreeData.fire(undefined);
-    }
-
-    getTreeItem(element: TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
-        return element;
-    }
-
-    getChildren(element?: TreeItem | undefined): vscode.ProviderResult<TreeItem[]> {
-        if (element === undefined) {
-            return this.items;
-        }
-        return element.children;
-    }
-}
-
-class TreeItem extends vscode.TreeItem {
-    data: string;
-    children: TreeItem[] | undefined;
-
-    constructor(label: string, children?: TreeItem[]) {
-        super(
-            label,
-            children === undefined ? vscode.TreeItemCollapsibleState.None :
-                vscode.TreeItemCollapsibleState.Expanded);
-        this.children = children;
-    }
-}
-
-class FilePropertiesTree extends TreeDataProvider {
-    private file: FileProperties;
-
-    generateItems(file: FileProperties) {
-        const items: TreeItem[] = [];
-        for (const key in file) {
-            if (Object.prototype.hasOwnProperty.call(file, key)) {
-                const value = file[key];
-                items.push(new TreeItem(key + ": " + value));
-            }
-        }
-        this.items = items;
-        this.file = file;
-        this.refresh();
-    }
-}
-
-class RemoteDirectoryPropertiesTree extends TreeDataProvider {
+class RemoteDirectoryTree extends TreeDataProvider {
     private directory: (File | Folder)[];
 
     generateItems(directory: (File | Folder)[]) {
@@ -74,7 +18,9 @@ class RemoteDirectoryPropertiesTree extends TreeDataProvider {
         const folders: TreeItem[] = [];
         for (const file of files) {
             const folder = findFolder(file.FilePath);
-            folder.children.push(new TreeItem(file.ObjectName));
+            const item = new TreeItem(file.ObjectName);
+            item.iconPath = vscode.ThemeIcon.File;
+            folder.children.push(item);
         }
 
         function findFolder(folderPath: string): TreeItem {
@@ -85,8 +31,10 @@ class RemoteDirectoryPropertiesTree extends TreeDataProvider {
             }
 
             const folderName = folderPath.substring(folderPath.lastIndexOf('/') + 1);
-            let folder = new TreeItem(folderName, []);
+            let folder = new TreeItem(folderName, [])
+            folder.iconPath = vscode.ThemeIcon.Folder;
             folder.data = folderPath;
+            folder.contextValue = 'folder';
             folders.push(folder);
 
             const originalFolder = folder;
@@ -100,6 +48,8 @@ class RemoteDirectoryPropertiesTree extends TreeDataProvider {
                 if (!exists) {
                     const pFolder = new TreeItem(pfolderName, [folder]);
                     pFolder.data = path;
+                    pFolder.iconPath = vscode.ThemeIcon.Folder;
+                    pFolder.contextValue = 'folder';
                     folders.push(pFolder);
                     folder = pFolder;
                 }
@@ -159,11 +109,4 @@ class RemoteDirectoryPropertiesTree extends TreeDataProvider {
 
 
 
-
-
-export let remoteDirectoryTree: RemoteDirectoryPropertiesTree = new RemoteDirectoryPropertiesTree();
-export let fileProperties: FilePropertiesTree = new FilePropertiesTree();
-export function activateTree({ subscriptions }: vscode.ExtensionContext) {
-    subscriptions.push(vscode.window.registerTreeDataProvider('fileproperties', fileProperties));
-    subscriptions.push(vscode.window.registerTreeDataProvider('remotedirectory', remoteDirectoryTree));
-}
+export let remoteDirectoryTree: RemoteDirectoryTree = new RemoteDirectoryTree();

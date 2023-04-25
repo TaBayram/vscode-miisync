@@ -1,17 +1,14 @@
 import { pathExists } from "fs-extra";
-import { DownloadDirectory, DownloadFile, UploadFile } from "../extension/transfer.js";
+import { DownloadDirectory, DownloadFile, DownloadRemoteFolder } from "../extension/transfer.js";
 import { getActiveTextEditor } from "../modules/vscode.js";
 import logger from "../ui/logger.js";
 import { Uri } from "vscode";
 import { configManager } from "../modules/config.js";
 import { GetRemotePath } from "../modules/file.js";
-import path = require("path");
 import { ValidateContext } from "../extension/gate.js";
-import { loadFilesInsideService } from "../miiservice/loadfilesinsideservice.js";
-import { Directory } from "../miiservice/responsetypes.js";
-import statusBar, { Icon } from "../ui/statusbar.js";
-import { remoteDirectoryTree } from "../ui/viewtree.js";
 import { exportProjectService } from "../miiservice/exportprojectservice.js";
+import { TreeItem } from "../ui/explorer/tree.js";
+import path = require("path");
 
 
 export async function OnCommandDownloadFile(uri: Uri) {
@@ -72,4 +69,12 @@ export async function OnCommandDownloadProject(){
     }
     exportProjectService.call({host: userConfig.host, port: userConfig.port, auth}, parentPath);
     return;
+}
+
+
+export async function OnCommandDownloadRemoteFolder(treeItem: TreeItem) {
+    const userConfig = await configManager.load();
+    if (!userConfig) return;
+
+    DownloadRemoteFolder(treeItem.data, userConfig);
 }

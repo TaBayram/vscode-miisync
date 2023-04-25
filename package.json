@@ -12,7 +12,7 @@
     "type": "github"
   },
   "icon": "resources/icon.png",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -78,8 +78,18 @@
       {
         "command": "miisync.downloadremotedirectory",
         "title": "Download Remote Directory",
+        "icon": "$(extensions-install-count)",
         "category": "mii",
-        "enablement": "miisync.enabled"
+        "enablement": "miisync.enabled",
+        "when": false
+      },
+      {
+        "command": "miisync.downloadremotefolder",
+        "title": "Download Remote Folder",
+        "icon": "$(extensions-install-count)",
+        "category": "mii",
+        "enablement": "miisync.enabled",
+        "when": false
       },
       {
         "command": "miisync.endcurrentsession",
@@ -106,6 +116,20 @@
           "group": "miisync",
           "when": "miisync.enabled && !explorerResourceIsRoot && explorerResourceIsFolder"
         }
+      ],
+      "view/title": [
+        {
+          "command": "miisync.downloadremotedirectory",
+          "when": "view == remotedirectory",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "miisync.downloadremotefolder",
+          "when": "view == remotedirectory && viewItem == folder",
+          "group": "inline"
+        }
       ]
     },
     "viewsContainers": {
@@ -131,6 +155,7 @@
         }
       ]
     },
+    
     "jsonValidation": [
       {
         "fileMatch": "/miisync.json",
