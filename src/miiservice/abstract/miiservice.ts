@@ -1,6 +1,6 @@
 import logger from '../../ui/logger.js';
 import { XMLParser } from 'fast-xml-parser';
-import fetch from "node-fetch";
+import fetch, { Response } from "node-fetch";
 import { Session } from '../../user/session.js';
 import { UserConfig } from '../../modules/config.js';
 import { Column, MII, Row } from './responsetypes.js';
@@ -45,10 +45,8 @@ export abstract class Service {
         return fetch(url, {
             method: body ? "POST" : "GET",
             body,
-            headers,
-            keepalive: true,
-
-        }).then((response) => {
+            headers
+        }).then((response: Response): any => {
             if (response.status != 200)
                 logger.error(this.name + ": " + response.status + "-" + response.statusText);
             if (convert == 'none')
