@@ -3,7 +3,7 @@ import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as Joi from 'joi';
 import { CONFIG_PATH, EXTENSION_NAME } from '../constants.js';
-import { getWorkspaceFolders, showTextDocument } from './vscode';
+import { GetWorkspaceFolders, ShowTextDocument } from './vscode';
 
 const nullable = schema => schema.optional().allow(null);
 
@@ -16,6 +16,7 @@ const configScheme = Joi.object({
     username: Joi.string().required(),
     password: Joi.string(),
     uploadOnSave: Joi.boolean(),
+    downloadOnOpen: Joi.boolean(),
     ignore: Joi.array<string>(),
     rootConfig: Joi.string(),
     useRootConfig: Joi.boolean()
@@ -30,6 +31,7 @@ export interface UserConfig {
     username?: string,
     password?: string,
     uploadOnSave?: boolean,
+    downloadOnOpen?: boolean,
     ignore?: string[],
     useRootConfig?: boolean,
     rootConfig?: string,
@@ -45,6 +47,7 @@ function GetWorkspaceConfig(): UserConfig {
         context: conf.get("context", '/'),
         removeFromContext: conf.get("removeFromContext", ['webapp']),
         remotePath: conf.get("remotePath", '/'),
+        downloadOnOpen: false,
         uploadOnSave: true,
         ignore: conf.get('ignore', ['package.json', 'package-lock.json', 'tsconfig.json', '.*']),
         useRootConfig: conf.get('useRootConfig', false),
@@ -54,30 +57,30 @@ function GetWorkspaceConfig(): UserConfig {
 
 const defaultConfig = {};
 
-function mergedDefault(config) {
+function MergedDefault(config) {
     return {
         ...defaultConfig,
         ...config,
     };
 }
 
-function getConfigPath(basePath) {
+function GetConfigPath(basePath) {
     return path.join(basePath, CONFIG_PATH);
 }
 
-function readConfigsFromFile(configPath): Promise<any[]> {
+function ReadConfigsFromFile(configPath): Promise<any[]> {
     return fse.readJson(configPath).then(config => {
         const configs = Array.isArray(config) ? config : [config];
-        return configs.map(mergedDefault);
+        return configs.map(MergedDefault);
     });
 }
 
-function tryLoadConfigs(workspace): Promise<any[]> {
-    const configPath = getConfigPath(workspace);
+function TryLoadConfigs(workspace): Promise<any[]> {
+    const configPath = GetConfigPath(workspace);
     return fse.pathExists(configPath).then(
         exist => {
             if (exist) {
-                return readConfigsFromFile(configPath);
+                return ReadConfigsFromFile(configPath);
             }
             return [];
         },
@@ -86,14 +89,14 @@ function tryLoadConfigs(workspace): Promise<any[]> {
 }
 
 
-export function newConfig(basePath) {
-    const configPath = getConfigPath(basePath);
+export function NewConfig(basePath) {
+    const configPath = GetConfigPath(basePath);
 
     return fse
         .pathExists(configPath)
         .then(exist => {
             if (exist) {
-                return showTextDocument(vscode.Uri.file(configPath));
+                return ShowTextDocument(vscode.Uri.file(configPath));
             }
             return fse
                 .outputJson(
@@ -101,7 +104,7 @@ export function newConfig(basePath) {
                     GetWorkspaceConfig(),
                     { spaces: 4 }
                 )
-                .then(() => showTextDocument(vscode.Uri.file(configPath)));
+                .then(() => ShowTextDocument(vscode.Uri.file(configPath)));
         })
         .catch(console.error);
 }
@@ -114,8 +117,11 @@ class ConfigManager {
 
     private selffsPath: string;
     private selfConfig: UserConfig;
-
+    
     public onConfigChange: vscode.EventEmitter<UserConfig> = new vscode.EventEmitter();
+    
+    private lastLoadedTime: number;
+    private lastLoadThreshold = 500;
 
     get Config(){
         return this.useRoot ? this.rootConfig : this.selfConfig;
@@ -124,7 +130,7 @@ class ConfigManager {
     
 
     constructor(){
-        
+        this.lastLoadedTime = Date.now();
 
     }
     validate() {
@@ -137,7 +143,16 @@ class ConfigManager {
 
 
     async load() {
-        this.selffsPath = getWorkspaceFolders()[0].uri.fsPath;
+        if(Date.now() - this.lastLoadedTime < this.lastLoadThreshold && this.selfConfig){
+            if(this.selfConfig.useRootConfig && this.rootConfig){
+                return this.rootConfig;
+            }
+            else{
+                return this.selfConfig;
+            }
+        }
+
+        this.selffsPath = GetWorkspaceFolders()[0].uri.fsPath;
         this.selfConfig = (await this.loadRoot(this.selffsPath, true)).config;
         this.useRoot = false;
         if (this.selfConfig.useRootConfig) {
@@ -151,7 +166,7 @@ class ConfigManager {
                 return root.config;
             }
         }
-
+        this.lastLoadedTime = Date.now();
         this.onConfigChange.fire(this.selfConfig);
         return this.selfConfig;
     }
@@ -159,18 +174,18 @@ class ConfigManager {
     async update(config: UserConfig) {
         if (!this.useRoot) {
             this.selfConfig = config;
-            fse.outputJson(getConfigPath(this.selffsPath), config, { spaces: 4 });
+            fse.outputJson(GetConfigPath(this.selffsPath), config, { spaces: 4 });
         }
         else {
             this.rootConfig = config;
-            fse.outputJson(getConfigPath(this.rootfsPath), config, { spaces: 4 });
+            fse.outputJson(GetConfigPath(this.rootfsPath), config, { spaces: 4 });
         }
         this.onConfigChange.fire(config);
     }
 
   
     private async loadRoot(fsPath: string, self: boolean): Promise<{ config: UserConfig, fsPath: string }> {
-        const configs = await tryLoadConfigs(fsPath);
+        const configs = await TryLoadConfigs(fsPath);
         if (configs?.length) {
             const config: UserConfig = configs[0];
             if (!self && config.useRootConfig && path.relative(config.rootConfig, fsPath).trim() != '') {

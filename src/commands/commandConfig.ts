@@ -1,11 +1,11 @@
-import { newConfig } from "../modules/config.js";
+import { NewConfig } from "../modules/config.js";
 import * as vscode from 'vscode';
-import { addWorkspaceFolder, getWorkspaceFolders, openFolder, showConfirmMessage, showOpenDialog } from "../modules/vscode.js";
+import { AddWorkspaceFolder, GetWorkspaceFolders, OpenFolder, ShowConfirmMessage, ShowOpenDialog } from "../modules/vscode.js";
 
 export async function OnCommandCreateConfig() {
-    const workspaceFolders = getWorkspaceFolders();
+    const workspaceFolders = GetWorkspaceFolders();
     if (!workspaceFolders) {
-        const result = await showConfirmMessage(
+        const result = await ShowConfirmMessage(
             'MIISYNC expects to work at a folder.',
             'Open Folder',
             'Ok'
@@ -13,10 +13,10 @@ export async function OnCommandCreateConfig() {
         if (!result) {
             return;
         }
-        return openFolder();
+        return OpenFolder();
     }
     if (workspaceFolders.length <= 0) {
-        const result = await showConfirmMessage(
+        const result = await ShowConfirmMessage(
             'There are no available folders in current workspace.',
             'Add Folder to Workspace',
             'Ok'
@@ -24,7 +24,7 @@ export async function OnCommandCreateConfig() {
         if (!result) {
             return;
         }
-        const resources = await showOpenDialog({
+        const resources = await ShowOpenDialog({
             canSelectFiles: false,
             canSelectFolders: true,
             canSelectMany: true,
@@ -33,12 +33,12 @@ export async function OnCommandCreateConfig() {
             return;
         }
 
-        addWorkspaceFolder(...resources.map(uri => ({ uri })));
+        AddWorkspaceFolder(...resources.map(uri => ({ uri })));
         return;
     }
 
     if (workspaceFolders.length === 1) {
-        newConfig(workspaceFolders[0].uri.fsPath);
+        NewConfig(workspaceFolders[0].uri.fsPath);
         return;
     }
 
@@ -56,6 +56,6 @@ export async function OnCommandCreateConfig() {
             if (item === undefined) {
                 return;
             }
-            newConfig(item.value);
+            NewConfig(item.value);
         });
 }

@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
-import { setContextValue } from "../modules/vscode";
+import { UserConfig } from "../modules/config";
+import { SetContextValue, ShowInputBox } from "../modules/vscode";
+import logger from "../ui/logger";
 
 export class Session {
     private static instance: Session;
@@ -14,15 +16,26 @@ export class Session {
     private context: vscode.ExtensionContext;
     private cookies: string[] = [];
     private lastUpdated: Date;
+    private auth: string;
+    private password: string;
 
     private hasMIICookies: boolean = false;
+    private isLoggedIn: boolean = false;
+    private hasAuthChanged: boolean = false;
 
-    public set HasMIICookies(value: boolean){
+    public set HasMIICookies(value: boolean) {
         this.hasMIICookies = value;
-        setContextValue("session", value);
+        SetContextValue("session", value);
     }
-    public get HasMIICookies(){
+    public get HasMIICookies() {
         return this.hasMIICookies;
+    }
+
+    public set IsLoggedIn(value: boolean) {
+        this.isLoggedIn = value;
+    }
+    public get IsLoggedIn() {
+        return this.isLoggedIn;
     }
 
     public set Context(value: vscode.ExtensionContext) {
@@ -30,16 +43,48 @@ export class Session {
         this.loadCookies();
     }
 
+    public get Auth() {
+        return this.auth;
+    }
+
 
     private constructor() {
-        
+
     }
 
-    clear(){
+    async setAuth({ username, password }: UserConfig, promptPassword = true) {
+        if (password == null && promptPassword) {
+            if (await this.askPassword())
+                password = this.password;
+        }
+
+        const newAuth = encodeURIComponent(Buffer.from(username + ":" + password).toString('base64'));
+        if (newAuth != this.auth) {
+            this.hasAuthChanged = true;
+            this.auth = newAuth;
+        }
+    }
+
+    clear() {
         this.HasMIICookies = false;
+        this.IsLoggedIn = false;
         this.cookies = [];
+        this.clearCookies();
     }
 
+    login(response) {
+        if (response) {
+			this.IsLoggedIn = true;
+			this.haveCookies(response);
+		}
+    }
+
+    haveCookies(response) {
+        if (!this.hasMIICookies) {
+            this.parseCookies(response);
+            this.HasMIICookies = true;
+        }
+    }
 
     parseCookies(response) {
         const raw: string[] = response.headers.raw()['set-cookie'] || [];
@@ -58,7 +103,7 @@ export class Session {
 
 
     getCookies(): string {
-        if(!this.isExpired(this.lastUpdated, 60)){
+        if (!this.isExpired(this.lastUpdated, 60)) {
             this.HasMIICookies = false;
         }
         return this.cookies.join(";");
@@ -91,8 +136,25 @@ export class Session {
         this.context.globalState.update("cookies", this.cookies);
     }
 
+    private async askPassword() {
+        const password = await ShowInputBox({ password: true, placeHolder: "Enter Password", title: "Password" });
+        if (password) {
+            this.password;
+            return true;
+        }
+        else {
+            logger.info("No password given");
+            return false;
+        }
+    }
 
-    private isExpired(date: Date, duration: number){
+    private clearCookies() {
+        this.context.globalState.update("lastUpdated", null);
+        this.context.globalState.update("cookies", null);
+    }
+
+
+    private isExpired(date: Date, duration: number) {
         return (new Date().getTime() - date.getTime()) / 1000 / 60 >= duration
     }
 

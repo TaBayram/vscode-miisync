@@ -1,13 +1,13 @@
 import logger from '../ui/logger.js';
-import { Service, Request } from './miiservice';
+import { Service, Request } from './abstract/miiservice.js';
 
 class SaveFileService extends Service {
     name: string = "Save File";
     mode: string = "XMII/Catalog?Mode=SaveBinary&Class=Content";
 
-    async call({ host, port, auth, body }: Request & { auth: string, body: string }, sourcePath: string) {
+    async call({ host, port, body }: Request & { body: string }, sourcePath: string) {
         const url = this.get(host, port, sourcePath);
-        const { value, error, isError } = await this.fetch(url, auth, body);
+        const { value, error, isError } = await this.fetch(url, true, body);
         if (!isError) {
             const data = this.parseXML(value);
             logger.info(this.name + ": " + data?.Rowsets?.Messages?.Message);

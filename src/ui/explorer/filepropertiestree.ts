@@ -1,8 +1,4 @@
-import * as vscode from 'vscode';
-import { GeneralColumn2, Row } from '../../miiservice/responsetypes.js';
-import { FileProperties } from '../../miiservice/readfilepropertiesservice.js';
-import { File } from '../../miiservice/listfilesservice.js';
-import { Folder } from '../../miiservice/listfoldersservice.js';
+import { FileProperties } from '../../miiservice/abstract/responsetypes.js';
 import { TreeDataProvider, TreeItem } from './tree.js';
 
 

@@ -12,7 +12,7 @@
     "type": "github"
   },
   "icon": "resources/icon.png",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -51,6 +51,18 @@
         "enablement": "miisync.enabled"
       },
       {
+        "command": "miisync.disabledownloadonopen",
+        "title": "Disable Download On Open",
+        "category": "mii",
+        "enablement": "miisync.enabled"
+      },
+      {
+        "command": "miisync.enabledownloadonopen",
+        "title": "Enable Download On Open",
+        "category": "mii",
+        "enablement": "miisync.enabled"
+      },
+      {
         "command": "miisync.uploadfile",
         "title": "Upload Current File",
         "category": "mii",
@@ -63,35 +75,6 @@
         "enablement": "miisync.enabled"
       },
       {
-        "command": "miisync.downloadfolder",
-        "title": "Download Folder",
-        "category": "mii",
-        "enablement": "miisync.enabled",
-        "when": false
-      },
-      {
-        "command": "miisync.openscreen",
-        "title": "Open Current Screen",
-        "category": "mii",
-        "enablement": "miisync.enabled"
-      },
-      {
-        "command": "miisync.downloadremotedirectory",
-        "title": "Download Remote Directory",
-        "icon": "$(extensions-install-count)",
-        "category": "mii",
-        "enablement": "miisync.enabled",
-        "when": false
-      },
-      {
-        "command": "miisync.downloadremotefolder",
-        "title": "Download Remote Folder",
-        "icon": "$(extensions-install-count)",
-        "category": "mii",
-        "enablement": "miisync.enabled",
-        "when": false
-      },
-      {
         "command": "miisync.endcurrentsession",
         "title": "End Current Session",
         "category": "mii",
@@ -102,17 +85,76 @@
         "title": "Download Project",
         "category": "mii",
         "enablement": "miisync.enabled"
+      },
+      {
+        "command": "miisync.openscreen",
+        "title": "Open Current Screen",
+        "category": "mii",
+        "enablement": "miisync.enabled"
+      },
+      {
+        "command": "miisync.downloadfolder",
+        "title": "Download Folder",
+        "category": "zmii",
+        "enablement": "miisync.enabled",
+        "when": false
+      },
+      {
+        "command": "miisync.uploadfolder",
+        "title": "Upload Folder",
+        "category": "zmii",
+        "enablement": "miisync.enabled",
+        "when": false
+      },
+      {
+        "command": "miisync.downloadremotedirectory",
+        "title": "Download Remote Directory",
+        "icon": "$(extensions-install-count)",
+        "category": "zmii",
+        "enablement": "miisync.enabled",
+        "when": false
+      },
+      {
+        "command": "miisync.downloadremotefolder",
+        "title": "Download Remote Folder",
+        "icon": "$(extensions-install-count)",
+        "category": "zmii",
+        "enablement": "miisync.enabled",
+        "when": false
+      },
+      {
+        "command": "miisync.downloadfileproperties",
+        "title": "Download File Properties",
+        "icon": "$(timeline-refresh)",
+        "category": "zmii",
+        "enablement": "miisync.enabled",
+        "when": false
       }
     ],
     "menus": {
       "explorer/context": [
+        {
+          "command": "miisync.openscreen",
+          "group": "miisync",
+          "when": "miisync.enabled && resourceFilename == index.html"
+        },
         {
           "command": "miisync.downloadfile",
           "group": "miisync",
           "when": "miisync.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
         },
         {
+          "command": "miisync.uploadfile",
+          "group": "miisync",
+          "when": "miisync.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
+        },
+        {
           "command": "miisync.downloadfolder",
+          "group": "miisync",
+          "when": "miisync.enabled && !explorerResourceIsRoot && explorerResourceIsFolder"
+        },
+        {
+          "command": "miisync.uploadfolder",
           "group": "miisync",
           "when": "miisync.enabled && !explorerResourceIsRoot && explorerResourceIsFolder"
         }
@@ -121,6 +163,11 @@
         {
           "command": "miisync.downloadremotedirectory",
           "when": "view == remotedirectory",
+          "group": "navigation"
+        },
+        {
+          "command": "miisync.downloadfileproperties",
+          "when": "view == fileproperties",
           "group": "navigation"
         }
       ],

@@ -1,14 +1,13 @@
-import logger from '../ui/logger.js';
+import logger from '../../ui/logger.js';
 import { XMLParser } from 'fast-xml-parser';
 import fetch from "node-fetch";
-import { Session } from '../extension/session.js';
-import { UserConfig } from '../modules/config.js';
+import { Session } from '../../extension/session.js';
+import { UserConfig } from '../../modules/config.js';
 import { Column, MII, Row } from './responsetypes.js';
 
 export interface Request {
     host: string,
     port: number,
-    auth?: string,
     body?: string
 }
 
@@ -18,7 +17,7 @@ export abstract class Service {
 
     constructor() { }
 
-    abstract call(request: Request, ...args: any):Promise<MII<Row, Column> | void>;
+    abstract call(request: Request, ...args: any): Promise<MII<Row, Column> | void>;
     abstract get(host: string, port: number, ...args: any);
     protected abstract generateParams(...args: any);
 
@@ -27,15 +26,20 @@ export abstract class Service {
     }
 
     protected generateURL(host: string, port: number, protocol: 'http' | 'https' = 'http') {
-        return `${protocol}://${host}:${port}/${this.mode}`;
+        return `${this.generateIP(host, port, protocol)}/${this.mode}`;
     }
-    protected async fetch(url: string, auth?: string, body?: string, convert: 'text' | 'blob' = 'text'): Promise<{ value: string, error: Error, isError: boolean }> {
+    protected generateIP(host: string, port, protocol: 'http' | 'https' = 'http') {
+        return `${protocol}://${host}:${port}`;
+    }
+
+    protected async fetch(url: string, auth: boolean = true, body?: string, convert: 'text' | 'blob' | 'none' = 'text'): Promise<{ value: any, error: Error, isError: boolean }> {
         let headers = {
             "Content-Type": "application/x-www-form-urlencoded",
             "cookie": Session.Instance.getCookies()
         };
-        if (auth)
-            headers["Authorization"] = 'Basic ' + auth;
+        if (auth) {
+            headers["Authorization"] = 'Basic ' + Session.Instance.Auth;
+        }
         return fetch(url, {
             method: body ? "POST" : "GET",
             body,
@@ -45,10 +49,8 @@ export abstract class Service {
         }).then((response) => {
             if (response.status != 200)
                 logger.error(this.name + ": " + response.status + "-" + response.statusText);
-            else if (!Session.Instance.HasMIICookies) {
-                Session.Instance.parseCookies(response);
-                Session.Instance.HasMIICookies = true;
-            }
+            if (convert == 'none')
+                return response;
             return response[convert]();
         }).then(data => {
             return { value: data, error: null, isError: false };
@@ -64,6 +66,9 @@ export abstract class Service {
                 return tagName == "Row";
             },
         });
+
+
         return parser.parse(data);
+
     }
 }

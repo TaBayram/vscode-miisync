@@ -1,5 +1,4 @@
-import { File } from "../../miiservice/listfilesservice";
-import { Folder } from "../../miiservice/listfoldersservice";
+import { Directory, File, Folder } from "../../miiservice/abstract/responsetypes";
 import { TreeDataProvider, TreeItem } from "./tree";
 import * as vscode from "vscode";
 

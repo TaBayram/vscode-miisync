@@ -1,35 +1,18 @@
-import logger from '../ui/logger.js';
-import { Service, Request } from './miiservice';
-import { GeneralColumn, GeneralColumn2, MII, Row } from './responsetypes';
-
-export interface FileProperties extends Row {
-    ObjectName: string
-    FilePath: string
-    Type: string
-    Created: string
-    CreatedBy: string
-    Modified: string
-    ModifiedBy: string
-    DcSpecificPath: string
-    CheckedOutBy: string
-    State: string
-    ReadOnly: boolean
-    LockedUsername: string
-    Version: string
-  }
+import { Request, Service } from './abstract/miiservice';
+import { FileProperties, GeneralColumn2, MII } from './abstract/responsetypes';
   
 
 class ReadFilePropertiesService extends Service {
     name: string = "File Properties";
     mode: string = "XMII/Catalog?Mode=ListFileProperties&Content-Type=text/xml";
 
-    async call({ host, port, auth }: Request & { auth: string }, folderPath: string) {
+    async call({ host, port }: Request, folderPath: string) {
         const url = this.get(host, port, folderPath);
-        const { value, error, isError } = await this.fetch(url, auth);
+        const { value, error, isError } = await this.fetch(url);
         let data: MII<FileProperties, GeneralColumn2> = null
         if (!isError) {
             data = this.parseXML(value);
-            logger.info(this.name + ": " + data?.Rowsets?.Rowset?.Row?.length);
+            /* logger.info(this.name + ": " + data?.Rowsets?.Rowset?.Row?.length); */
         }
         return data;
     }

@@ -1,4 +1,3 @@
-
 import { configManager } from "../modules/config.js";
 
 export async function OnCommandEnableSyncSave() {
@@ -16,4 +15,22 @@ export async function OnCommandDisableSyncSave() {
         configManager.update(userConfig);
     }
 
+}
+
+
+export async function OnCommandEnableDownloadOnOpen() {
+    const userConfig = await configManager.load();
+    if (userConfig) {
+        userConfig.downloadOnOpen = true;
+        configManager.update(userConfig);
+    }
+}
+
+
+export async function OnCommandDisableDownloadOnOpen() {
+    const userConfig = await configManager.load();
+    if (userConfig) {
+        userConfig.downloadOnOpen = false;
+        configManager.update(userConfig);
+    }
 }

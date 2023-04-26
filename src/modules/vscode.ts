@@ -1,48 +1,48 @@
 import * as vscode from 'vscode';
 import { EXTENSION_NAME } from '../constants.js';
 
-export function getWorkspaceFolders() {
+export function GetWorkspaceFolders() {
     return vscode.workspace.workspaceFolders;
 }
 
-export function getCurrentWorkspaceFolderUri() {
-    return getWorkspaceFolders()[0].uri;
+export function GetCurrentWorkspaceFolder() {
+    return GetWorkspaceFolders()[0].uri;
 }
 
-export function openFolder(uri?: vscode.Uri, newWindow?: boolean) {
+export function OpenFolder(uri?: vscode.Uri, newWindow?: boolean) {
     vscode.commands.executeCommand('vscode.openFolder', uri, newWindow);
 }
 
-export function openLink(url: string) {
+export function OpenLink(url: string) {
     vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(url));
 }
 
-export function addWorkspaceFolder(...workspaceFoldersToAdd: { uri: vscode.Uri; name?: string }[]) {
+export function AddWorkspaceFolder(...workspaceFoldersToAdd: { uri: vscode.Uri; name?: string }[]) {
     return vscode.workspace.updateWorkspaceFolders(0, 0, ...workspaceFoldersToAdd);
 }
 
-export function showOpenDialog(options: vscode.OpenDialogOptions) {
+export function ShowOpenDialog(options: vscode.OpenDialogOptions) {
     return vscode.window.showOpenDialog(options);
 }
 
-export function showTextDocument(uri: vscode.Uri, option?: vscode.TextDocumentShowOptions) {
+export function ShowTextDocument(uri: vscode.Uri, option?: vscode.TextDocumentShowOptions) {
     return vscode.window.showTextDocument(uri, option);
 }
 
-export function pathRelativeToWorkspace(localPath: string | vscode.Uri) {
+export function PathRelativeToWorkspace(localPath: string | vscode.Uri) {
     return vscode.workspace.asRelativePath(localPath);
 }
 
-export function getActiveTextEditor() {
+export function GetActiveTextEditor() {
     return vscode.window.activeTextEditor;
 }
 
-export function getOpenTextDocuments(): readonly vscode.TextDocument[] {
+export function GetOpenTextDocuments(): readonly vscode.TextDocument[] {
     return vscode.workspace.textDocuments;
 }
 
 
-export async function showConfirmMessage(
+export async function ShowConfirmMessage(
     message: string,
     confirmLabel: string = 'Yes',
     cancelLabel: string = 'No'
@@ -56,7 +56,7 @@ export async function showConfirmMessage(
     return (result && result.title === confirmLabel);
 }
 
-export async function showInputBox(
+export async function ShowInputBox(
     options?: vscode.InputBoxOptions,
     token?: vscode.CancellationToken
 ) {
@@ -64,12 +64,12 @@ export async function showInputBox(
 }
 
 
-export function executeCommand(command: string, ...rest: any[]): Thenable<any> {
+export function ExecuteCommand(command: string, ...rest: any[]): Thenable<any> {
     return vscode.commands.executeCommand(command, ...rest);
 }
 
-export function setContextValue(key: string, value: any) {
-    executeCommand('setContext', EXTENSION_NAME + '.' + key, value);
+export function SetContextValue(key: string, value: any) {
+    ExecuteCommand('setContext', EXTENSION_NAME + '.' + key, value);
 }
 
 

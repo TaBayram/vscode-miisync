@@ -1,7 +1,6 @@
 
 import { UserConfig } from "./config.js";
 import { exists, lstat, readdir } from "fs-extra";
-import logger from "../ui/logger.js";
 import '../extends/string.js';
 import path = require("path");
 
@@ -11,6 +10,9 @@ export function InsertWeb(path: string) {
     return path.splice(index != -1 ? index : path.length, 0, web);
 }
 
+/**
+ * Converts local file path to remote path using user config
+ */
 export function GetRemotePath(filePath: string, { remotePath, context, removeFromContext }: UserConfig, addWeb = true) {
     let sourcePath = filePath.substring(filePath.indexOf(context));
     for (const remove of removeFromContext) {
@@ -22,6 +24,9 @@ export function GetRemotePath(filePath: string, { remotePath, context, removeFro
     return (startPath + sourcePath).replaceAll(path.sep, '/');
 }
 
+/**
+ * Checks if the filepath is in the context directory, folder starts with . and the file name is in ignore
+ */
 export function ValidatePath(filePath: string, userConfig: UserConfig): boolean {
     const firstFolderName = filePath.substring(filePath.lastIndexOf(path.sep, filePath.lastIndexOf(path.sep) - 1), filePath.lastIndexOf(path.sep)).replace(path.sep, '');
     const fileName = filePath.substring(filePath.lastIndexOf(path.sep)).replace(path.sep, '');
@@ -53,4 +58,25 @@ export async function FindFileInDir(startPath: string, filter: string): Promise<
             return name;
         }
     }
+}
+
+
+export async function GetAllFilesInDir(startPath: string): Promise<string[]> {
+    if (!await exists(startPath)) {
+        return null;
+    }
+    const files = [];
+    const directory = await readdir(startPath);
+    for (const file of directory) {
+        const name = path.join(startPath, file);
+        const stat = await lstat(name);
+        if (stat.isDirectory()) {
+            files.push(...await GetAllFilesInDir(name));  
+        }
+        else{
+            files.push(name);
+        }
+    }
+
+    return files;
 }

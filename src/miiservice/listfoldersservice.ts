@@ -1,37 +1,17 @@
-import { Root } from 'joi';
-import logger from '../ui/logger.js';
-import { Service, Request } from './miiservice';
-import { Column, GeneralColumn2, MII, Row } from './responsetypes';
-import { File } from './listfilesservice';
+import { Request, Service } from './abstract/miiservice';
+import { Folder, GeneralColumn2, MII } from './abstract/responsetypes';
 
-
-export interface Folder extends Row {
-    ITYPE: 'Folder';
-    FolderName: string
-    ParentFolderName: string
-    Path: string
-    ParentPath: string
-    IsWebDir: boolean
-    IsMetaDir: boolean
-    IsMDODir: boolean
-    ChildFolderCount: number
-    ChildFileCount: number
-    RemotePath: string
-    ComponentName: string
-    State: string,
-    children?: (File | Folder)[];
-}
 
 class ListFoldersService extends Service {
     name: string = "List Folders";
     mode: string = "XMII/Catalog?Mode=ListFolders&Session=true&DoStateCheck=true&Content-Type=text/xml";
-    async call({ host, port, auth }: Request & { auth: string }, folderPath: string) {
+    async call({ host, port }: Request, folderPath: string) {
         const url = this.get(host, port, folderPath);
-        const { value, error, isError } = await this.fetch(url, auth);
+        const { value, error, isError } = await this.fetch(url, true);
         let data: MII<Folder, GeneralColumn2> = null;
         if (!isError) {
             data = this.parseXML(value);
-            logger.info(this.name + ": " + data?.Rowsets?.Rowset?.Row?.length);
+            /* logger.info(this.name + ": " + data?.Rowsets?.Rowset?.Row?.length); */
         }
         return data;
     }
