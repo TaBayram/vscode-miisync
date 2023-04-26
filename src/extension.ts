@@ -5,19 +5,17 @@ import { OnCommandDownloadFile, OnCommandDownloadFileProperties, } from './comma
 import { OnCommandDownloadFolder } from './commands/commanddownloadfolder';
 import { OnCommandDownloadProject } from './commands/commanddownloadproject';
 import { OnCommandOpenScreen } from './commands/commandopenscreen';
-import { OnCommandEndSession } from './commands/commandsession';
+import { OnCommandLogin, OnCommandLogout } from './commands/commandsession';
 import { OnCommandDisableDownloadOnOpen, OnCommandDisableSyncSave, OnCommandEnableDownloadOnOpen, OnCommandEnableSyncSave } from './commands/commandtogglesync';
 import { OnCommandUploadFile } from './commands/commanduploadfile';
+import { OnCommandUploadFolder } from './commands/commanduploadfolder';
 import { OnDidChangeActiveTextEditor, OnDidOpenTextDocument, OnDidSaveTextDocument } from './extension/events';
-import { Session } from './extension/session';
-import { currentUsersService } from './miiservice/currentuserservice';
-import { configManager } from './modules/config';
 import { SetContextValue } from './modules/vscode';
-import { activateBar } from './ui/statusbar';
 import { fileProperties } from './ui/explorer/filepropertiestree';
 import { remoteDirectoryTree } from './ui/explorer/remotedirectorytree';
-import { OnCommandUploadFolder } from './commands/commanduploadfolder';
-import { logInService } from './miiservice/loginservice';
+import { activateBar } from './ui/statusbar';
+import { Session } from './user/session';
+import { userManager } from './user/usermanager';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -32,12 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(OnDidChangeActiveTextEditor));
 
 	Session.Instance.Context = context;
-	configManager.load().then(async ({ host, port, username, password }) => {
-		await Session.Instance.setAuth({ username, password }, true);
-		const response = await logInService.call({ host, port });
-		Session.Instance.login(response);
-	});
-
+	userManager.login();
 	SetContextValue("enabled", true);
 }
 
@@ -49,13 +42,14 @@ export function deactivate() {
 
 function RegisterCommands(context: vscode.ExtensionContext ){
 	RegisterCommand('miisync.createconfig', OnCommandCreateConfig, context);
-	RegisterCommand('miisync.disablesyncsave', OnCommandDisableSyncSave, context);
-	RegisterCommand('miisync.enablesyncsave', OnCommandEnableSyncSave, context);
+	RegisterCommand('miisync.disableuploadonsave', OnCommandDisableSyncSave, context);
+	RegisterCommand('miisync.enableuploadonsave', OnCommandEnableSyncSave, context);
 	RegisterCommand('miisync.uploadfile', OnCommandUploadFile, context);
 	RegisterCommand('miisync.downloadfile', OnCommandDownloadFile, context);
 	RegisterCommand('miisync.downloadfolder', OnCommandDownloadFolder, context);
 	RegisterCommand('miisync.openscreen', OnCommandOpenScreen, context);
-	RegisterCommand('miisync.endcurrentsession', OnCommandEndSession, context);
+	RegisterCommand('miisync.login', OnCommandLogin, context);
+	RegisterCommand('miisync.logout', OnCommandLogout, context);
 	RegisterCommand('miisync.downloadproject', OnCommandDownloadProject, context);
 	RegisterCommand('miisync.downloadremotefolder', OnCommandDownloadRemoteFolder, context);
 	RegisterCommand('miisync.downloadremotedirectory', OnCommandDownloadRemoteDirectory, context);

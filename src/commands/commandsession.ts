@@ -1,10 +1,8 @@
-import { Session } from "../extension/session";
-import { logOutService } from "../miiservice/logoutservice";
-import { configManager } from "../modules/config";
+import { userManager } from "../user/usermanager";
 
-export function OnCommandEndSession(){
-    configManager.load().then(async config=>{
-        await logOutService.call({host: config.host, port: config.port});
-        Session.Instance.clear();
-    })
+export function OnCommandLogin(){
+    userManager.login();
+}
+export function OnCommandLogout(){
+    userManager.logout();
 }

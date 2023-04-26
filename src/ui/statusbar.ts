@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { EXTENSION_NAME } from '../constants.js';
 import { UserConfig, configManager } from '../modules/config.js';
+import { Session } from '../user/session.js';
 
 export enum Icon {
     loading = 'loading',
@@ -11,6 +12,8 @@ export enum Icon {
     spinSync = "sync~spin",
     spinLoading = "loading~spin",
     spinGear = "gear~spin",
+    itemChecked = "pass-filled",
+    itemUnchecked = "circle-large-outline"
 }
 
 export interface StatusOptions {
@@ -24,7 +27,8 @@ export interface StatusOptions {
 class StatusBar {
     private bar: vscode.StatusBarItem;
     private text: string = EXTENSION_NAME;
-    private icon: Icon = Icon.testingUnset;
+    private mainIcon: Icon = Icon.itemUnchecked;
+    private subIcon: Icon = Icon.testingUnset;
 
     public defaultIcon: Icon = Icon.testingUnset;
 
@@ -38,7 +42,7 @@ class StatusBar {
     }
 
     public set Icon(icon: Icon) {
-        this.icon = icon;
+        this.subIcon = icon;
         this.update();
     }
 
@@ -49,7 +53,9 @@ class StatusBar {
         this.update();
         subscriptions.push(this.bar);
         configManager.onConfigChange.event(this.onConfigChanged);
+        Session.Instance.onLogStateChange.event(this.onLogStateChange,this);
     }
+
 
     private async onConfigChanged({ uploadOnSave }: UserConfig) {
         if (uploadOnSave) {
@@ -60,6 +66,11 @@ class StatusBar {
             statusBar.Icon = Icon.syncDisabled;
             statusBar.defaultIcon = Icon.syncDisabled;
         }
+    }
+
+    private onLogStateChange(loggedIn: boolean) {
+        this.mainIcon = loggedIn ? Icon.itemChecked : Icon.itemUnchecked;
+        this.update();
     }
 
 
@@ -93,11 +104,11 @@ class StatusBar {
             this.timeout = setTimeout(() => this.popStack(), Math.max(this.minDuration * 1000 * (1 - this.stack.length / 50), item.duration))
         }
         else {
-            if(this.stack.length == 0){
+            if (this.stack.length == 0) {
                 clearTimeout(this.timeout);
                 this.timeout = null;
             }
-            else{
+            else {
                 this.timeout = setTimeout(() => this.popStack(), this.minDuration * 0.10);
             }
         }
@@ -110,13 +121,9 @@ class StatusBar {
 
     private update() {
         if (!this.bar) return;
-        if (this.text.length != 0) {
-            this.bar.text = '$(' + this.icon + ')' + this.text;
-            this.bar.show();
-        }
-        else {
-            this.bar.hide();
-        }
+        this.bar.text = '$(' + this.mainIcon + ') ' + '$(' + this.subIcon + ')' + this.text;
+        this.bar.show();
+
     }
 }
 

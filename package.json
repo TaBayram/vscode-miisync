@@ -39,26 +39,32 @@
         "category": "mii"
       },
       {
-        "command": "miisync.disablesyncsave",
-        "title": "Disable Sync Save",
+        "command": "miisync.openscreen",
+        "title": "Open Current Screen",
         "category": "mii",
         "enablement": "miisync.enabled"
       },
       {
-        "command": "miisync.enablesyncsave",
-        "title": "Enable Sync Save",
+        "command": "miisync.disableuploadonsave",
+        "title": "Disable Upload on Save",
+        "category": "mii",
+        "enablement": "miisync.enabled"
+      },
+      {
+        "command": "miisync.enableuploadonsave",
+        "title": "Enable Upload on Save",
         "category": "mii",
         "enablement": "miisync.enabled"
       },
       {
         "command": "miisync.disabledownloadonopen",
-        "title": "Disable Download On Open",
+        "title": "Disable Download on Open",
         "category": "mii",
         "enablement": "miisync.enabled"
       },
       {
         "command": "miisync.enabledownloadonopen",
-        "title": "Enable Download On Open",
+        "title": "Enable Download on Open",
         "category": "mii",
         "enablement": "miisync.enabled"
       },
@@ -66,19 +72,25 @@
         "command": "miisync.uploadfile",
         "title": "Upload Current File",
         "category": "mii",
-        "enablement": "editorIsOpen && miisync.enabled"
+        "enablement": "editorIsOpen && miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.downloadfile",
         "title": "Download Current File",
         "category": "mii",
-        "enablement": "miisync.enabled"
+        "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
-        "command": "miisync.endcurrentsession",
-        "title": "End Current Session",
+        "command": "miisync.logout",
+        "title": "Log out",
         "category": "mii",
-        "enablement": "miisync.enabled && miisync.session"
+        "enablement": "miisync.enabled && miisync.loggedin"
+      },
+      {
+        "command": "miisync.login",
+        "title": "Log in",
+        "category": "mii",
+        "enablement": "miisync.enabled && !miisync.loggedin"
       },
       {
         "command": "miisync.downloadproject",
@@ -87,75 +99,86 @@
         "enablement": "miisync.enabled"
       },
       {
-        "command": "miisync.openscreen",
-        "title": "Open Current Screen",
-        "category": "mii",
-        "enablement": "miisync.enabled"
-      },
-      {
         "command": "miisync.downloadfolder",
         "title": "Download Folder",
         "category": "zmii",
-        "enablement": "miisync.enabled",
-        "when": false
+        "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.uploadfolder",
         "title": "Upload Folder",
         "category": "zmii",
-        "enablement": "miisync.enabled",
-        "when": false
+        "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.downloadremotedirectory",
         "title": "Download Remote Directory",
         "icon": "$(extensions-install-count)",
         "category": "zmii",
-        "enablement": "miisync.enabled",
-        "when": false
+        "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.downloadremotefolder",
         "title": "Download Remote Folder",
         "icon": "$(extensions-install-count)",
         "category": "zmii",
-        "enablement": "miisync.enabled",
-        "when": false
+        "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.downloadfileproperties",
         "title": "Download File Properties",
         "icon": "$(timeline-refresh)",
         "category": "zmii",
-        "enablement": "miisync.enabled",
-        "when": false
+        "enablement": "miisync.enabled  && miisync.loggedin"
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "miisync.downloadfolder",
+          "when": "false"
+        },
+        {
+          "command": "miisync.uploadfolder",
+          "when": "false"
+        },
+        {
+          "command": "miisync.downloadremotedirectory",
+          "when": "false"
+        },
+        {
+          "command": "miisync.downloadremotefolder",
+          "when": "false"
+        },
+        {
+          "command": "miisync.downloadfileproperties",
+          "when": "false"
+        }
+      ],
       "explorer/context": [
         {
           "command": "miisync.openscreen",
-          "group": "miisync",
+          "group": "miisync@1",
           "when": "miisync.enabled && resourceFilename == index.html"
         },
         {
           "command": "miisync.downloadfile",
-          "group": "miisync",
+          "group": "miisync@2",
           "when": "miisync.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
         },
         {
           "command": "miisync.uploadfile",
-          "group": "miisync",
+          "group": "miisync@3",
           "when": "miisync.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
         },
         {
           "command": "miisync.downloadfolder",
-          "group": "miisync",
+          "group": "miisync@2",
           "when": "miisync.enabled && !explorerResourceIsRoot && explorerResourceIsFolder"
         },
         {
           "command": "miisync.uploadfolder",
-          "group": "miisync",
+          "group": "miisync@3",
           "when": "miisync.enabled && !explorerResourceIsRoot && explorerResourceIsFolder"
         }
       ],
@@ -202,7 +225,6 @@
         }
       ]
     },
-    
     "jsonValidation": [
       {
         "fileMatch": "/miisync.json",

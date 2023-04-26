@@ -154,7 +154,8 @@ export async function DownloadContextDirectory(userConfig: UserConfig) {
 
     const files = await loadFilesInsideService.call({ host: userConfig.host, port: userConfig.port}, sourcePath);
     remoteDirectoryTree.generateItemsByFiles(files?.Rowsets?.Rowset?.Row);
-    logger.info("Download Context Directory Done")
+    logger.info("Download Context Directory Done");
+    statusBar.updateBar('Done', Icon.success, { duration: 2 });
     return;
 
     //UPPER METHOD IS MUCH FASTER BUT DOESN'T GET THE EMPTY FOLDERS

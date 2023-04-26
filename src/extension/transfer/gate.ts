@@ -5,7 +5,7 @@ import { UserConfig } from "../../modules/config.js";
 import { GetRemotePath } from "../../modules/file.js";
 import { ShowInputBox } from "../../modules/vscode.js";
 import logger from "../../ui/logger.js";
-import { Session } from "../session.js";
+import { Session } from "../../user/session.js";
 
 export async function ValidateContext(userConfig: UserConfig, auth: string) {
     let folderPath = GetRemotePath("", userConfig);

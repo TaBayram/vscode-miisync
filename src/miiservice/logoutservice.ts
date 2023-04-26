@@ -6,12 +6,19 @@ class LogOutService extends Service {
     mode: string = "XMII/Illuminator?service=logout";
     optionals: string = "&Session=false";
 
-    async call({ host, port, body }: Request) {
+    async call({ host, port }: Request) {
+        //Bug: Log  out creates a session instead of destroying the current one
+        return;
         const url = this.get(host, port);
-        const { value, error, isError } = await this.fetch(url, true, body);
+        const { value, error, isError } = await this.fetch(url, false, null, 'none');
         if (!isError) {
-            //const data = this.parseXML(value);
-            logger.info(this.name + ": logged out from mii");
+            if (value.redirected && value.url == this.generateIP(host, port) + "/XMII/goService.jsp") {
+                logger.info(this.name + ": success");
+                return value;
+            }
+            else{
+                logger.error(this.name + ": fail. Response "+ JSON.stringify(value));
+            }   
         }
     }
     get(host: string, port: number) {

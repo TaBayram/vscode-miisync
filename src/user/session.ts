@@ -1,7 +1,5 @@
 import * as vscode from "vscode";
-import { UserConfig } from "../modules/config";
-import { SetContextValue, ShowInputBox } from "../modules/vscode";
-import logger from "../ui/logger";
+import { SetContextValue } from "../modules/vscode";
 
 export class Session {
     private static instance: Session;
@@ -11,31 +9,31 @@ export class Session {
         }
         return this.instance;
     }
-
+    private constructor(){};
 
     private context: vscode.ExtensionContext;
     private cookies: string[] = [];
     private lastUpdated: Date;
-    private auth: string;
-    private password: string;
-
+    private isLoggedin: boolean;
     private hasMIICookies: boolean = false;
-    private isLoggedIn: boolean = false;
-    private hasAuthChanged: boolean = false;
+
+    public onLogStateChange: vscode.EventEmitter<boolean> = new vscode.EventEmitter();
+    public auth: string;
 
     public set HasMIICookies(value: boolean) {
         this.hasMIICookies = value;
-        SetContextValue("session", value);
     }
     public get HasMIICookies() {
         return this.hasMIICookies;
     }
 
-    public set IsLoggedIn(value: boolean) {
-        this.isLoggedIn = value;
+    public set IsLoggedin(value: boolean) {
+        this.isLoggedin = value;
+        this.onLogStateChange.fire(value);
     }
-    public get IsLoggedIn() {
-        return this.isLoggedIn;
+
+    public get IsLoggedin(){
+        return this.isLoggedin;
     }
 
     public set Context(value: vscode.ExtensionContext) {
@@ -43,40 +41,14 @@ export class Session {
         this.loadCookies();
     }
 
-    public get Auth() {
-        return this.auth;
-    }
-
-
-    private constructor() {
-
-    }
-
-    async setAuth({ username, password }: UserConfig, promptPassword = true) {
-        if (password == null && promptPassword) {
-            if (await this.askPassword())
-                password = this.password;
-        }
-
-        const newAuth = encodeURIComponent(Buffer.from(username + ":" + password).toString('base64'));
-        if (newAuth != this.auth) {
-            this.hasAuthChanged = true;
-            this.auth = newAuth;
-        }
-    }
+ 
 
     clear() {
         this.HasMIICookies = false;
-        this.IsLoggedIn = false;
+        this.IsLoggedin = false;
+        this.auth = "";
         this.cookies = [];
         this.clearCookies();
-    }
-
-    login(response) {
-        if (response) {
-			this.IsLoggedIn = true;
-			this.haveCookies(response);
-		}
     }
 
     haveCookies(response) {
@@ -134,18 +106,6 @@ export class Session {
     saveCookies() {
         this.context.globalState.update("lastUpdated", this.lastUpdated);
         this.context.globalState.update("cookies", this.cookies);
-    }
-
-    private async askPassword() {
-        const password = await ShowInputBox({ password: true, placeHolder: "Enter Password", title: "Password" });
-        if (password) {
-            this.password;
-            return true;
-        }
-        else {
-            logger.info("No password given");
-            return false;
-        }
     }
 
     private clearCookies() {

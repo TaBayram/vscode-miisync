@@ -73,6 +73,7 @@ class RemoteDirectoryTree extends TreeDataProvider {
             else if (depth == currentDepth) {
                 currentRoots.push(folder);
             }
+            folder.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
             folder.children.sort(function (a, b) {
                 const isAFolder = a.children != null; const isBFolder = b.children != null;

@@ -1,9 +1,10 @@
 import logger from '../../ui/logger.js';
 import { XMLParser } from 'fast-xml-parser';
 import fetch from "node-fetch";
-import { Session } from '../../extension/session.js';
+import { Session } from '../../user/session.js';
 import { UserConfig } from '../../modules/config.js';
 import { Column, MII, Row } from './responsetypes.js';
+import { userManager } from '../../user/usermanager.js';
 
 export interface Request {
     host: string,
@@ -32,13 +33,14 @@ export abstract class Service {
         return `${protocol}://${host}:${port}`;
     }
 
-    protected async fetch(url: string, auth: boolean = true, body?: string, convert: 'text' | 'blob' | 'none' = 'text'): Promise<{ value: any, error: Error, isError: boolean }> {
-        let headers = {
+    protected async fetch(url: string, auth: boolean = true, body?: string, convert: 'text' | 'blob' | 'none' = 'text', skipLogin = false): Promise<{ value: any, error: Error, isError: boolean }> {
+        // todo: Get cookies and auth based on ip of the system for multiple session support
+        const headers = {
             "Content-Type": "application/x-www-form-urlencoded",
             "cookie": Session.Instance.getCookies()
         };
         if (auth) {
-            headers["Authorization"] = 'Basic ' + Session.Instance.Auth;
+            headers["Authorization"] = 'Basic ' + Session.Instance.auth;
         }
         return fetch(url, {
             method: body ? "POST" : "GET",

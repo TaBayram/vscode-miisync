@@ -1,21 +1,16 @@
 import path = require("path");
+import { readFile } from "fs-extra";
 import { TextDocument, Uri } from "vscode";
 import { saveFileService } from "../../miiservice/savefileservice";
 import { UserConfig, configManager } from "../../modules/config";
-import { ValidatePath, GetRemotePath, GetAllFilesInDir } from "../../modules/file";
+import { GetAllFilesInDir, GetRemotePath, ValidatePath } from "../../modules/file";
 import { ShowConfirmMessage } from "../../modules/vscode";
 import logger from "../../ui/logger";
 import statusBar, { Icon } from "../../ui/statusbar";
-import { ValidatePassword, ValidateContext, DoesFileExist, DoesFolderExist } from "./gate";
-import { Directory, File, Folder } from "../../miiservice/abstract/responsetypes";
-import { outputFile, read, readFile } from "fs-extra";
-import { listFilesService } from "../../miiservice/listfilesservice";
-import { listFoldersService } from "../../miiservice/listfoldersservice";
-import { readFileService } from "../../miiservice/readfileservice";
+import { DoesFileExist, DoesFolderExist, ValidateContext, ValidatePassword } from "./gate";
 
-export async function UploadFile(document: TextDocument, userConfig: UserConfig) {
+export async function UploadFile(filePath: string, content: string, userConfig: UserConfig) {
     statusBar.updateBar('Checking', Icon.spinLoading, { duration: -1 });
-    const filePath = document.fileName;
 
     const validationError = configManager.validate();
     if (validationError) {
@@ -30,7 +25,7 @@ export async function UploadFile(document: TextDocument, userConfig: UserConfig)
     if (!ValidatePassword(userConfig)) return;
 
     const auth = encodeURIComponent(Buffer.from(userConfig.username + ":" + userConfig.password).toString('base64'));
-    const base64Content = encodeURIComponent(Buffer.from(document.getText() || " ").toString('base64'));
+    const base64Content = encodeURIComponent(Buffer.from(content || " ").toString('base64'));
     if (!await ValidateContext(userConfig, auth)) {
         logger.error("Remote Path doesn't exist");
         return;

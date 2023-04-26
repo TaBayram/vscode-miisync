@@ -13,7 +13,7 @@ export async function OnDidSaveTextDocument(document: vscode.TextDocument) {
     const userConfig = await configManager.load();
     if (userConfig) {
         if (userConfig.uploadOnSave)
-            UploadFile(document, userConfig);
+            UploadFile(document.fileName, document.getText(), userConfig);
     }
     else {
         logger.warn('user config not available');
