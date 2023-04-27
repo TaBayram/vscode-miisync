@@ -15,12 +15,12 @@ This extension should sync the file in mii workbench with local file whenever yo
  - Download folder and retrieve project directory.
  - Upload folders.
  - Shows file properties.
+ - Prompts to download file if it has been modified by other user.
 
 ## Planned Features
 
  1. Add 'ignore' property to ignore certain files. (the current state matches file name only)
- 2. Add prompt to download file if it has been modified by other user.
- 3. Upload to QA or Prod. 
+ 2. Upload to QA or Prod. 
  
 
 

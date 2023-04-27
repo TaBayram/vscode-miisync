@@ -16,6 +16,7 @@ export async function OnCommandUploadFile(...uris: any[]) {
         const selectedUris: Uri[] = uris[1];
         for (let index = 0; index < selectedUris.length; index++) {
             const uri = selectedUris[index];
+            
             readFile(uri.fsPath).then((value) => {
                 UploadFile(uri.fsPath, value.toString(), userConfig);
             })

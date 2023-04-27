@@ -101,7 +101,7 @@ class StatusBar {
         this.text = item.text;
         this.Icon = item.icon;
         if (item.duration != -1) {
-            this.timeout = setTimeout(() => this.popStack(), Math.max(this.minDuration * 1000 * (1 - this.stack.length / 50), item.duration))
+            this.timeout = setTimeout(() => this.popStack(), Math.max(this.minDuration * 1000 * (1 - this.stack.length / 30), item.duration))
         }
         else {
             if (this.stack.length == 0) {
@@ -121,7 +121,7 @@ class StatusBar {
 
     private update() {
         if (!this.bar) return;
-        this.bar.text = '$(' + this.mainIcon + ') ' + '$(' + this.subIcon + ')' + this.text;
+        this.bar.text = '$(' + this.mainIcon + ') ' + this.text +  '$(' + this.subIcon + ')';
         this.bar.show();
 
     }

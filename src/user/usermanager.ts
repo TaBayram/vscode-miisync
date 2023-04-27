@@ -10,6 +10,16 @@ class UserManager {
     private session: Session;
 
     private password: string;
+    private isLoggedin: boolean;
+
+    public set IsLoggedin(value: boolean) {
+        this.isLoggedin = value;
+        this.session.IsLoggedin = value;
+    }
+
+    public get IsLoggedin(){
+        return this.isLoggedin;
+    }
 
     constructor() {
         this.session = Session.Instance;
@@ -23,7 +33,7 @@ class UserManager {
         const response = await logInService.call({ host, port });
         if(response){
             this.session.haveCookies(response);
-            this.session.IsLoggedin = true;
+            this.IsLoggedin = true;
             SetContextValue("loggedin", true);
             return true;
         }
@@ -31,10 +41,10 @@ class UserManager {
     }
 
     async logout() {
-        const { host, port, username, password } = await configManager.load();
+        const { host, port } = await configManager.load();
         await logOutService.call({ host, port });
         this.session.clear();
-        this.session.IsLoggedin = false;
+        this.IsLoggedin = false;
         SetContextValue("loggedin", false);
     }
 

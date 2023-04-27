@@ -99,8 +99,9 @@ export class Session {
 
     loadCookies() {
         this.lastUpdated = new Date(this.context.globalState.get("lastUpdated", Date.now()));
-        if (!this.isExpired(this.lastUpdated, 60))
+        if (!this.isExpired(this.lastUpdated, 60)){
             this.cookies = this.context.globalState.get<string[]>("cookies", []);
+        }
     }
 
     saveCookies() {

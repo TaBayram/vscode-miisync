@@ -1,4 +1,4 @@
-import { ValidateContext } from "../extension/transfer/gate.js";
+import { DoesRemotePathExist } from "../extension/transfer/gate.js";
 import { exportProjectService } from "../miiservice/exportprojectservice.js";
 import { configManager } from "../modules/config.js";
 import { GetRemotePath } from "../modules/file.js";
@@ -10,9 +10,8 @@ export async function OnCommandDownloadProject(){
     if (!userConfig) return;
     const sourcePath = GetRemotePath("", userConfig);
     const parentPath = path.dirname(sourcePath).replaceAll(path.sep, "/");
-    const auth = encodeURIComponent(Buffer.from(userConfig.username + ":" + userConfig.password).toString('base64'));
 
-    if (!await ValidateContext(userConfig, auth)) {
+    if (!await DoesRemotePathExist(userConfig)) {
         logger.error("Remote Path doesn't exist");
         return;
     }

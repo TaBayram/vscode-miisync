@@ -10,12 +10,16 @@ import logger from "../ui/logger.js";
 import path = require("path");
 
 
-export async function OnCommandDownloadFile(uri: Uri) {
+export async function OnCommandDownloadFile(...uris: any[]) {
     const userConfig = await configManager.load();
     if (!userConfig) return;
 
-    if (uri) {
-        DownloadFile(uri, userConfig);
+    if (uris) {
+        const selectedUris: Uri[] = uris[1];
+        for (let index = 0; index < selectedUris.length; index++) {
+            const uri = selectedUris[index];
+            DownloadFile(uri, userConfig);
+        }
         return;
     }
     const textEditor = GetActiveTextEditor();
@@ -44,7 +48,6 @@ export async function OnCommandDownloadFileProperties() {
                 if (userConfig) {
                     if (!ValidatePath(textEditor.document.fileName, userConfig)) return;
                     const sourcePath = GetRemotePath(textEditor.document.fileName, userConfig);
-                    const auth = encodeURIComponent(Buffer.from(userConfig.username + ":" + userConfig.password).toString('base64'));
                     const file = await readFilePropertiesService.call({ host: userConfig.host, port: userConfig.port }, sourcePath);
                     if (file?.Rowsets?.Rowset?.Row)
                         fileProperties.generateItems(file.Rowsets.Rowset.Row[0]);
