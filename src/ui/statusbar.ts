@@ -59,11 +59,9 @@ class StatusBar {
 
     private async onConfigChanged({ uploadOnSave }: UserConfig) {
         if (uploadOnSave) {
-            statusBar.Icon = Icon.syncEnabled
             statusBar.defaultIcon = Icon.syncEnabled;
         }
         else {
-            statusBar.Icon = Icon.syncDisabled;
             statusBar.defaultIcon = Icon.syncDisabled;
         }
     }

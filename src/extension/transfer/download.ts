@@ -1,17 +1,17 @@
 import { outputFile, writeFile } from "fs-extra";
 import { Uri } from "vscode";
+import { Directory, File, Folder } from "../../miiservice/abstract/responsetypes";
 import { listFilesService } from "../../miiservice/listfilesservice";
 import { listFoldersService } from "../../miiservice/listfoldersservice";
 import { loadFilesInsideService } from "../../miiservice/loadfilesinsideservice";
 import { readFileService } from "../../miiservice/readfileservice";
-import { Directory, File, Folder } from "../../miiservice/abstract/responsetypes";
-import { UserConfig, configManager } from "../../modules/config";
-import { GetRemotePath, ValidatePath } from "../../modules/file";
+import { UserConfig } from "../../modules/config";
+import { GetRemotePath } from "../../modules/file";
 import { GetCurrentWorkspaceFolder } from "../../modules/vscode";
 import { remoteDirectoryTree } from "../../ui/explorer/remotedirectorytree";
 import logger from "../../ui/logger";
 import statusBar, { Icon } from "../../ui/statusbar";
-import { DoesFileExist, DoesRemotePathExist, Validate, ValidatePassword } from "./gate";
+import { DoesFileExist, Validate } from "./gate";
 import path = require("path");
 
 
@@ -29,10 +29,14 @@ export async function DownloadFile(uri: Uri, userConfig: UserConfig) {
     }
 
     statusBar.updateBar('Downloading', Icon.spinLoading);
+    logger.info("Download File Started");
+
     const file = await readFileService.call({ host: userConfig.host, port: userConfig.port }, sourcePath);
     const payload = file.Rowsets.Rowset.Row.find((row) => row.Name == "Payload");
     await writeFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" })
+
     statusBar.updateBar("Done " + fileName, Icon.success, { duration: 3 });
+    logger.info("Download File Completed");
 }
 
 
@@ -43,33 +47,38 @@ export async function DownloadFolder(folderUri: Uri | string, userConfig: UserCo
         return false;
     }
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
-    const sourcePath = GetRemotePath(folderPath, userConfig);
+    logger.info("Download Folder Started");
 
-    DownloadFiles(userConfig, sourcePath, (file: File) => {
+    const sourcePath = GetRemotePath(folderPath, userConfig);
+    await DownloadFiles(userConfig, sourcePath, (file: File) => {
         return folderPath + path.sep +
             (path.relative(sourcePath, file.FilePath) != '' ? path.relative(sourcePath, file.FilePath) + path.sep : '') +
             file.ObjectName;
     })
 
     statusBar.updateBar('Done', Icon.success, { duration: 1 });
+    logger.info("Download Folder Completed");
+
 }
 
 
 export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig: UserConfig,) {
     statusBar.updateBar('Checking', Icon.spinLoading, { duration: -1 });
-    if (! await Validate(userConfig)) {
+    if (!await Validate(userConfig)) {
         return false;
     }
 
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
+    logger.info("Download Remote Folder Started");
     const workspaceFolder = GetCurrentWorkspaceFolder().fsPath;
 
-    DownloadFiles(userConfig, remoteFolderPath, (file) => {
+    await DownloadFiles(userConfig, remoteFolderPath, (file) => {
         return workspaceFolder + path.sep + path.basename(remoteFolderPath) + path.sep +
             (path.relative(remoteFolderPath, file.FilePath) != '' ? path.relative(remoteFolderPath, file.FilePath) + path.sep : '') +
             file.ObjectName;
     })
     statusBar.updateBar('Done', Icon.success, { duration: 1 });
+    logger.info("Download Remote Folder Completed");
 }
 
 async function DownloadFiles({ host, port }: UserConfig, sourcePath: string, getFilePath: (file: File) => string) {
@@ -80,27 +89,37 @@ async function DownloadFiles({ host, port }: UserConfig, sourcePath: string, get
     const root = rootFolders.Rowsets.Rowset.Row.find((folder: Folder) => folder.Path == sourcePath);
     if (root) {
         directory.push(root);
-        await deep(root);
+        await Promise.all(await deep(root));
     }
 
-    async function deep(mainFolder: Folder) {
+    async function deep(mainFolder: Folder): Promise<any> {
         mainFolder.children = [];
         const files = await listFilesService.call({ host, port }, mainFolder.Path);
+
+        let promises: Promise<any>[] = [];
         for (const file of files?.Rowsets?.Rowset?.Row || []) {
             mainFolder.children.push(file)
-
-            const filePath = getFilePath(file);
-            const fileBinary = await readFileService.call({ host, port }, file.FilePath + "/" + file.ObjectName);
-            const payload = fileBinary.Rowsets.Rowset.Row.find((row) => row.Name == "Payload");
-            outputFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" })
+            promises.push(new Promise((resolve,reject)=>{
+                const filePath = getFilePath(file);
+                readFileService.call({ host, port }, file.FilePath + "/" + file.ObjectName).then((binary)=>{
+                    const payload = binary.Rowsets.Rowset.Row.find((row) => row.Name == "Payload");
+                    outputFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" }).then(()=>resolve('success')).catch((error)=> reject(error));
+                });
+                
+            }));            
         }
-
 
         const folders = await listFoldersService.call({ host: host, port: port }, mainFolder.Path);
-        for (const folder of folders?.Rowsets?.Rowset?.Row || []) {
+        /* for (const folder of folders?.Rowsets?.Rowset?.Row || []) {
             mainFolder.children.push(folder);
-            await deep(folder);
-        }
+            promises.push(deep(folder));
+        } */
+        await Promise.all((folders?.Rowsets?.Rowset?.Row || []).map(folder => {
+            mainFolder.children.push(folder);
+            return deep(folder)
+        }));
+
+        return (promises);
     }
 }
 
@@ -116,14 +135,14 @@ export async function DownloadContextDirectory(userConfig: UserConfig) {
     const parentPath = path.dirname(sourcePath).replaceAll(path.sep, "/");
 
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
-    logger.info("Download Context Directory Starting")
+    logger.info("Download Context Directory Started");
     const directory: Directory = [];
 
 
     const files = await loadFilesInsideService.call({ host: userConfig.host, port: userConfig.port }, sourcePath);
     remoteDirectoryTree.generateItemsByFiles(files?.Rowsets?.Rowset?.Row);
-    logger.info("Download Context Directory Done");
     statusBar.updateBar('Done', Icon.success, { duration: 2 });
+    logger.info("Download Context Directory Completed");
     return;
 
     //UPPER METHOD IS MUCH FASTER BUT DOESN'T GET THE EMPTY FOLDERS
@@ -145,14 +164,14 @@ export async function DownloadContextDirectory(userConfig: UserConfig) {
 }
 
 
-async function DownloadDirDepth(mainFolder: Folder, userConfig: UserConfig, promises: Promise<any>[] = []) {
+async function DownloadDirDepth(mainFolder: Folder, userConfig: UserConfig) {
     mainFolder.children = [];
 
     const folders = await listFoldersService.call({ host: userConfig.host, port: userConfig.port }, mainFolder.Path);
     if (mainFolder.ChildFolderCount != 0) {
         await Promise.all((folders?.Rowsets?.Rowset?.Row || []).map(folder => {
             mainFolder.children.push(folder);
-            return DownloadDirDepth(folder, userConfig, promises)
+            return DownloadDirDepth(folder, userConfig)
         }));
     }
 
@@ -162,6 +181,5 @@ async function DownloadDirDepth(mainFolder: Folder, userConfig: UserConfig, prom
             mainFolder.children.push(file)
         }
     }
-
-    return promises;
+    return;
 }
