@@ -17,6 +17,11 @@ class FilePropertiesTree extends TreeDataProvider {
         this.file = file;
         this.refresh();
     }
+
+    generateNotAvailable(){
+        this.items = [new TreeItem('File not available')];
+        this.refresh();
+    }
 }
 
 export let fileProperties: FilePropertiesTree = new FilePropertiesTree();

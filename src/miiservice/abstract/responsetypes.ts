@@ -1,6 +1,6 @@
-export interface MII<T extends Row, Y extends Column> {
+export interface MII<T extends Row, Y extends Column, R = Rowsets<T,Y>> {
     "?xml": Xml
-    Rowsets: Rowsets<T, Y>
+    Rowsets: R
 }
 
 export interface Xml {
@@ -10,6 +10,13 @@ export interface Xml {
 
 export interface Rowsets<T extends Row, Y extends Column> {
     Rowset: Rowset<T, Y>
+    "@_DateCreated": string
+    "@_EndDate": string
+    "@_StartDate": string
+    "@_Version": string
+}
+export interface RowsetsMessage {
+    Messages: Messages
     "@_DateCreated": string
     "@_EndDate": string
     "@_StartDate": string
@@ -51,6 +58,10 @@ export interface GeneralColumn2 extends Column {
     "@_Name": string
     "@_SQLDataType": string
     "@_SourceColumn": string
+}
+
+export interface Messages {
+    Message: string
 }
 
 export interface CurrentUser extends Row {

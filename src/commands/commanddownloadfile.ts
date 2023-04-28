@@ -1,24 +1,25 @@
-import { pathExists } from "fs-extra";
+import { lstat, pathExists } from "fs-extra";
 import { Uri } from "vscode";
 import { DownloadFile } from "../extension/transfer/download.js";
-import { readFilePropertiesService } from "../miiservice/readfilepropertiesservice.js";
+import { GetFileProperties } from "../extension/transfer/request.js";
 import { configManager } from "../modules/config.js";
-import { GetRemotePath, ValidatePath } from "../modules/file.js";
 import { GetActiveTextEditor } from "../modules/vscode.js";
-import { fileProperties } from "../ui/explorer/filepropertiestree.js";
 import logger from "../ui/logger.js";
-import path = require("path");
-
 
 export async function OnCommandDownloadFile(...uris: any[]) {
     const userConfig = await configManager.load();
     if (!userConfig) return;
 
-    if (uris) {
+    if (uris && uris.length != 0) {
         const selectedUris: Uri[] = uris[1];
         for (let index = 0; index < selectedUris.length; index++) {
             const uri = selectedUris[index];
-            DownloadFile(uri, userConfig);
+            lstat(uri.fsPath).then(stat => {
+                if (!stat.isDirectory()) {
+                    DownloadFile(uri, userConfig);
+                }
+            });
+           
         }
         return;
     }
@@ -43,15 +44,9 @@ export async function OnCommandDownloadFileProperties() {
     const textEditor = GetActiveTextEditor();
     if (textEditor && textEditor.document && textEditor.document.fileName) {
         const uri = textEditor.document.uri;
-        await pathExists(uri.fsPath).then(async (exists) => {
+        await pathExists(uri.fsPath).then((exists) => {
             if (exists) {
-                if (userConfig) {
-                    if (!ValidatePath(textEditor.document.fileName, userConfig)) return;
-                    const sourcePath = GetRemotePath(textEditor.document.fileName, userConfig);
-                    const file = await readFilePropertiesService.call({ host: userConfig.host, port: userConfig.port }, sourcePath);
-                    if (file?.Rowsets?.Rowset?.Row)
-                        fileProperties.generateItems(file.Rowsets.Rowset.Row[0]);
-                }
+                GetFileProperties(uri, userConfig);
             }
 
         }).catch((error: Error) => {

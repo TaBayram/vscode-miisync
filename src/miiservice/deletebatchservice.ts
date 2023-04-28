@@ -1,16 +1,17 @@
 import logger from '../ui/logger.js';
 import { Service, Request } from './abstract/miiservice.js';
+import { MII, RowsetsMessage } from './abstract/responsetypes.js';
 
 class DeleteBatchService extends Service {
-    name: string = "Save File";
+    name: string = "Delete Batch";
     mode: string = "XMII/Catalog?Mode=BatchDelete&Class=Content&Content-Type=text/xml";
     optionals: string = "&TemporaryFile=false&Notify=true&Session=true"
 
-    async call({ host, port, body }: Request & { body: string }, sourcePath: string) {
+    async call({ host, port, body }: Request, sourcePath: string) {
         const url = this.get(host, port, sourcePath);
         const { value, error, isError } = await this.fetch(url, true, body);
         if (!isError) {
-            const data = this.parseXML(value);
+            const data: MII<null,null,RowsetsMessage> = this.parseXML(value);
             logger.info(this.name + ": " + data?.Rowsets?.Messages?.Message);
         }
     }

@@ -4,7 +4,6 @@ import fetch, { Response } from "node-fetch";
 import { Session } from '../../user/session.js';
 import { UserConfig } from '../../modules/config.js';
 import { Column, MII, Row } from './responsetypes.js';
-import { userManager } from '../../user/usermanager.js';
 
 export interface Request {
     host: string,

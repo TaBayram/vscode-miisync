@@ -1,4 +1,4 @@
-import { pathExists, readFile } from "fs-extra";
+import { lstat, pathExists, readFile } from "fs-extra";
 import { configManager } from "../modules/config.js";
 import { GetActiveTextEditor } from "../modules/vscode.js";
 import logger from "../ui/logger.js";
@@ -12,14 +12,17 @@ export async function OnCommandUploadFile(...uris: any[]) {
     if (!userConfig) return;
 
 
-    if (uris) {
+    if (uris && uris.length != 0) {
         const selectedUris: Uri[] = uris[1];
         for (let index = 0; index < selectedUris.length; index++) {
             const uri = selectedUris[index];
-            
-            readFile(uri.fsPath).then((value) => {
-                UploadFile(uri.fsPath, value.toString(), userConfig);
-            })
+            lstat(uri.fsPath).then(stat => {
+                if (!stat.isDirectory()) {
+                    readFile(uri.fsPath).then((value) => {
+                        UploadFile(uri, value.toString(), userConfig);
+                    })
+                }
+            });
         }
         return;
     }
@@ -28,7 +31,7 @@ export async function OnCommandUploadFile(...uris: any[]) {
         const uri = textEditor.document.uri;
         await pathExists(uri.fsPath).then((exists) => {
             if (exists) {
-                UploadFile(textEditor.document.fileName, textEditor.document.getText(), userConfig);
+                UploadFile(textEditor.document.uri, textEditor.document.getText(), userConfig);
 
             }
         }).catch((error: Error) => {

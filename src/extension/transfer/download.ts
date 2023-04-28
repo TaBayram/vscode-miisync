@@ -16,7 +16,6 @@ import path = require("path");
 
 
 export async function DownloadFile(uri: Uri, userConfig: UserConfig) {
-    statusBar.updateBar('Checking', Icon.spinLoading, { duration: -1 });
     const filePath = uri.fsPath;
     if (!await Validate(userConfig, filePath)) {
         return false;
@@ -28,7 +27,7 @@ export async function DownloadFile(uri: Uri, userConfig: UserConfig) {
         return;
     }
 
-    statusBar.updateBar('Downloading', Icon.spinLoading);
+    statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
     logger.info("Download File Started");
 
     const file = await readFileService.call({ host: userConfig.host, port: userConfig.port }, sourcePath);
@@ -41,7 +40,6 @@ export async function DownloadFile(uri: Uri, userConfig: UserConfig) {
 
 
 export async function DownloadFolder(folderUri: Uri | string, userConfig: UserConfig) {
-    statusBar.updateBar('Checking', Icon.spinLoading, { duration: -1 });
     const folderPath = typeof (folderUri) === "string" ? folderUri : folderUri.fsPath;
     if (! await Validate(userConfig, folderPath)) {
         return false;
@@ -63,7 +61,6 @@ export async function DownloadFolder(folderUri: Uri | string, userConfig: UserCo
 
 
 export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig: UserConfig,) {
-    statusBar.updateBar('Checking', Icon.spinLoading, { duration: -1 });
     if (!await Validate(userConfig)) {
         return false;
     }
@@ -92,7 +89,7 @@ async function DownloadFiles({ host, port }: UserConfig, sourcePath: string, get
         await Promise.all(await deep(root));
     }
 
-    async function deep(mainFolder: Folder): Promise<any> {
+    async function deep(mainFolder: Folder) {
         mainFolder.children = [];
         const files = await listFilesService.call({ host, port }, mainFolder.Path);
 
@@ -110,10 +107,6 @@ async function DownloadFiles({ host, port }: UserConfig, sourcePath: string, get
         }
 
         const folders = await listFoldersService.call({ host: host, port: port }, mainFolder.Path);
-        /* for (const folder of folders?.Rowsets?.Rowset?.Row || []) {
-            mainFolder.children.push(folder);
-            promises.push(deep(folder));
-        } */
         await Promise.all((folders?.Rowsets?.Rowset?.Row || []).map(folder => {
             mainFolder.children.push(folder);
             return deep(folder)
@@ -126,7 +119,6 @@ async function DownloadFiles({ host, port }: UserConfig, sourcePath: string, get
 
 
 export async function DownloadContextDirectory(userConfig: UserConfig) {
-    statusBar.updateBar('Checking', Icon.spinLoading, { duration: -1 });
     if (!userConfig.context) return;
     if (!await Validate(userConfig)) {
         return false;

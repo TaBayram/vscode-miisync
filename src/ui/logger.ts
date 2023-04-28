@@ -32,6 +32,16 @@ export class Logger implements ILogger {
         this.log('[failure]', message, ...args);
     }
 
+    toastError(message: string | Error, ...args: any[]){
+        vscode.window.showErrorMessage(message.toString());
+        this.error(message, args);
+    }
+    
+    toastInfo(message: string, ...args: any[]){
+        vscode.window.showInformationMessage(message.toString());
+        this.info(message, args);
+    }
+
     log(message: string, ...args: any[]) {
         const now = new Date();
         const month = paddingTime(now.getMonth() + 1);

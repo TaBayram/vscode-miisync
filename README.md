@@ -6,7 +6,7 @@ This extension should sync the file in mii workbench with local file whenever yo
 ## Features
 
 #### File
-- Upload to / Download from MII system.
+- Upload to / Download and Delete from MII system.
 - Get file properties upon opening file.
 - When uploading, prompts file creation if it doesn't exist on the system.
 - Prompts to download file if it has been modified by other user.
@@ -64,7 +64,6 @@ Your folder must contain miisync.json file in .vscode folder to work.
 
 ## Known Issues
 
-- Folder uploading when selecting files & folders and hitting upload file.
 - Logout doesn't terminate session.
 
 ## Release Notes

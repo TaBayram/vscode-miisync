@@ -1,5 +1,6 @@
 import logger from '../ui/logger.js';
 import { Service, Request } from './abstract/miiservice.js';
+import { MII, RowsetsMessage } from './abstract/responsetypes.js';
 
 class SaveFileService extends Service {
     name: string = "Save File";
@@ -9,7 +10,7 @@ class SaveFileService extends Service {
         const url = this.get(host, port, sourcePath);
         const { value, error, isError } = await this.fetch(url, true, body);
         if (!isError) {
-            const data = this.parseXML(value);
+            const data: MII<null,null,RowsetsMessage> = this.parseXML(value);
             logger.info(this.name + ": " + data?.Rowsets?.Messages?.Message);
         }
     }

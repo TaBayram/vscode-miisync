@@ -82,6 +82,12 @@
         "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
+        "command": "miisync.deletefile",
+        "title": "Delete Current File",
+        "category": "mii",
+        "enablement": "miisync.enabled  && miisync.loggedin"
+      },
+      {
         "command": "miisync.logout",
         "title": "Log out",
         "category": "mii",
@@ -144,6 +150,10 @@
           "when": "false"
         },
         {
+          "command": "miisync.deletefile",
+          "when": "false"
+        },
+        {
           "command": "miisync.downloadremotedirectory",
           "when": "false"
         },
@@ -170,6 +180,11 @@
         {
           "command": "miisync.uploadfile",
           "group": "miisync@3",
+          "when": "miisync.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
+        },
+        {
+          "command": "miisync.deletefile",
+          "group": "miisync@4",
           "when": "miisync.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
         },
         {

@@ -1,36 +1,33 @@
 import path = require("path");
 import { readFile } from "fs-extra";
-import { TextDocument, Uri } from "vscode";
+import { Uri } from "vscode";
 import { saveFileService } from "../../miiservice/savefileservice";
-import { UserConfig, configManager } from "../../modules/config";
-import { GetAllFilesInDir, GetRemotePath, ValidatePath } from "../../modules/file";
+import { UserConfig } from "../../modules/config";
+import { GetAllFilesInDir, GetRemotePath } from "../../modules/file";
 import { ShowConfirmMessage } from "../../modules/vscode";
-import logger from "../../ui/logger";
 import statusBar, { Icon } from "../../ui/statusbar";
-import { DoesFileExist, DoesFolderExist, DoesRemotePathExist, Validate, ValidatePassword } from "./gate";
+import { DoesFileExist, DoesFolderExist, Validate } from "./gate";
 
-export async function UploadFile(filePath: string, content: string, userConfig: UserConfig) {
-    statusBar.updateBar('Checking', Icon.spinLoading, { duration: -1 });
-    if (!await Validate(userConfig, filePath)) {
+export async function UploadFile(uri: Uri, content: string, userConfig: UserConfig) {
+    if (!await Validate(userConfig, uri.fsPath)) {
         return false;
     }
-    const fileName = filePath.substring(filePath.lastIndexOf(path.sep)).replace(path.sep, '');
-    const sourcePath = GetRemotePath(filePath, userConfig);
+    const fileName = uri.fsPath.substring(uri.fsPath.lastIndexOf(path.sep)).replace(path.sep, '');
+    const sourcePath = GetRemotePath(uri.fsPath, userConfig);
     const base64Content = encodeURIComponent(Buffer.from(content || " ").toString('base64'));
     if (!await DoesFileExist(sourcePath, userConfig) &&
-        !await ShowConfirmMessage("File does not exists. Do you want to create it?")) {
+        !await ShowConfirmMessage("File does not exists. Do you want to create it? \nFile: " + path.basename(sourcePath))) {
         return false;
     }
 
 
-    statusBar.updateBar('Sending', Icon.spinLoading);
+    statusBar.updateBar('Sending', Icon.spinLoading, { duration: -1 });
     await saveFileService.call({ host: userConfig.host, port: userConfig.port, body: "Content=" + base64Content }, sourcePath);
     statusBar.updateBar("Done " + fileName, Icon.success, { duration: 3 });
 }
 
 
 export async function UploadFolder(folderUri: Uri | string, userConfig: UserConfig) {
-    statusBar.updateBar('Checking', Icon.spinLoading, { duration: -1 });
     const folderPath = typeof (folderUri) === "string" ? folderUri : folderUri.fsPath;
     if (!await Validate(userConfig, folderPath)) {
         return false;

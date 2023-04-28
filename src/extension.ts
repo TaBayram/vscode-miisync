@@ -16,18 +16,14 @@ import { remoteDirectoryTree } from './ui/explorer/remotedirectorytree';
 import { activateBar } from './ui/statusbar';
 import { Session } from './user/session';
 import { userManager } from './user/usermanager';
+import { OnCommandDeleteFile } from './commands/commanddeletefile';
 
 
 export function activate(context: vscode.ExtensionContext) {
 	activateBar(context);
 	activateTree(context);
 	RegisterCommands(context);
-
-
-
-	context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(OnDidSaveTextDocument));
-	context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(OnDidOpenTextDocument));
-	context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(OnDidChangeActiveTextEditor));
+	RegisterEvents(context)
 
 	Session.Instance.Context = context;
 	userManager.login();
@@ -36,11 +32,16 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 export function deactivate() {
-
-
+	SetContextValue("enabled", false);
 }
 
-function RegisterCommands(context: vscode.ExtensionContext ){
+function RegisterEvents({ subscriptions }: vscode.ExtensionContext) {
+	subscriptions.push(vscode.workspace.onDidSaveTextDocument(OnDidSaveTextDocument));
+	subscriptions.push(vscode.workspace.onDidOpenTextDocument(OnDidOpenTextDocument));
+	subscriptions.push(vscode.window.onDidChangeActiveTextEditor(OnDidChangeActiveTextEditor));
+}
+
+function RegisterCommands(context: vscode.ExtensionContext) {
 	RegisterCommand('miisync.createconfig', OnCommandCreateConfig, context);
 	RegisterCommand('miisync.disableuploadonsave', OnCommandDisableSyncSave, context);
 	RegisterCommand('miisync.enableuploadonsave', OnCommandEnableSyncSave, context);
@@ -57,6 +58,7 @@ function RegisterCommands(context: vscode.ExtensionContext ){
 	RegisterCommand('miisync.uploadfolder', OnCommandUploadFolder, context);
 	RegisterCommand('miisync.disabledownloadonopen', OnCommandDisableDownloadOnOpen, context);
 	RegisterCommand('miisync.enabledownloadonopen', OnCommandEnableDownloadOnOpen, context);
+	RegisterCommand('miisync.deletefile', OnCommandDeleteFile, context);
 
 }
 
@@ -69,6 +71,6 @@ function RegisterCommand(command: string, callback: (...args: any[]) => any, { s
  * Find a better place for this
  */
 export function activateTree({ subscriptions }: vscode.ExtensionContext) {
-    subscriptions.push(vscode.window.registerTreeDataProvider('fileproperties', fileProperties));
-    subscriptions.push(vscode.window.registerTreeDataProvider('remotedirectory', remoteDirectoryTree));
+	subscriptions.push(vscode.window.registerTreeDataProvider('fileproperties', fileProperties));
+	subscriptions.push(vscode.window.registerTreeDataProvider('remotedirectory', remoteDirectoryTree));
 }
