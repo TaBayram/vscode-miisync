@@ -5,17 +5,19 @@ This extension should sync the file in mii workbench with local file whenever yo
 
 ## Features
 
- - Saves your file to the MII server.
- - If the file doesn't exist it also creates it.
- - Option to toggle auto upload when a file is saved.
- - Upload/download file with command.
- - Open screen with command.
- - One miisync.json to rule them all
- - Confirmation on file creating when saving
- - Download folder and retrieve project directory.
- - Upload folders.
- - Shows file properties.
- - Prompts to download file if it has been modified by other user.
+#### File
+- Upload to / Download from MII system.
+- Get file properties upon opening file.
+- When uploading, prompts file creation if it doesn't exist on the system.
+- Prompts to download file if it has been modified by other user.
+#### Folder
+- Upload to / Download from MII system.
+- When uploading, prompts folder creation if it doesn't exist on the system.
+
+------------
+
+- View remote directory and download certain folder from it.
+- Open the current screen with command or right click on index.html
 
 ## Planned Features
 
@@ -26,38 +28,50 @@ This extension should sync the file in mii workbench with local file whenever yo
 
 ## Requirements
 
-Visual Studio Code
+Visual Studio Code, MII system to connect to.
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+Your folder must contain miisync.json file in .vscode folder to work.
 
-For example:
+##### miisync settings:
+* `context`: Starting local folder name to specify. Removes any path prior to this.
+**Example**: Local folder path is "~~E:\2023\Projects\~~ProjectName\Screen" and the remote path is "ProjectName\Screen" then your context should be "ProjectName". 
 
-This extension contributes the following settings:
+* `removeFromContext`: Removes any folder name in local path that is not in remote path.
+**Example**: Local folder path is "E:\2023\Projects\ProjectName\webapp\Screen" and the remote path is "ProjectName\Screen" then you should add "webapp" to removeFromContext. 
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+* `remotePath`: Starting remote path. Adds itself at the front of context. (remotePath + context)
+**Example**: Local folder path is "E:\2023\Projects\ProjectName\Screen" and context is "ProjectName", then remotePath should be "". But lets say local folder path was  "E:\2023\Projects\A_ProjectName\Screen" and context was "Screen" then remotePath should be "ProjectName".
+* `host`: Address of the target system. google or 11.22.33
+* `port`: Port of the target system. 100, 50000.
+* `username`: Your username in the mii system to authenticate.
+* `password`: Your pasword in the mii system to authenticate. If not provided in the file extension will ask the password during.
+* `uploadOnSave`: Uploads the current file when saved.
+* `downloadOnOpen`: Downloads the current file when opened.
+* `ignore`: Files specified in this doesn't get uploaded.
+* `useRootConfig`: Enables usage of another miisync.json outside of the workspace.
+* `rootConfig`: Path of another miisync.json file to be used.
+
+##### Commands:
+
+###### mii
+* `Create Config`: Creates miisync.json file in the workspace thus activating the extension.
+* `Open Current Screen`: Opens the screen in the browser. You can also right-click an index.html file to open.
+* `Log in`: Logs in your user. Normally extension should automatically log in when activated.
+* `Log out`: Logs out your user. 
+
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- Folder uploading when selecting files & folders and hitting upload file.
+- Logout doesn't terminate session.
 
 ## Release Notes
 
 Users appreciate release notes as you update your extension.
 
 ### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
 
 ---
 
@@ -66,18 +80,5 @@ Added features X, Y, and Z.
 Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
 
 * [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
 
 **Enjoy!**
