@@ -15,7 +15,7 @@ export class Logger implements ILogger {
     outputChannel: vscode.OutputChannel;
 
     constructor() {
-        this.outputChannel = vscode.window.createOutputChannel(EXTENSION_NAME);
+        this.outputChannel = vscode.window.createOutputChannel(EXTENSION_NAME, "log");
         this.outputChannel.show(true);
     }
 
