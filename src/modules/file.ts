@@ -3,6 +3,7 @@ import { exists, lstat, readdir } from "fs-extra";
 import '../extends/string.js';
 import { UserConfig } from "./config.js";
 import path = require("path");
+import micromatch = require("micromatch");
 
 export function InsertWeb(path: string) {
     const web = "/WEB";
@@ -28,25 +29,15 @@ export function GetRemotePath(filePath: string, { remotePath, context, removeFro
  * Checks if the filepath is in the context directory, folder starts with . and the file name is in ignore
  */
 export async function ValidatePath(filePath: string, config: UserConfig): Promise<boolean> {
+    //Outer file || dot check
+    if (filePath.indexOf(config.context) == -1 || !micromatch.isMatch(filePath, "**")) return false;
     const stat = await lstat(filePath);
-    if(stat.isDirectory()){
-        const folderName = path.basename(filePath);
+    if (stat.isDirectory()) {
+        return !micromatch.isMatch(filePath, config.ignore);
     }
-    else{
-        const fileName = path.basename(filePath);
-        const firstFolderName = path.dirname(filePath);
+    else {
+        return !micromatch.isMatch(filePath, config.ignore, { basename: true }) || micromatch.isMatch(filePath, config.ignore);
     }
-
-
-    const firstFolderName = filePath.substring(filePath.lastIndexOf(path.sep, filePath.lastIndexOf(path.sep) - 1), filePath.lastIndexOf(path.sep)).replace(path.sep, '');
-    const fileName = filePath.substring(filePath.lastIndexOf(path.sep)).replace(path.sep, '');
-
-    if (filePath.indexOf(config.context) == -1 ||
-        config.ignore.findIndex((value) => value.toLocaleLowerCase() == fileName.toLocaleLowerCase()) != -1 ||
-        firstFolderName.startsWith('.')) {
-        return false;
-    }
-    return true;
 }
 
 
@@ -81,9 +72,9 @@ export async function GetAllFilesInDir(startPath: string): Promise<string[]> {
         const name = path.join(startPath, file);
         const stat = await lstat(name);
         if (stat.isDirectory()) {
-            files.push(...await GetAllFilesInDir(name));  
+            files.push(...await GetAllFilesInDir(name));
         }
-        else{
+        else {
             files.push(name);
         }
     }

@@ -54,7 +54,9 @@ export async function OnDidChangeActiveTextEditor(textEditor: vscode.TextEditor)
                             DownloadFile(document.uri, userConfig, system);
                         }
                         else if (response === 2) {
-                            OpenTextDocument(remoteContent, path.extname(document.fileName).substring(1), true);
+                            const extension = path.extname(document.fileName).substring(1);
+                            let language = extension == "js" ? "javascript" : extension;
+                            OpenTextDocument(remoteContent, language, true);
                         }
                     }
                 }

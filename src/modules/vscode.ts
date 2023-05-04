@@ -92,9 +92,9 @@ export function SetContextValue(key: string, value: any) {
     ExecuteCommand('setContext', EXTENSION_NAME + '.' + key, value);
 }
 
-export async function OpenTextDocument(content: string, language: string, focus: boolean){
-    const document = await vscode.workspace.openTextDocument({content: content, language: language});
-    if(focus)
+export async function OpenTextDocument(content: string, language: string, focus: boolean) {
+    const document = await vscode.workspace.openTextDocument({ content, language });
+    if (focus)
         vscode.window.showTextDocument(document);
     return document;
 }

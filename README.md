@@ -13,17 +13,14 @@ This extension should sync the file in mii workbench with local file whenever yo
 #### Folder
 - Upload to / Download from MII system.
 - When uploading, prompts folder creation if it doesn't exist on the system.
-
+#### Transfer
+- Transfer folder between systems.
 ------------
 
 - View remote directory and download certain folder from it.
 - Open the current screen with command or right click on index.html
 
 ## Planned Features
-
- 1. Add 'ignore' property to ignore certain files. (the current state matches file name only)
- 2. Upload to QA or Prod.
- 3. File comparison when opened
  
 
 
@@ -44,13 +41,16 @@ Your folder must contain miisync.json file in .vscode folder to work.
 
 * `remotePath`: Starting remote path. Adds itself at the front of context. (remotePath + context)
 **Example**: Local folder path is "E:\2023\Projects\ProjectName\Screen" and context is "ProjectName", then remotePath should be "". But lets say local folder path was  "E:\2023\Projects\A_ProjectName\Screen" and context was "Screen" then remotePath should be "ProjectName".
-* `host`: Address of the target system. google or 11.22.33
-* `port`: Port of the target system. 100, 50000.
-* `username`: Your username in the mii system to authenticate.
-* `password`: Your pasword in the mii system to authenticate. If not provided in the file extension will ask the password during.
+* `system`: Array of systems to connect to.
+    * `name`: Name of the system. Your choice
+    * `isMain`: Only one of the system must be true. Connects to this system.
+    * `host`: Address of the target system. google or 11.22.33
+    * `port`: Port of the target system. 100, 50000.
+    * `username`: Your username in the mii system to authenticate.
+    * `password`: Your pasword in the mii system to authenticate. If not provided in the file extension will ask the password during.
 * `uploadOnSave`: Uploads the current file when saved.
 * `downloadOnOpen`: Downloads the current file when opened.
-* `ignore`: Files specified in this doesn't get uploaded.
+* `ignore`: Wildcards specified in this doesn't get uploaded/downloaded. Look at [micromatch](https://github.com/micromatch/micromatch)
 * `useRootConfig`: Enables usage of another miisync.json outside of the workspace.
 * `rootConfig`: Path of another miisync.json file to be used.
 

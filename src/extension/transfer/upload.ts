@@ -44,12 +44,13 @@ export async function UploadFolder(folderUri: Uri | string, userConfig: UserConf
     const promises: Promise<any>[] = [];
 
     for (const file of files) {
-        if(!await ValidatePath(file, userConfig)) continue;
-        promises.push(readFile(file).then((content)=>{
-            const sourcePath = GetRemotePath(file, userConfig);
-            const base64Content = encodeURIComponent(content.length != 0 ? content.toString('base64') : Buffer.from(" ").toString('base64'));
-            return saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
-        }));
+        if(await ValidatePath(file, userConfig)){
+            promises.push(readFile(file).then((content)=>{
+                const sourcePath = GetRemotePath(file, userConfig);
+                const base64Content = encodeURIComponent(content.length != 0 ? content.toString('base64') : Buffer.from(" ").toString('base64'));
+                return saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
+            }));
+        }
     }
     await Promise.all(promises);
     logger.info("Upload Folder Completed");

@@ -30,7 +30,7 @@ export async function TransferFolder(uri: Uri, userConfig: UserConfig) {
         const promises: Promise<any>[] = [];
         for (let index = 0; index < localFiles.length; index++) {
             const localFile = localFiles[index];
-            if (ValidatePath(localFile, userConfig)) {
+            if (await ValidatePath(localFile, userConfig)) {
                 promises.push(readFile(localFile).then((content)=>{
                     const sourcePath = GetRemotePath(localFile, userConfig);
                     const base64Content = encodeURIComponent(content.length != 0 ? content.toString('base64') : Buffer.from(" ").toString('base64'));

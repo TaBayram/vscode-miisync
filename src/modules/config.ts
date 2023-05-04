@@ -236,7 +236,7 @@ class ConfigManager {
             }
         }
         if (candidate) {
-            this.currentSystem = {...candidate};
+            this.currentSystem = candidate;
             this.currentSystem.isMain = true;
         }
     }

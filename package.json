@@ -119,6 +119,12 @@
         "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
+        "command": "miisync.transferfolder",
+        "title": "Transfer Folder",
+        "category": "zmii",
+        "enablement": "miisync.enabled  && miisync.loggedin"
+      },
+      {
         "command": "miisync.downloadremotedirectory",
         "title": "Download Remote Directory",
         "icon": "$(extensions-install-count)",
@@ -165,6 +171,10 @@
         {
           "command": "miisync.downloadfileproperties",
           "when": "false"
+        },
+        {
+          "command": "miisync.transferfolder",
+          "when": "false"
         }
       ],
       "explorer/context": [
@@ -185,7 +195,7 @@
         },
         {
           "command": "miisync.deletefile",
-          "group": "miisync@4",
+          "group": "miisync@5",
           "when": "miisync.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
         },
         {
@@ -197,6 +207,11 @@
           "command": "miisync.uploadfolder",
           "group": "miisync@3",
           "when": "miisync.enabled && !explorerResourceIsRoot && explorerResourceIsFolder"
+        },
+        {
+          "command": "miisync.transferfolder",
+          "group": "miisync@4",
+          "when": "miisync.enabled && explorerResourceIsFolder"
         }
       ],
       "view/title": [
@@ -306,7 +321,7 @@
                 "default": "dev",
                 "description": "name of the system"
               },
-              "isMain":{
+              "isMain": {
                 "type": "boolean",
                 "default": false,
                 "description": "If true the extension will use this system"
@@ -365,9 +380,11 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
+    "@types/micromatch": "^4.0.2",
     "@types/node-fetch": "^2.6.3",
     "fast-xml-parser": "^4.2.0",
     "joi": "^17.9.1",
+    "micromatch": "^4.0.5",
     "node-fetch": "^2.6.9"
   }
 }
