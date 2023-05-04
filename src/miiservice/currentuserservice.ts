@@ -8,7 +8,7 @@ class CurrentUsersService extends Service {
 
     async call({ host, port }: Request) {
         const url = this.get(host, port);
-        const { value, error, isError } = await this.fetch(url, true);
+        const { value, error, isError } = await this.fetch({host,port},url);
         let data: MII<CurrentUser, GeneralColumn> = null;
         if (!isError) {
             data = JSON.parse(value);

@@ -52,23 +52,30 @@ class StatusBar {
         this.bar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 10);
         this.update();
         subscriptions.push(this.bar);
-        configManager.onConfigChange.event(this.onConfigChanged);
-        Session.Instance.onLogStateChange.event(this.onLogStateChange, this);
+        configManager.onConfigChange.event(this.onConfigChanged, this);
+        Session.onLogStateChange.event(this.onLogStateChange, this);
     }
 
 
     private async onConfigChanged({ uploadOnSave }: UserConfig) {
         if (uploadOnSave) {
             statusBar.defaultIcon = Icon.syncEnabled;
+            if(this.stack.length == 0)
+                this.Icon = Icon.syncEnabled
         }
         else {
             statusBar.defaultIcon = Icon.syncDisabled;
+            if(this.stack.length == 0)
+                this.Icon = Icon.syncDisabled
         }
+        this.bar.tooltip = configManager.CurrentSystem.name;
     }
 
-    private onLogStateChange(loggedIn: boolean) {
-        this.mainIcon = loggedIn ? Icon.itemChecked : Icon.itemUnchecked;
-        this.update();
+    private onLogStateChange(session: Session) {
+        if(session.system.isMain){
+            this.mainIcon = session.IsLoggedin ? Icon.itemChecked : Icon.itemUnchecked;
+            this.update();
+        }
     }
 
 

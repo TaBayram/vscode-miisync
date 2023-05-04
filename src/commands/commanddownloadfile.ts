@@ -16,10 +16,10 @@ export async function OnCommandDownloadFile(...uris: any[]) {
             const uri = selectedUris[index];
             lstat(uri.fsPath).then(stat => {
                 if (!stat.isDirectory()) {
-                    DownloadFile(uri, userConfig);
+                    DownloadFile(uri, userConfig, configManager.CurrentSystem);
                 }
             });
-           
+
         }
         return;
     }
@@ -28,7 +28,7 @@ export async function OnCommandDownloadFile(...uris: any[]) {
         const uri = textEditor.document.uri;
         await pathExists(uri.fsPath).then((exists) => {
             if (exists) {
-                DownloadFile(uri, userConfig);
+                DownloadFile(uri, userConfig, configManager.CurrentSystem);
             }
 
         }).catch((error: Error) => {
@@ -46,7 +46,7 @@ export async function OnCommandDownloadFileProperties() {
         const uri = textEditor.document.uri;
         await pathExists(uri.fsPath).then((exists) => {
             if (exists) {
-                GetFileProperties(uri, userConfig);
+                GetFileProperties(uri, userConfig,configManager.CurrentSystem);
             }
 
         }).catch((error: Error) => {

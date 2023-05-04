@@ -1,20 +1,43 @@
 {
     "properties": {
-        "host": {
-            "type": "string",
-            "description": "IP of MII system"
-        },
-        "port": {
-            "type": "number",
-            "description": "port of MII system"
-        },
-        "username": {
-            "type": "string",
-            "description": "your username for mii"
-        },
-        "password": {
-            "type": "string",
-            "description": "your password for mii"
+        "systems": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "minItems": 1,
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "dev",
+                        "description": "name of the system"
+                    },
+                    "isMain": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "If true the extension will use this system"
+                    },
+                    "host": {
+                        "type": "string",
+                        "default": "10.20.30.40",
+                        "description": "IP of the target system."
+                    },
+                    "port": {
+                        "type": "number",
+                        "default": 50000,
+                        "description": "Port of the target system."
+                    },
+                    "username": {
+                        "type": "string",
+                        "default": "x-name",
+                        "description": "Your username for the target system"
+                    },
+                    "password": {
+                        "type": "string",
+                        "default": "1234",
+                        "description": "Your password for the targetsystem"
+                    }
+                }
+            }
         },
         "context": {
             "type": "string",

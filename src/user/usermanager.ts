@@ -1,9 +1,12 @@
+import { ExtensionContext } from "vscode";
+import { shallowEqual } from "../extends/lib";
 import { logInService } from "../miiservice/loginservice";
 import { logOutService } from "../miiservice/logoutservice";
-import { UserConfig, configManager } from "../modules/config";
+import { System, UserConfig, configManager } from "../modules/config";
 import { SetContextValue, ShowInputBox } from "../modules/vscode";
 import logger from "../ui/logger";
 import { Session } from "./session";
+
 
 // Find a better name
 class UserManager {
@@ -17,55 +20,82 @@ class UserManager {
         this.session.IsLoggedin = value;
     }
 
-    public get IsLoggedin(){
+    public get IsLoggedin() {
         return this.isLoggedin;
     }
 
-    constructor() {
-        this.session = Session.Instance;
+    public get Session() {
+        return this.session;
+    }
+
+
+    constructor(readonly system: System) {
+        this.session = new Session(system);
+    }
+
+    public onSystemUpdate(system: System) {
+        if (!shallowEqual(system, this.system)) {
+            if (this.IsLoggedin) {
+                this.logout();
+                this.system.host = system.host;
+                this.system.port = system.port;
+                this.system.username = system.username;
+                this.system.password = system.password;
+                this.system.isMain = system.isMain;
+                this.login();
+            }
+            else {
+                this.system.host = system.host;
+                this.system.port = system.port;
+                this.system.username = system.username;
+                this.system.password = system.password;
+                this.system.isMain = system.isMain;
+            }
+        }
     }
 
 
 
     async login() {
-        const { host, port, username, password } = await configManager.load();
-        this.setAuth({ username, password });
-        const response = await logInService.call({ host, port });
-        if(response){
+        if (this.isLoggedin) return true;
+        this.setAuth();
+        const response = await logInService.call({ host: this.system.host, port: this.system.port });
+        if (response) {
             this.session.haveCookies(response);
             this.IsLoggedin = true;
-            SetContextValue("loggedin", true);
+            if (this.system.isMain)
+                SetContextValue("loggedin", true);
             return true;
         }
         return false;
     }
 
     async logout() {
-        const { host, port } = await configManager.load();
-        await logOutService.call({ host, port });
+        await logOutService.call({ host: this.system.host, port: this.system.port });
         this.session.clear();
         this.IsLoggedin = false;
-        SetContextValue("loggedin", false);
+        if (this.system.isMain)
+            SetContextValue("loggedin", false);
     }
 
-    async setAuth({ username, password }: UserConfig, promptPassword = true) {
-        if (password == null && promptPassword) {
+    async setAuth(promptPassword = true) {
+        if (this.system.password == null && promptPassword) {
             if (await this.askPassword())
-                password = this.password;
+                this.system.password = this.password;
         }
 
-        const newAuth = encodeURIComponent(Buffer.from(username + ":" + password).toString('base64'));
+        const newAuth = encodeURIComponent(Buffer.from(this.system.username + ":" + this.system.password).toString('base64'));
         this.session.auth = newAuth;
     }
 
     private async askPassword() {
-        const password = await ShowInputBox({ password: true, placeHolder: "Enter Password", title: "Password" });
+        const password = await ShowInputBox({ password: true, placeHolder: "Enter Password", title: "Password for " + this.system.name });
         if (password) {
             this.password;
             return true;
         }
         else {
-            logger.info("No password given");
+            logger.info("No password given for " + this.system.name);
             return false;
         }
     }
@@ -75,6 +105,41 @@ class UserManager {
 
 
 
+const userManagers: UserManager[] = [];
 
 
-export const userManager = new UserManager();
+export function GetUserManager(system: System, create: boolean = false) {
+    for (const manager of userManagers) {
+        if (manager.system.host == system.host && manager.system.port == system.port) {
+            return manager;
+        }
+    }
+    if (create) {
+        const manager = new UserManager(system);
+        userManagers.push(manager);
+        return manager;
+    }
+    return null;
+}
+
+export function GetMainUserManager() {
+    return userManagers.find((manager) => manager.system.isMain);
+}
+
+export async function CreateMainUserManager({ subscriptions }: ExtensionContext) {
+    await configManager.load();
+    subscriptions.push(configManager.onConfigChange.event(OnSystemsChange));
+    return GetUserManager(configManager.CurrentSystem, true);
+}
+
+
+export async function OnSystemsChange(config: UserConfig) {
+    for (const system of config.systems || []) {
+        for (const manager of userManagers) {
+            if (system.name == manager.system.name) {
+                manager.onSystemUpdate(system);
+            }
+        }
+    }
+
+}

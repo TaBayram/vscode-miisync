@@ -1,8 +1,8 @@
-import { FindFileInDir, GetRemotePath } from "../modules/file.js";
-import { GetCurrentWorkspaceFolder, GetActiveTextEditor } from "../modules/vscode.js";
+import { Uri } from "vscode";
 import { openScreenService } from "../miiservice/openscreenservice.js";
 import { configManager } from "../modules/config.js";
-import { Uri } from "vscode";
+import { FindFileInDir, GetRemotePath } from "../modules/file.js";
+import { GetCurrentWorkspaceFolder } from "../modules/vscode.js";
 
 
 export async function OnCommandOpenScreen(uri: Uri) {
@@ -10,7 +10,7 @@ export async function OnCommandOpenScreen(uri: Uri) {
     if (userConfig) {
         if(uri){
             const remotePath = GetRemotePath(uri.fsPath, userConfig, false);
-            openScreenService.call({ host: userConfig.host, port: userConfig.port }, remotePath);
+            openScreenService.call({ host: configManager.CurrentSystem.host, port: configManager.CurrentSystem.port }, remotePath);
             return;
         }
 
@@ -18,7 +18,7 @@ export async function OnCommandOpenScreen(uri: Uri) {
         const name = await FindFileInDir(workspaceUri.fsPath, 'index.html');
         if (!name) return;
         const remotePath = GetRemotePath(name, userConfig, false);
-        openScreenService.call({ host: userConfig.host, port: userConfig.port }, remotePath);
+        openScreenService.call({ host: configManager.CurrentSystem.host, port: configManager.CurrentSystem.port }, remotePath);
     }
 
 }

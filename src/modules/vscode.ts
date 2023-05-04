@@ -56,6 +56,26 @@ export async function ShowConfirmMessage(
     return (result && result.title === confirmLabel);
 }
 
+export async function ShowConfirmPreviewMessage(
+    message: string,
+    confirmLabel: string = 'Yes',
+    cancelLabel: string = 'No',
+    previewLabel: string = 'Preview'
+) {
+    const result = await vscode.window.showInformationMessage(
+        message,
+        { title: confirmLabel },
+        { title: cancelLabel },
+        { title: previewLabel }
+    );
+    return result?.title === confirmLabel ? 1 : result?.title === previewLabel ? 2 : 0;
+
+}
+
+export async function ShowQuickPick(items: any[], options?: vscode.QuickPickOptions, token?: vscode.CancellationToken) {
+    return await vscode.window.showQuickPick(items, options, token);
+}
+
 export async function ShowInputBox(
     options?: vscode.InputBoxOptions,
     token?: vscode.CancellationToken
@@ -72,4 +92,9 @@ export function SetContextValue(key: string, value: any) {
     ExecuteCommand('setContext', EXTENSION_NAME + '.' + key, value);
 }
 
-
+export async function OpenTextDocument(content: string, language: string, focus: boolean){
+    const document = await vscode.workspace.openTextDocument({content: content, language: language});
+    if(focus)
+        vscode.window.showTextDocument(document);
+    return document;
+}

@@ -1,10 +1,6 @@
-import { pathExists } from "fs-extra";
 import { Uri } from "vscode";
-import { configManager } from "../modules/config.js";
-import { GetActiveTextEditor } from "../modules/vscode.js";
-import logger from "../ui/logger.js";
-import path = require("path");
 import { DownloadFolder } from "../extension/transfer/download.js";
+import { configManager } from "../modules/config.js";
 
 
 export async function OnCommandDownloadFolder(uri: Uri) {
@@ -12,7 +8,7 @@ export async function OnCommandDownloadFolder(uri: Uri) {
     if (!userConfig) return;
 
     if (uri) {
-        DownloadFolder(uri, userConfig);
+        DownloadFolder(uri, userConfig,configManager.CurrentSystem);
         return;
     }
 }

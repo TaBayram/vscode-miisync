@@ -1,8 +1,7 @@
-import logger from '../../ui/logger.js';
 import { XMLParser } from 'fast-xml-parser';
 import fetch, { Response } from "node-fetch";
-import { Session } from '../../user/session.js';
-import { UserConfig } from '../../modules/config.js';
+import logger from '../../ui/logger.js';
+import { GetSession } from '../../user/session.js';
 import { Column, MII, Row } from './responsetypes.js';
 
 export interface Request {
@@ -21,10 +20,6 @@ export abstract class Service {
     abstract get(host: string, port: number, ...args: any);
     protected abstract generateParams(...args: any);
 
-    public generateAuth({ username, password }: UserConfig) {
-        return encodeURIComponent(Buffer.from(username + ":" + password).toString('base64'));
-    }
-
     protected generateURL(host: string, port: number, protocol: 'http' | 'https' = 'http') {
         return `${this.generateIP(host, port, protocol)}/${this.mode}`;
     }
@@ -32,14 +27,15 @@ export abstract class Service {
         return `${protocol}://${host}:${port}`;
     }
 
-    protected async fetch(url: string, auth: boolean = true, body?: string, convert: 'text' | 'blob' | 'none' = 'text', skipLogin = false): Promise<{ value: any, error: Error, isError: boolean }> {
-        // todo: Get cookies and auth based on ip of the system for multiple session support
+    // Dont like this session host port thingy change it
+    protected async fetch({ host, port }: Request, url: string, auth: boolean = false, body?: string, convert: 'text' | 'blob' | 'none' = 'text', skipLogin = true): Promise<{ value: any, error: Error, isError: boolean }> {
+        const session = GetSession(host, port);
         const headers = {
             "Content-Type": "application/x-www-form-urlencoded",
-            "cookie": Session.Instance.getCookies()
+            "cookie": session?.getCookies() || ''
         };
         if (auth) {
-            headers["Authorization"] = 'Basic ' + Session.Instance.auth;
+            headers["Authorization"] = 'Basic ' + session.auth;
         }
         return fetch(url, {
             method: body ? "POST" : "GET",

@@ -1,8 +1,8 @@
-import { userManager } from "../user/usermanager";
+import { GetMainUserManager } from "../user/usermanager";
 
 export function OnCommandLogin(){
-    userManager.login();
+    GetMainUserManager()?.login();
 }
 export function OnCommandLogout(){
-    userManager.logout();
+    GetMainUserManager()?.logout();
 }

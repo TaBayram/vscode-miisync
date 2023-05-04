@@ -1,24 +1,19 @@
 import * as vscode from "vscode";
-import { SetContextValue } from "../modules/vscode";
+import { System } from "../modules/config";
 
 export class Session {
-    private static instance: Session;
-    public static get Instance() {
-        if (!this.instance) {
-            this.instance = new Session();
-        }
-        return this.instance;
+    private static context: vscode.ExtensionContext;    
+    public static onLogStateChange: vscode.EventEmitter<Session> = new vscode.EventEmitter();
+    public static set Context(value: vscode.ExtensionContext) {
+        Session.context = value;
     }
-    private constructor(){};
 
-    private context: vscode.ExtensionContext;
     private cookies: string[] = [];
     private lastUpdated: Date;
     private isLoggedin: boolean;
     private hasMIICookies: boolean = false;
+    public auth: string;    
 
-    public onLogStateChange: vscode.EventEmitter<boolean> = new vscode.EventEmitter();
-    public auth: string;
 
     public set HasMIICookies(value: boolean) {
         this.hasMIICookies = value;
@@ -29,19 +24,20 @@ export class Session {
 
     public set IsLoggedin(value: boolean) {
         this.isLoggedin = value;
-        this.onLogStateChange.fire(value);
+        Session.onLogStateChange.fire(this);
     }
 
-    public get IsLoggedin(){
+    public get IsLoggedin() {
         return this.isLoggedin;
     }
 
-    public set Context(value: vscode.ExtensionContext) {
-        this.context = value;
+
+    public constructor(readonly system: System) {
+        sessions.push(this);
         this.loadCookies();
     }
 
- 
+
 
     clear() {
         this.HasMIICookies = false;
@@ -98,26 +94,39 @@ export class Session {
     }
 
     loadCookies() {
-        this.lastUpdated = new Date(this.context.globalState.get("lastUpdated", Date.now()));
-        if (!this.isExpired(this.lastUpdated, 60)){
-            this.cookies = this.context.globalState.get<string[]>("cookies", []);
+        this.lastUpdated = new Date(Session.context.globalState.get(this.system.name + "lastUpdated", Date.now()));
+        if (!this.isExpired(this.lastUpdated, 60)) {
+            this.cookies = Session.context.globalState.get<string[]>(this.system.name + "cookies", []);
         }
     }
 
     saveCookies() {
-        this.context.globalState.update("lastUpdated", this.lastUpdated);
-        this.context.globalState.update("cookies", this.cookies);
+        Session.context.globalState.update(this.system.name + "lastUpdated", this.lastUpdated);
+        Session.context.globalState.update(this.system.name + "cookies", this.cookies);
     }
 
     private clearCookies() {
-        this.context.globalState.update("lastUpdated", null);
-        this.context.globalState.update("cookies", null);
+        Session.context.globalState.update(this.system.name + "lastUpdated", null);
+        Session.context.globalState.update(this.system.name + "cookies", null);
     }
 
 
     private isExpired(date: Date, duration: number) {
         return (new Date().getTime() - date.getTime()) / 1000 / 60 >= duration
     }
+}
 
+const sessions: Session[] = [];
 
+export function GetSession(host: string, port: number) {
+    for (const session of sessions) {
+        if (session.system.host == host && session.system.port == port) {
+            return session;
+        }
+    }
+    return null;
+}
+
+export function GetMainSession() {
+    return sessions.find((session) => session.system.isMain);
 }

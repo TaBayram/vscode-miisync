@@ -13,7 +13,7 @@ class ExportProjectService extends Service {
         OpenLink(this.get(host, port, projectName));
 
         return
-        const { value, error, isError } = await this.fetch(url, true);
+        const { value, error, isError } = await this.fetch({host,port},url);
         if (!isError) {
             //const data = this.parseXML(value);
             //logger.info(this.name + ": " + data?.Rowsets?.Messages?.Message);

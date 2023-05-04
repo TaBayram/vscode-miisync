@@ -7,7 +7,7 @@ class ReadFileService extends Service {
 
     async call({ host, port }: Request , filePath: string) {
         const url = this.get(host, port, filePath);
-        const { value, error, isError } = await this.fetch(url, true);
+        const { value, error, isError } = await this.fetch({host,port},url);
         let data: MII<FileBinary, GeneralColumn> = null;
         if (!isError) {
             data = this.parseXML(value.replaceAll("&#13;",""));

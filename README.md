@@ -22,7 +22,8 @@ This extension should sync the file in mii workbench with local file whenever yo
 ## Planned Features
 
  1. Add 'ignore' property to ignore certain files. (the current state matches file name only)
- 2. Upload to QA or Prod. 
+ 2. Upload to QA or Prod.
+ 3. File comparison when opened
  
 
 

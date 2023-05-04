@@ -1,6 +1,6 @@
 import { Uri } from "vscode";
-import { configManager } from "../modules/config.js";
 import { UploadFolder } from "../extension/transfer/upload.js";
+import { configManager } from "../modules/config.js";
 
 
 export async function OnCommandUploadFolder(uri: Uri) {
@@ -8,7 +8,7 @@ export async function OnCommandUploadFolder(uri: Uri) {
     if (!userConfig) return;
 
     if (uri) {
-        UploadFolder(uri, userConfig);
+        UploadFolder(uri, userConfig, configManager.CurrentSystem);
         return;
     }
 }

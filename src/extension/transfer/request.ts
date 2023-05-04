@@ -1,24 +1,24 @@
 /* For non file transfers */
 
 import { Uri } from "vscode";
+import { deleteBatchService } from "../../miiservice/deletebatchservice";
 import { readFilePropertiesService } from "../../miiservice/readfilepropertiesservice";
-import { ValidatePath, GetRemotePath } from "../../modules/file";
-import { fileProperties } from "../../ui/explorer/filepropertiestree";
-import { UserConfig } from "../../modules/config";
+import { System, UserConfig } from "../../modules/config";
+import { GetRemotePath, ValidatePath } from "../../modules/file";
+import { ShowConfirmMessage } from "../../modules/vscode";
+import { filePropertiesTree } from "../../ui/explorer/filepropertiestree";
+import logger from "../../ui/logger";
 import statusBar, { Icon } from "../../ui/statusbar";
 import { DoesFileExist, Validate } from "./gate";
-import { ShowConfirmMessage } from "../../modules/vscode";
-import logger from "../../ui/logger";
-import { deleteBatchService } from "../../miiservice/deletebatchservice";
 
 
 
-export async function DeleteFile(uri: Uri, userConfig: UserConfig) {
-    if (!await Validate(userConfig, uri.fsPath)) {
+export async function DeleteFile(uri: Uri, userConfig: UserConfig, system: System) {
+    if (!await Validate(userConfig, system, uri.fsPath)) {
         return false;
     }
     const sourcePath = GetRemotePath(uri.fsPath, userConfig);
-    if (!await DoesFileExist(sourcePath, userConfig)) {
+    if (!await DoesFileExist(sourcePath, system)) {
         logger.error('File does not exist.');
         return false;
     }
@@ -28,18 +28,18 @@ export async function DeleteFile(uri: Uri, userConfig: UserConfig) {
     }
 
     statusBar.updateBar('Deleting', Icon.spinLoading, { duration: -1 });
-    await deleteBatchService.call({ host: userConfig.host, port: userConfig.port }, sourcePath);
+    await deleteBatchService.call({ host: system.host, port: system.port }, sourcePath);
     statusBar.updateBar('Deleted', Icon.success, { duration: 1 })
 
 }
 
 
-export async function GetFileProperties(uri: Uri, userConfig: UserConfig) {
-    if (!ValidatePath(uri.fsPath, userConfig)) return null;
+export async function GetFileProperties(uri: Uri, userConfig: UserConfig, system: System) {
+    if (!await ValidatePath(uri.fsPath, userConfig)) return null;
     const sourcePath = GetRemotePath(uri.fsPath, userConfig);
-    const file = await readFilePropertiesService.call({ host: userConfig.host, port: userConfig.port }, sourcePath);
+    const file = await readFilePropertiesService.call({ host: system.host, port: system.port }, sourcePath);
     if (file?.Rowsets?.Rowset?.Row) {
-        fileProperties.generateItems(file.Rowsets.Rowset.Row[0]);
+        filePropertiesTree.generateItems(file.Rowsets.Rowset.Row[0]);
         return file;
     }
     return null;

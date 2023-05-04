@@ -11,10 +11,10 @@ export async function OnCommandDownloadProject(){
     const sourcePath = GetRemotePath("", userConfig);
     const parentPath = path.dirname(sourcePath).replaceAll(path.sep, "/");
 
-    if (!await DoesRemotePathExist(userConfig)) {
+    if (!await DoesRemotePathExist(userConfig,configManager.CurrentSystem)) {
         logger.error("Remote Path doesn't exist");
         return;
     }
-    exportProjectService.call({host: userConfig.host, port: userConfig.port}, parentPath);
+    exportProjectService.call({host: configManager.CurrentSystem.host, port: configManager.CurrentSystem.port}, parentPath);
     return;
 }

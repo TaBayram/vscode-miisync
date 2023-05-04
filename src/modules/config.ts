@@ -1,20 +1,27 @@
-import * as vscode from 'vscode';
 import * as fse from 'fs-extra';
-import * as path from 'path';
 import * as Joi from 'joi';
+import * as path from 'path';
+import * as vscode from 'vscode';
 import { CONFIG_PATH, EXTENSION_NAME } from '../constants.js';
+import logger from '../ui/logger.js';
 import { GetWorkspaceFolders, ShowTextDocument } from './vscode';
 
 const nullable = schema => schema.optional().allow(null);
 
+let joiSystem = Joi.object().keys({
+    name: Joi.string().required(),
+    isMain: Joi.boolean().default(false),
+    host: Joi.string().required(),
+    port: Joi.number().required(),
+    username: Joi.string().required(),
+    password: Joi.string(),
+});
+
 const configScheme = Joi.object({
+    systems: Joi.array().items(joiSystem).min(1),
     context: Joi.string().required(),
     removeFromContext: Joi.array<string>(),
     remotePath: Joi.string().required(),
-    host: Joi.string().required().required(),
-    port: Joi.number().integer().required(),
-    username: Joi.string().required(),
-    password: Joi.string(),
     uploadOnSave: Joi.boolean(),
     downloadOnOpen: Joi.boolean(),
     ignore: Joi.array<string>(),
@@ -22,14 +29,21 @@ const configScheme = Joi.object({
     useRootConfig: Joi.boolean()
 });
 
-export interface UserConfig {
-    context?: string,
-    removeFromContext?: string[],
-    remotePath?: string,
+
+export interface System {
+    name: string,
+    isMain: boolean,
     host?: string,
     port?: number,
     username?: string,
     password?: string,
+}
+
+export interface UserConfig {
+    systems?: System[],
+    context?: string,
+    removeFromContext?: string[],
+    remotePath?: string,
     uploadOnSave?: boolean,
     downloadOnOpen?: boolean,
     ignore?: string[],
@@ -37,13 +51,14 @@ export interface UserConfig {
     rootConfig?: string,
 }
 
+export interface ConfigSystem extends System, UserConfig{
+
+}
+
 function GetWorkspaceConfig(): UserConfig {
     const conf = vscode.workspace.getConfiguration(EXTENSION_NAME);
     return {
-        host: conf.get("host", "localhost"),
-        port: conf.get("port", 22),
-        username: conf.get("username", "username"),
-        password: conf.get("password", '1234'),
+        systems: conf.get("systems", [defaultSystem]),
         context: conf.get("context", '/'),
         removeFromContext: conf.get("removeFromContext", ['webapp']),
         remotePath: conf.get("remotePath", '/'),
@@ -52,10 +67,21 @@ function GetWorkspaceConfig(): UserConfig {
         ignore: conf.get('ignore', ['package.json', 'package-lock.json', 'tsconfig.json', '.*']),
         useRootConfig: conf.get('useRootConfig', false),
         rootConfig: conf.get('rootConfig', '')
-    }
+    };
 }
 
-const defaultConfig = {};
+const defaultSystem: System = {
+    name: "dev",
+    isMain: false,
+    host: '11.22.33',
+    port: 5000,
+    username: 'x-user',
+    password: '1234'
+};
+const defaultConfig: UserConfig = {
+    uploadOnSave: false,
+    downloadOnOpen: false
+};
 
 function MergedDefault(config) {
     return {
@@ -117,39 +143,53 @@ class ConfigManager {
 
     private selffsPath: string;
     private selfConfig: UserConfig;
-    
-    public onConfigChange: vscode.EventEmitter<UserConfig> = new vscode.EventEmitter();
-    
-    private lastLoadedTime: number;
-    private lastLoadThreshold = 500;
 
-    get Config(){
+    private currentSystem: System;
+
+    public onConfigChange: vscode.EventEmitter<UserConfig> = new vscode.EventEmitter();
+
+    private lastLoadedTime: number;
+    private lastLoadThreshold = 2000;
+
+    private get config() {
         return this.useRoot ? this.rootConfig : this.selfConfig;
     }
 
-    
+    get Config(): ConfigSystem {
+        return { ...this.config, ...this.currentSystem };
+    }
 
-    constructor(){
+    get CurrentSystem() {
+        return this.currentSystem;
+    }
+
+
+
+    constructor() {
         this.lastLoadedTime = Date.now();
 
     }
     validate() {
-        const { error } = configScheme.validate(this.Config, {
+        const { error } = configScheme.validate(this.config, {
             allowUnknown: true,
             convert: false,
         });
+
+        for (const sys1 of this.config.systems) {
+            for (const sys2 of this.config.systems) {
+                if (sys1 !== sys2 && sys1.name === sys2.name) {
+                    return new Error("Systems have the same name");
+                }
+            }
+        }
+
         return error;
     }
 
 
     async load() {
-        if(Date.now() - this.lastLoadedTime < this.lastLoadThreshold && this.selfConfig){
-            if(this.selfConfig.useRootConfig && this.rootConfig){
-                return this.rootConfig;
-            }
-            else{
-                return this.selfConfig;
-            }
+        if (Date.now() - this.lastLoadedTime < this.lastLoadThreshold && this.selfConfig) {
+            return this.Config;
         }
 
         this.selffsPath = GetWorkspaceFolders()[0].uri.fsPath;
@@ -161,14 +201,17 @@ class ConfigManager {
                 this.rootConfig = root.config;
                 this.rootfsPath = root.fsPath;
                 this.useRoot = true;
-
-                this.onConfigChange.fire(root.config);
-                return root.config;
             }
         }
+        const error = this.validate();
+        if(error){
+            logger.warn("Config ", error);
+            return null;
+        }
         this.lastLoadedTime = Date.now();
-        this.onConfigChange.fire(this.selfConfig);
-        return this.selfConfig;
+        this.setCurrentSystem();
+        this.onConfigChange.fire(this.config);
+        return this.Config;
     }
 
     async update(config: UserConfig) {
@@ -183,7 +226,21 @@ class ConfigManager {
         this.onConfigChange.fire(config);
     }
 
-  
+    private setCurrentSystem() {
+
+        let candidate: System = this.config.systems[0];
+        for (const system of this.config.systems) {
+            if (system.isMain) {
+                candidate = system;
+                break;
+            }
+        }
+        if (candidate) {
+            this.currentSystem = {...candidate};
+            this.currentSystem.isMain = true;
+        }
+    }
+
     private async loadRoot(fsPath: string, self: boolean): Promise<{ config: UserConfig, fsPath: string }> {
         const configs = await TryLoadConfigs(fsPath);
         if (configs?.length) {

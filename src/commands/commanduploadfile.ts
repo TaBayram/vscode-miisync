@@ -1,9 +1,9 @@
 import { lstat, pathExists, readFile } from "fs-extra";
+import { Uri } from "vscode";
+import { UploadFile } from "../extension/transfer/upload.js";
 import { configManager } from "../modules/config.js";
 import { GetActiveTextEditor } from "../modules/vscode.js";
 import logger from "../ui/logger.js";
-import { UploadFile } from "../extension/transfer/upload.js";
-import { Uri } from "vscode";
 
 
 
@@ -19,7 +19,7 @@ export async function OnCommandUploadFile(...uris: any[]) {
             lstat(uri.fsPath).then(stat => {
                 if (!stat.isDirectory()) {
                     readFile(uri.fsPath).then((value) => {
-                        UploadFile(uri, value.toString(), userConfig);
+                        UploadFile(uri, value.toString(), userConfig, configManager.CurrentSystem);
                     })
                 }
             });
@@ -31,7 +31,7 @@ export async function OnCommandUploadFile(...uris: any[]) {
         const uri = textEditor.document.uri;
         await pathExists(uri.fsPath).then((exists) => {
             if (exists) {
-                UploadFile(textEditor.document.uri, textEditor.document.getText(), userConfig);
+                UploadFile(textEditor.document.uri, textEditor.document.getText(), userConfig, configManager.CurrentSystem);
 
             }
         }).catch((error: Error) => {

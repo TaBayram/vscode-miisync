@@ -8,15 +8,15 @@ class LogInService extends Service {
 
     async call({ host, port }: Request) {
         const url = this.get(host, port);
-        const { value, error, isError } = await this.fetch(url, true, null, 'none', true);
+        const { value, error, isError } = await this.fetch({ host, port }, url, true, null, 'none', true);
         if (!isError) {
             if (value.redirected && value.url == this.generateIP(host, port) + "/XMII/goService.jsp") {
                 logger.info(this.name + ": success");
                 return value;
             }
-            else{
-                logger.error(this.name + ": fail. Response "+ JSON.stringify(value));
-            }   
+            else {
+                logger.error(this.name + ": fail. Response " + JSON.stringify(value));
+            }
             return null;
         }
     }

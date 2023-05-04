@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { OnCommandCreateConfig } from './commands/commandconfig';
+import { OnCommandDeleteFile } from './commands/commanddeletefile';
 import { OnCommandDownloadRemoteDirectory, OnCommandDownloadRemoteFolder } from './commands/commanddownloaddirectory';
 import { OnCommandDownloadFile, OnCommandDownloadFileProperties, } from './commands/commanddownloadfile';
 import { OnCommandDownloadFolder } from './commands/commanddownloadfolder';
@@ -11,12 +12,11 @@ import { OnCommandUploadFile } from './commands/commanduploadfile';
 import { OnCommandUploadFolder } from './commands/commanduploadfolder';
 import { OnDidChangeActiveTextEditor, OnDidOpenTextDocument, OnDidSaveTextDocument } from './extension/events';
 import { SetContextValue } from './modules/vscode';
-import { fileProperties } from './ui/explorer/filepropertiestree';
+import { filePropertiesTree } from './ui/explorer/filepropertiestree';
 import { remoteDirectoryTree } from './ui/explorer/remotedirectorytree';
 import { activateBar } from './ui/statusbar';
 import { Session } from './user/session';
-import { userManager } from './user/usermanager';
-import { OnCommandDeleteFile } from './commands/commanddeletefile';
+import { CreateMainUserManager } from './user/usermanager';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -25,9 +25,9 @@ export function activate(context: vscode.ExtensionContext) {
 	RegisterCommands(context);
 	RegisterEvents(context)
 
-	Session.Instance.Context = context;
-	userManager.login();
 	SetContextValue("enabled", true);
+	Session.Context = context;
+	CreateMainUserManager(context).then((user) => user.login());
 }
 
 
@@ -71,6 +71,6 @@ function RegisterCommand(command: string, callback: (...args: any[]) => any, { s
  * Find a better place for this
  */
 export function activateTree({ subscriptions }: vscode.ExtensionContext) {
-	subscriptions.push(vscode.window.registerTreeDataProvider('fileproperties', fileProperties));
+	subscriptions.push(vscode.window.registerTreeDataProvider('fileproperties', filePropertiesTree));
 	subscriptions.push(vscode.window.registerTreeDataProvider('remotedirectory', remoteDirectoryTree));
 }

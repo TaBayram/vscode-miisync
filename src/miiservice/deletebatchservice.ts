@@ -9,7 +9,7 @@ class DeleteBatchService extends Service {
 
     async call({ host, port, body }: Request, sourcePath: string) {
         const url = this.get(host, port, sourcePath);
-        const { value, error, isError } = await this.fetch(url, true, body);
+        const { value, error, isError } = await this.fetch({host,port},url, false, body);
         if (!isError) {
             const data: MII<null,null,RowsetsMessage> = this.parseXML(value);
             logger.info(this.name + ": " + data?.Rowsets?.Messages?.Message);

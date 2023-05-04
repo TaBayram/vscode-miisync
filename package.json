@@ -11,8 +11,9 @@
     "url": "https://github.com/TaBayramNTT/miisync",
     "type": "github"
   },
+  "homepage": "https://github.com/TaBayramNTT/miisync",
   "icon": "resources/icon.png",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -260,26 +261,6 @@
           "default": "10.20.30.40",
           "description": "Gets the config from specified miisync.json file."
         },
-        "host": {
-          "type": "string",
-          "default": "10.20.30.40",
-          "description": "IP of the target MII system."
-        },
-        "port": {
-          "type": "number",
-          "default": 50000,
-          "description": "Port of the target MII system."
-        },
-        "username": {
-          "type": "string",
-          "default": "x-name",
-          "description": ""
-        },
-        "password": {
-          "type": "string",
-          "default": "1234",
-          "description": ""
-        },
         "context": {
           "type": "string",
           "default": "1234",
@@ -313,6 +294,45 @@
             "type": "string"
           },
           "description": "files to ignore"
+        },
+        "systems": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "default": "dev",
+                "description": "name of the system"
+              },
+              "isMain":{
+                "type": "boolean",
+                "default": false,
+                "description": "If true the extension will use this system"
+              },
+              "host": {
+                "type": "string",
+                "default": "10.20.30.40",
+                "description": "IP of the target MII system."
+              },
+              "port": {
+                "type": "number",
+                "default": 50000,
+                "description": "Port of the target MII system."
+              },
+              "username": {
+                "type": "string",
+                "default": "x-name",
+                "description": ""
+              },
+              "password": {
+                "type": "string",
+                "default": "1234",
+                "description": ""
+              }
+            }
+          }
         }
       }
     }

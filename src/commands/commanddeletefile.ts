@@ -12,7 +12,7 @@ export async function OnCommandDeleteFile(...uris: any[]) {
         const uri: Uri = uris[0];
         lstat(uri.fsPath).then(stat => {
             if (!stat.isDirectory()) {
-                DeleteFile(uri, userConfig);
+                DeleteFile(uri, userConfig, configManager.CurrentSystem);
             }
         });
     }

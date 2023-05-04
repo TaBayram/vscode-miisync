@@ -10,7 +10,7 @@ class ListFilesService extends Service {
 
     async call({ host, port }: Request, folderPath: string) {
         const url = this.get(host, port, folderPath);
-        const { value, error, isError } = await this.fetch(url, true);
+        const { value, error, isError } = await this.fetch({ host, port }, url);
         let data: MII<File, GeneralColumn2> = null;
         if (!isError) {
             data = this.parseXML(value);
