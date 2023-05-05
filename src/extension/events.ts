@@ -3,7 +3,7 @@ import { readFilePropertiesService } from "../miiservice/readfilepropertiesservi
 import { readFileService } from "../miiservice/readfileservice.js";
 import { configManager } from "../modules/config.js";
 import { GetRemotePath, ValidatePath } from "../modules/file.js";
-import { OpenTextDocument, ShowConfirmPreviewMessage } from "../modules/vscode.js";
+import { CompareDocuments, OpenTextDocument, ShowConfirmPreviewMessage } from "../modules/vscode.js";
 import { filePropertiesTree } from "../ui/explorer/filepropertiestree.js";
 import logger from "../ui/logger.js";
 import { DownloadFile } from "./transfer/download.js";
@@ -32,6 +32,7 @@ export async function OnDidChangeActiveTextEditor(textEditor: vscode.TextEditor)
     const document = textEditor.document;
     const userConfig = await configManager.load();
     if (userConfig) {
+        //Move this somewhere else
         const system = configManager.CurrentSystem;
         if (!await ValidatePath(document.fileName, userConfig)) { return; }
         const sourcePath = GetRemotePath(document.fileName, userConfig);
@@ -45,6 +46,8 @@ export async function OnDidChangeActiveTextEditor(textEditor: vscode.TextEditor)
             else {
                 const modifiedUser = fileProp.ModifiedBy;
                 if (system.username != modifiedUser) {
+                    if(saidNoToTheseDocuments.find((no)=> no.fsPath === document.uri.fsPath && no.modifiedTime == fileProp.Modified && no.modifiedUser == fileProp.ModifiedBy)) return;
+
                     const file = await readFileService.call({ host: system.host, port: system.port }, sourcePath);
                     const payload = file.Rowsets.Rowset.Row.find((row) => row.Name == "Payload");
                     const remoteContent = Buffer.from(payload.Value, 'base64').toString();
@@ -56,7 +59,15 @@ export async function OnDidChangeActiveTextEditor(textEditor: vscode.TextEditor)
                         else if (response === 2) {
                             const extension = path.extname(document.fileName).substring(1);
                             let language = extension == "js" ? "javascript" : extension;
-                            OpenTextDocument(remoteContent, language, true);
+                            const newDocument = OpenTextDocument(remoteContent, language, true);
+                            CompareDocuments(document.uri, (await newDocument).uri);
+                        }
+                        else if(response === 0){
+                            saidNoToTheseDocuments.push({
+                                fsPath: document.uri.fsPath,
+                                modifiedTime: fileProp.Modified,
+                                modifiedUser: fileProp.ModifiedBy
+                            })
                         }
                     }
                 }
@@ -67,3 +78,6 @@ export async function OnDidChangeActiveTextEditor(textEditor: vscode.TextEditor)
         }
     }
 }
+
+
+let saidNoToTheseDocuments: {fsPath: string, modifiedUser: string, modifiedTime: string}[] = [];

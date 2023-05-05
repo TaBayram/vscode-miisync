@@ -2,7 +2,7 @@ import { ExtensionContext } from "vscode";
 import { shallowEqual } from "../extends/lib";
 import { logInService } from "../miiservice/loginservice";
 import { logOutService } from "../miiservice/logoutservice";
-import { System, UserConfig, configManager } from "../modules/config";
+import { System, configManager } from "../modules/config";
 import { SetContextValue, ShowInputBox } from "../modules/vscode";
 import logger from "../ui/logger";
 import { Session } from "./session";
@@ -51,15 +51,17 @@ class UserManager {
                 this.system.password = system.password;
                 this.system.isMain = system.isMain;
             }
+            return true;
         }
+        return false;
     }
 
 
 
     async login() {
         if (this.isLoggedin) return true;
-        this.setAuth();
-        const response = await logInService.call({ host: this.system.host, port: this.system.port });
+        await this.setAuth();
+        const response = await logInService.call({ host: this.system.host, port: this.system.port }, this.system.name);
         if (response) {
             this.session.haveCookies(response);
             this.IsLoggedin = true;
@@ -72,6 +74,7 @@ class UserManager {
 
     async logout() {
         await logOutService.call({ host: this.system.host, port: this.system.port });
+        logger.info('Log out for ' + this.system.name);
         this.session.clear();
         this.IsLoggedin = false;
         if (this.system.isMain)
@@ -79,19 +82,17 @@ class UserManager {
     }
 
     async setAuth(promptPassword = true) {
-        if (this.system.password == null && promptPassword) {
-            if (await this.askPassword())
-                this.system.password = this.password;
+        if (this.system.password == null && promptPassword && await this.askPassword()) {            
         }
 
-        const newAuth = encodeURIComponent(Buffer.from(this.system.username + ":" + this.system.password).toString('base64'));
+        const newAuth = encodeURIComponent(Buffer.from(this.system.username + ":" + (this.system.password || this.password)).toString('base64'));
         this.session.auth = newAuth;
     }
 
     private async askPassword() {
         const password = await ShowInputBox({ password: true, placeHolder: "Enter Password", title: "Password for " + this.system.name });
         if (password) {
-            this.password;
+            this.password = password;
             return true;
         }
         else {
@@ -110,7 +111,7 @@ const userManagers: UserManager[] = [];
 
 export function GetUserManager(system: System, create: boolean = false) {
     for (const manager of userManagers) {
-        if (manager.system.host == system.host && manager.system.port == system.port) {
+        if (manager.system.name == system.name && manager.system.host == system.host && manager.system.port == system.port) {
             return manager;
         }
     }
@@ -126,20 +127,42 @@ export function GetMainUserManager() {
     return userManagers.find((manager) => manager.system.isMain);
 }
 
-export async function CreateMainUserManager({ subscriptions }: ExtensionContext) {
+
+export async function InitiliazeMainUserManager({ subscriptions }: ExtensionContext) {
+    subscriptions.push(configManager.onSystemsChange.event(OnSystemsChange));
     await configManager.load();
-    subscriptions.push(configManager.onConfigChange.event(OnSystemsChange));
-    return GetUserManager(configManager.CurrentSystem, true);
 }
 
+export async function OnSystemsChange(system: System[]) {
+    let newSystems: System[] = [...(system || [])];
+    let oldManagers: UserManager[] = [];
 
-export async function OnSystemsChange(config: UserConfig) {
-    for (const system of config.systems || []) {
-        for (const manager of userManagers) {
+    let wasMainLoggedIn = userManagers.length == 0 || userManagers.find((manager) => manager.system.isMain && manager.IsLoggedin) != null;
+    for (let j = userManagers.length - 1; j > -1; j--) {
+        const manager = userManagers[j];
+        for (var i = newSystems.length - 1; i > -1; i--) {
+            const system = newSystems[i];
             if (system.name == manager.system.name) {
                 manager.onSystemUpdate(system);
+                newSystems.splice(i, 1);
+                break;
             }
+        }
+        //current manager's system isn't available in the new systems
+        if (i == -1) {
+            oldManagers.push(...userManagers.splice(j, 1));
         }
     }
 
+    for (const oldManager of oldManagers) {
+        oldManager.logout();
+    }
+    for (const system of newSystems) {
+        GetUserManager(system, true);
+    }
+    for (const manager of userManagers) {
+        if (wasMainLoggedIn && manager.system.isMain) {
+            manager.login();
+        }
+    }
 }

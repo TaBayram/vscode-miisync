@@ -3,6 +3,7 @@ import * as Joi from 'joi';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { CONFIG_PATH, EXTENSION_NAME } from '../constants.js';
+import { deepEqual } from '../extends/lib.js';
 import logger from '../ui/logger.js';
 import { GetWorkspaceFolders, ShowTextDocument } from './vscode';
 
@@ -19,13 +20,12 @@ let joiSystem = Joi.object().keys({
 
 const configScheme = Joi.object({
     systems: Joi.array().items(joiSystem).min(1),
-    context: Joi.string().required(),
-    removeFromContext: Joi.array<string>(),
+    removeFromLocalPath: Joi.array<string>(),
     remotePath: Joi.string().required(),
     uploadOnSave: Joi.boolean(),
     downloadOnOpen: Joi.boolean(),
     ignore: Joi.array<string>(),
-    rootConfig: Joi.string(),
+    rootConfig: Joi.string().allow('', null),
     useRootConfig: Joi.boolean()
 });
 
@@ -41,8 +41,7 @@ export interface System {
 
 export interface UserConfig {
     systems?: System[],
-    context?: string,
-    removeFromContext?: string[],
+    removeFromLocalPath?: string[],
     remotePath?: string,
     uploadOnSave?: boolean,
     downloadOnOpen?: boolean,
@@ -51,7 +50,7 @@ export interface UserConfig {
     rootConfig?: string,
 }
 
-export interface ConfigSystem extends System, UserConfig{
+export interface ConfigSystem extends System, UserConfig {
 
 }
 
@@ -59,12 +58,11 @@ function GetWorkspaceConfig(): UserConfig {
     const conf = vscode.workspace.getConfiguration(EXTENSION_NAME);
     return {
         systems: conf.get("systems", [defaultSystem]),
-        context: conf.get("context", '/'),
-        removeFromContext: conf.get("removeFromContext", ['webapp']),
-        remotePath: conf.get("remotePath", '/'),
+        removeFromLocalPath: conf.get("removeFromLocalPath", ['webapp']),
+        remotePath: conf.get("remotePath", 'MES'),
         downloadOnOpen: false,
         uploadOnSave: true,
-        ignore: conf.get('ignore', ['package.json', 'package-lock.json', 'tsconfig.json', '.*']),
+        ignore: conf.get('ignore', ['*.json']),
         useRootConfig: conf.get('useRootConfig', false),
         rootConfig: conf.get('rootConfig', '')
     };
@@ -147,9 +145,11 @@ class ConfigManager {
     private currentSystem: System;
 
     public onConfigChange: vscode.EventEmitter<UserConfig> = new vscode.EventEmitter();
+    public onSystemsChange: vscode.EventEmitter<System[]> = new vscode.EventEmitter();
 
     private lastLoadedTime: number;
-    private lastLoadThreshold = 2000;
+    private lastLoadThreshold = 500;
+    private oldConfig: UserConfig;
 
     private get config() {
         return this.useRoot ? this.rootConfig : this.selfConfig;
@@ -157,6 +157,10 @@ class ConfigManager {
 
     get Config(): ConfigSystem {
         return { ...this.config, ...this.currentSystem };
+    }
+    
+    get ConfigFilePath(){
+        return this.useRoot ? this.rootfsPath : this.selffsPath;
     }
 
     get CurrentSystem() {
@@ -174,16 +178,24 @@ class ConfigManager {
             allowUnknown: true,
             convert: false,
         });
-
-        for (const sys1 of this.config.systems) {
-            for (const sys2 of this.config.systems) {
+        if (error) return error;
+        for (const sys1 of this.config.systems || []) {
+            let mainCount = 0;
+            for (const sys2 of this.config.systems || []) {
                 if (sys1 !== sys2 && sys1.name === sys2.name) {
                     return new Error("Systems have the same name");
                 }
+                if (sys2.isMain) mainCount++;
+            }
+            if (mainCount == 0) {
+                return new Error("There must be a main system");
+            }
+            else if (mainCount > 1) {
+                return new Error("There must be only one main system");
             }
         }
 
-        return error;
+        return null;
     }
 
 
@@ -191,6 +203,8 @@ class ConfigManager {
         if (Date.now() - this.lastLoadedTime < this.lastLoadThreshold && this.selfConfig) {
             return this.Config;
         }
+
+        this.oldConfig = this.config;
 
         this.selffsPath = GetWorkspaceFolders()[0].uri.fsPath;
         this.selfConfig = (await this.loadRoot(this.selffsPath, true)).config;
@@ -204,13 +218,13 @@ class ConfigManager {
             }
         }
         const error = this.validate();
-        if(error){
-            logger.warn("Config ", error);
+        if (error) {
+            logger.toastError("Config", error);
             return null;
         }
         this.lastLoadedTime = Date.now();
         this.setCurrentSystem();
-        this.onConfigChange.fire(this.config);
+        this.isConfigChanged();
         return this.Config;
     }
 
@@ -224,6 +238,15 @@ class ConfigManager {
             fse.outputJson(GetConfigPath(this.rootfsPath), config, { spaces: 4 });
         }
         this.onConfigChange.fire(config);
+    }
+
+    private isConfigChanged() {
+        if (!deepEqual(this.oldConfig, this.config)) {
+            this.onConfigChange.fire(this.config);
+            if (!deepEqual(this.oldConfig?.systems, this.config?.systems)) {
+                this.onSystemsChange.fire(this.config.systems);
+            }
+        }
     }
 
     private setCurrentSystem() {

@@ -119,7 +119,6 @@ async function DownloadFiles({ host, port }: System, sourcePath: string, getFile
 
 
 export async function DownloadContextDirectory(userConfig: UserConfig, system: System) {
-    if (!userConfig.context) return;
     if (!await Validate(userConfig, system)) {
         return false;
     }
@@ -128,8 +127,6 @@ export async function DownloadContextDirectory(userConfig: UserConfig, system: S
 
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
     logger.info("Download Context Directory Started");
-    const directory: Directory = [];
-
 
     const files = await loadFilesInsideService.call({ host: system.host, port: system.port }, sourcePath);
     remoteDirectoryTree.generateItemsByFiles(files?.Rowsets?.Rowset?.Row);
@@ -137,22 +134,6 @@ export async function DownloadContextDirectory(userConfig: UserConfig, system: S
     logger.info("Download Context Directory Completed");
     return;
 
-    //UPPER METHOD IS MUCH FASTER BUT DOESN'T GET THE EMPTY FOLDERS
-
-    const rootFolders = await listFoldersService.call({ host: system.host, port: system.port }, parentPath);
-
-    const root = rootFolders.Rowsets.Rowset.Row.find((folder: Folder) => folder.Path == sourcePath);
-    if (root) {
-        root.FolderName = userConfig.context;
-        directory.push(root);
-        Promise.resolve().then(function (n) {
-            return DownloadDirDepth(root, system);
-        }).then(function () {
-            remoteDirectoryTree.generateItems(directory);
-            logger.info("Download Context Directory Done")
-            statusBar.updateBar('Done', Icon.success, { duration: 2 });
-        });
-    }
 }
 
 

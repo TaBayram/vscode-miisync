@@ -39,26 +39,23 @@
                 }
             }
         },
-        "context": {
-            "type": "string",
-            "description": "starting folder name to send"
-        },
-        "removeFromContext": {
+        "removeFromLocalPath": {
             "type": "array",
             "items": {
                 "type": "string"
             },
-            "description": "any folder that is between file name and context that you want to remove"
+            "description": "any folder that is between file name and localPath that you want to remove"
         },
         "remotePath": {
             "type": "string",
-            "description": "path of the target system \n Example: localFile: x/y/c/zz/controller/main.controller.js \n remoteFile: y/c/controller/main.controller.js \n "
+            "description": "Path of the target project"
         },
         "ignore": {
             "type": "array",
             "items": {
                 "type": "string"
-            }
+            },
+            "description": "ignores files/folders matching one of the string. wildcards can be used"
         },
         "useRootConfig": {
             "type": "boolean",

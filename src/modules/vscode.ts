@@ -98,3 +98,7 @@ export async function OpenTextDocument(content: string, language: string, focus:
         vscode.window.showTextDocument(document);
     return document;
 }
+
+export function CompareDocuments(uri1: vscode.Uri, uri2: vscode.Uri){
+    vscode.commands.executeCommand("vscode.diff", uri1, uri2)
+}

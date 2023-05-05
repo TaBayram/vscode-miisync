@@ -17,7 +17,7 @@ import { filePropertiesTree } from './ui/explorer/filepropertiestree';
 import { remoteDirectoryTree } from './ui/explorer/remotedirectorytree';
 import { activateBar } from './ui/statusbar';
 import { Session } from './user/session';
-import { CreateMainUserManager } from './user/usermanager';
+import { InitiliazeMainUserManager } from './user/usermanager';
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -28,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	SetContextValue("enabled", true);
 	Session.Context = context;
-	CreateMainUserManager(context).then((user) => user.login());
+	InitiliazeMainUserManager(context);
 }
 
 

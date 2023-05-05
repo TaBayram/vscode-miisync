@@ -28,17 +28,17 @@ export class Logger implements ILogger {
     error(message: string | Error, ...args: any[]): void {
         this.log('[error]', message, ...args);
     }
-    failure(message: string | Error, ...args: any[]): void{
+    failure(message: string | Error, ...args: any[]): void {
         this.log('[failure]', message, ...args);
     }
 
-    toastError(message: string | Error, ...args: any[]){
-        vscode.window.showErrorMessage(message.toString());
+    toastError(message: string | Error, ...args: any[]) {
+        vscode.window.showErrorMessage(this.mapArgs(message, ...args));
         this.error(message, args);
     }
-    
-    toastInfo(message: string, ...args: any[]){
-        vscode.window.showInformationMessage(message.toString());
+
+    toastInfo(message: string, ...args: any[]) {
+        vscode.window.showInformationMessage(this.mapArgs(message, ...args));
         this.info(message, args);
     }
 
@@ -53,23 +53,23 @@ export class Logger implements ILogger {
     }
 
     print(...args) {
-        const msg = args
-            .map(arg => {
-                if (!arg) {
-                    return arg;
-                }
+        const message = this.mapArgs(...args);
+        this.outputChannel.appendLine(message);
+    }
 
-                if (arg instanceof Error) {
-                    return arg.stack;
-                } else if (!arg.toString || arg.toString() === '[object Object]') {
-                    return JSON.stringify(arg);
-                }
-
+    private mapArgs(...args) {
+        args = args.map(arg => {
+            if (!arg) {
                 return arg;
-            })
-            .join(' ');
-
-        this.outputChannel.appendLine(msg);
+            }
+            if (arg instanceof Error) {
+                return arg.message;
+            } else if (!arg.toString || arg.toString() === '[object Object]') {
+                return JSON.stringify(arg);
+            }
+            return arg;
+        });
+        return args.join(' ');
     }
 
 }

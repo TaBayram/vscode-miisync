@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/miisync",
   "icon": "resources/icon.png",
-  "version": "0.8.0",
+  "version": "0.8.2",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -276,11 +276,6 @@
           "default": "10.20.30.40",
           "description": "Gets the config from specified miisync.json file."
         },
-        "context": {
-          "type": "string",
-          "default": "1234",
-          "description": "starting folder name to send"
-        },
         "removeFromContext": {
           "type": "array",
           "default": [
@@ -289,7 +284,7 @@
           "items": {
             "type": "string"
           },
-          "description": "any folder that is between file name and context that you want to remove"
+          "description": "any folder that is between file name and localPath that you want to remove"
         },
         "remotePath": {
           "type": "string",

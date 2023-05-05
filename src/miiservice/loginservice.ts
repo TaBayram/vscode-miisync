@@ -6,16 +6,16 @@ class LogInService extends Service {
     mode: string = "XMII/Illuminator?service=Personalization";
     optionals: string = "&Session=false";
 
-    async call({ host, port }: Request) {
+    async call({ host, port }: Request, name: string) {
         const url = this.get(host, port);
         const { value, error, isError } = await this.fetch({ host, port }, url, true, null, 'none', true);
         if (!isError) {
             if (value.redirected && value.url == this.generateIP(host, port) + "/XMII/goService.jsp") {
-                logger.info(this.name + ": success");
+                logger.info(this.name + ": success for " + name);
                 return value;
             }
             else {
-                logger.error(this.name + ": fail. Response " + JSON.stringify(value));
+                logger.error(this.name + ": fail for "+ name +". Response " + JSON.stringify(value));
             }
             return null;
         }

@@ -33,14 +33,12 @@ Visual Studio Code, MII system to connect to.
 Your folder must contain miisync.json file in .vscode folder to work.
 
 ##### miisync settings:
-* `context`: Starting local folder name to specify. Removes any path prior to this.
-**Example**: Local folder path is "~~E:\2023\Projects\~~ProjectName\Screen" and the remote path is "ProjectName\Screen" then your context should be "ProjectName". 
+localPath is the folder that contains used .vscode/miisync.json
+* `removeFromLocalPath`: Removes any folder name in local path that is not in remote path.
+**Example**: Local folder path is "E:\2023\Projects\ProjectName\webapp\Screen" and the remote path is "ProjectName\Screen" then you should add "webapp" to removeFromLocalPath. 
 
-* `removeFromContext`: Removes any folder name in local path that is not in remote path.
-**Example**: Local folder path is "E:\2023\Projects\ProjectName\webapp\Screen" and the remote path is "ProjectName\Screen" then you should add "webapp" to removeFromContext. 
-
-* `remotePath`: Starting remote path. Adds itself at the front of context. (remotePath + context)
-**Example**: Local folder path is "E:\2023\Projects\ProjectName\Screen" and context is "ProjectName", then remotePath should be "". But lets say local folder path was  "E:\2023\Projects\A_ProjectName\Screen" and context was "Screen" then remotePath should be "ProjectName".
+* `remotePath`: Starting remote path. Adds itself at the front of localPath. (remotePath + localPath)
+**Example**: Local folder path is "E:\2023\Projects\ProjectName\Screen" and localPath is "ProjectName", then remotePath should be "". But lets say local folder path was  "E:\2023\Projects\A_ProjectName\Screen" and localPath was "Screen" then remotePath should be "ProjectName".
 * `system`: Array of systems to connect to.
     * `name`: Name of the system. Your choice
     * `isMain`: Only one of the system must be true. Connects to this system.

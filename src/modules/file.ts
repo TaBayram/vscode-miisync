@@ -1,7 +1,7 @@
 
 import { exists, lstat, readdir } from "fs-extra";
 import '../extends/string.js';
-import { UserConfig } from "./config.js";
+import { UserConfig, configManager } from "./config.js";
 import path = require("path");
 import micromatch = require("micromatch");
 
@@ -14,9 +14,13 @@ export function InsertWeb(path: string) {
 /**
  * Converts local file path to remote path using user config
  */
-export function GetRemotePath(filePath: string, { remotePath, context, removeFromContext }: UserConfig, addWeb = true) {
-    let sourcePath = filePath.substring(filePath.indexOf(context));
-    for (const remove of removeFromContext) {
+
+//C:\Users\10121950\Desktop\Projects\MES\BABY\adminPanel\webapp\ts.js
+export function GetRemotePath(filePath: string, { remotePath, removeFromLocalPath: removeFromContext }: UserConfig, addWeb = true) {
+    const configPath = configManager.ConfigFilePath;
+
+    let sourcePath = filePath != "" ?  path.relative(configPath, filePath) : "";
+    for (const remove of removeFromContext || []) {
         sourcePath = sourcePath.replace(path.sep + remove, '');
         sourcePath = sourcePath.replace(remove + path.sep, '');
     }
@@ -25,12 +29,20 @@ export function GetRemotePath(filePath: string, { remotePath, context, removeFro
     return (startPath + sourcePath).replaceAll(path.sep, '/');
 }
 
+export function IsSubDirectory(parent: string, child: string) {
+    const relative = path.relative(parent, child);
+    return relative && !relative.startsWith('..') && !path.isAbsolute(relative);
+}
+
 /**
- * Checks if the filepath is in the context directory, folder starts with . and the file name is in ignore
+ * Checks if the filepath is in the local path directory, folder starts with . and the file name is in ignore
  */
 export async function ValidatePath(filePath: string, config: UserConfig): Promise<boolean> {
     //Outer file || dot check
-    if (filePath.indexOf(config.context) == -1 || !micromatch.isMatch(filePath, "**")) return false;
+    if (!IsSubDirectory(configManager.ConfigFilePath, filePath) || !micromatch.isMatch(filePath, "**")) return false;
+    if (!config.ignore) {
+        return true;
+    }
     const stat = await lstat(filePath);
     if (stat.isDirectory()) {
         return !micromatch.isMatch(filePath, config.ignore);

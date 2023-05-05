@@ -18,10 +18,11 @@ export async function TransferFolder(uri: Uri, userConfig: UserConfig) {
         }
     }
 
-    const targetSystem: System = await ShowQuickPick(picks, { title: 'Pick System' });
-    if (targetSystem) {
-        const user = GetUserManager(targetSystem, true);
-        if(!user.login()) return;
+    const response: QuickPickItem<System> = await ShowQuickPick(picks, { title: 'Pick System' });
+    if (response) {
+        const system = response.object;
+        const user = GetUserManager(system, true);
+        if(!await user.login()) return;
 
         statusBar.updateBar('Transfering', Icon.spinLoading, { duration: -1 });
         logger.info("Transfer Folder Started");        
@@ -34,7 +35,7 @@ export async function TransferFolder(uri: Uri, userConfig: UserConfig) {
                 promises.push(readFile(localFile).then((content)=>{
                     const sourcePath = GetRemotePath(localFile, userConfig);
                     const base64Content = encodeURIComponent(content.length != 0 ? content.toString('base64') : Buffer.from(" ").toString('base64'));
-                    return saveFileService.call({ host: targetSystem.host, port: targetSystem.port, body: "Content=" + base64Content }, sourcePath);
+                    return saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
                 }));
             }
         }

@@ -50,7 +50,7 @@ export abstract class Service {
         }).then(data => {
             return { value: data, error: null, isError: false };
         }).catch((error: Error) => {
-            logger.error(this.name + ": " + error);
+            logger.toastError(this.name + ": " + error);
             return { error: error, value: null, isError: true };
         });
     }
