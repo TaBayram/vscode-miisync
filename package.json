@@ -102,7 +102,7 @@
       },
       {
         "command": "miisync.downloadproject",
-        "title": "Download Project",
+        "title": "Export Project",
         "category": "mii",
         "enablement": "miisync.enabled"
       },

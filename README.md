@@ -59,7 +59,26 @@ localPath is the folder that contains used .vscode/miisync.json
 * `Open Current Screen`: Opens the screen in the browser. You can also right-click an index.html file to open.
 * `Log in`: Logs in your user. Normally extension should automatically log in when activated.
 * `Log out`: Logs out your user. 
+* `Disable/Enable Upload on Save`: Enables/Disables upload functionality when a file is saved. 
+* `Disable/Enable Download on Open`: Enables/Disables download functionality when a file is opened. 
+* `Upload Current File`: Uploads the active file to the remote system. Also is in explorer context menu.
+* `Download Current File`: Downloads the active file from the remote system. Also is in explorer context menu.
+* `Export Project`: Exports the project as a zip file. (Opens link)
 
+
+##### Explorer Context:
+* `Upload Current File`: Uploads the selected file to the remote system.
+* `Download Current File`: Downloads the selected file from the remote system.
+* `Delete Current File`: Deletes the selected from the remote system only.
+* `Upload Current File`: Uploads the selected file. Also is in explorer context menu. 
+* `Download Folder`: Downloads the selected folder.
+* `Upload Folder`: Uploads the selected folder.
+* `Transfer Folder`: Transfers the selected folder to selected system.
+
+##### View:
+* `Download Remote Directory`: Lists all the files in the current project like a directory. (Does not list empty folders)
+* `Download Remote Folder`: Downloads the selected remote folder and its contents.
+* `Download File Properties`: Downloads the file properties like created time, updated user.
 
 ## Known Issues
 
