@@ -22,7 +22,7 @@ This extension should sync the file in mii workbench with local file whenever yo
 
 ## Planned Features
  
-
+1. Adding cancel option to download folder, download remote folder, and upload folder commands.
 
 ## Requirements
 

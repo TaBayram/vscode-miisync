@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/miisync",
   "icon": "resources/icon.png",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -50,25 +50,25 @@
         "command": "miisync.disableuploadonsave",
         "title": "Disable Upload on Save",
         "category": "mii",
-        "enablement": "miisync.enabled"
+        "enablement": "miisync.enabled && miisync.uploadonsave"
       },
       {
         "command": "miisync.enableuploadonsave",
         "title": "Enable Upload on Save",
         "category": "mii",
-        "enablement": "miisync.enabled"
+        "enablement": "miisync.enabled && !miisync.uploadonsave"
       },
       {
         "command": "miisync.disabledownloadonopen",
         "title": "Disable Download on Open",
         "category": "mii",
-        "enablement": "miisync.enabled"
+        "enablement": "miisync.enabled  && miisync.downloadonopen"
       },
       {
         "command": "miisync.enabledownloadonopen",
         "title": "Enable Download on Open",
         "category": "mii",
-        "enablement": "miisync.enabled"
+        "enablement": "miisync.enabled  && !miisync.downloadonopen"
       },
       {
         "command": "miisync.uploadfile",

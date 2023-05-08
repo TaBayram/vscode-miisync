@@ -11,16 +11,16 @@ export function InsertWeb(path: string) {
     return path.splice(index != -1 ? index : path.length, 0, web);
 }
 
+
 /**
  * Converts local file path to remote path using user config
  */
 
-//C:\Users\10121950\Desktop\Projects\MES\BABY\adminPanel\webapp\ts.js
-export function GetRemotePath(filePath: string, { remotePath, removeFromLocalPath: removeFromContext }: UserConfig, addWeb = true) {
+export function GetRemotePath(filePath: string, { remotePath, removeFromLocalPath }: UserConfig, addWeb = true) {
     const configPath = configManager.ConfigFilePath;
 
     let sourcePath = filePath != "" ?  path.relative(configPath, filePath) : "";
-    for (const remove of removeFromContext || []) {
+    for (const remove of removeFromLocalPath || []) {
         sourcePath = sourcePath.replace(path.sep + remove, '');
         sourcePath = sourcePath.replace(remove + path.sep, '');
     }

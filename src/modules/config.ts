@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 import { CONFIG_PATH, EXTENSION_NAME } from '../constants.js';
 import { deepEqual } from '../extends/lib.js';
 import logger from '../ui/logger.js';
-import { GetWorkspaceFolders, ShowTextDocument } from './vscode';
+import { GetWorkspaceFolders, SetContextValue, ShowTextDocument } from './vscode';
 
 const nullable = schema => schema.optional().allow(null);
 
@@ -155,11 +155,11 @@ class ConfigManager {
         return this.useRoot ? this.rootConfig : this.selfConfig;
     }
 
-    get Config(): ConfigSystem {
-        return { ...this.config, ...this.currentSystem };
+    get Config(): UserConfig {
+        return { ...this.config };
     }
-    
-    get ConfigFilePath(){
+
+    get ConfigFilePath() {
         return this.useRoot ? this.rootfsPath : this.selffsPath;
     }
 
@@ -237,7 +237,7 @@ class ConfigManager {
             this.rootConfig = config;
             fse.outputJson(GetConfigPath(this.rootfsPath), config, { spaces: 4 });
         }
-        this.onConfigChange.fire(config);
+        this.isConfigChanged();
     }
 
     private isConfigChanged() {
@@ -246,7 +246,13 @@ class ConfigManager {
             if (!deepEqual(this.oldConfig?.systems, this.config?.systems)) {
                 this.onSystemsChange.fire(this.config.systems);
             }
+            this.checkToggles();
         }
+    }
+
+    private checkToggles() {
+        SetContextValue('uploadonsave', this.config.uploadOnSave);
+        SetContextValue('downloadonopen', this.config.downloadOnOpen)
     }
 
     private setCurrentSystem() {

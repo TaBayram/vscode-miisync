@@ -1,4 +1,4 @@
-import { outputFile, writeFile } from "fs-extra";
+import { mkdir, outputFile, writeFile } from "fs-extra";
 import { Uri } from "vscode";
 import { Directory, File, Folder } from "../../miiservice/abstract/responsetypes";
 import { listFilesService } from "../../miiservice/listfilesservice";
@@ -7,7 +7,7 @@ import { loadFilesInsideService } from "../../miiservice/loadfilesinsideservice"
 import { readFileService } from "../../miiservice/readfileservice";
 import { System, UserConfig } from "../../modules/config";
 import { GetRemotePath } from "../../modules/file";
-import { GetCurrentWorkspaceFolder } from "../../modules/vscode";
+import { GetCurrentWorkspaceFolder, ShowQuickPick } from "../../modules/vscode";
 import { remoteDirectoryTree } from "../../ui/explorer/remotedirectorytree";
 import logger from "../../ui/logger";
 import statusBar, { Icon } from "../../ui/statusbar";
@@ -47,12 +47,20 @@ export async function DownloadFolder(folderUri: Uri | string, userConfig: UserCo
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
     logger.info("Download Folder Started");
 
+    function getPath(item: File | Folder) {
+        if ('FolderName' in item) {
+            return folderPath + path.sep +
+                (path.relative(sourcePath, item.Path) != '' ? path.relative(sourcePath, item.Path) : '');
+        }
+        else {
+            return folderPath + path.sep +
+                (path.relative(sourcePath, item.FilePath) != '' ? path.relative(sourcePath, item.FilePath) + path.sep : '') +
+                item.ObjectName;
+        }
+    }
+
     const sourcePath = GetRemotePath(folderPath, userConfig);
-    await DownloadFiles(system, sourcePath, (file: File) => {
-        return folderPath + path.sep +
-            (path.relative(sourcePath, file.FilePath) != '' ? path.relative(sourcePath, file.FilePath) + path.sep : '') +
-            file.ObjectName;
-    })
+    await DownloadFiles(system, sourcePath, getPath);
 
     statusBar.updateBar('Done', Icon.success, { duration: 1 });
     logger.info("Download Folder Completed");
@@ -64,21 +72,32 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
     if (!await Validate(userConfig, system)) {
         return false;
     }
+    const realPath = path.relative(userConfig.remotePath, remoteFolderPath.replace("/WEB", ""));
 
+    const result = await ShowQuickPick([path.basename(remoteFolderPath), realPath], { title: "Download Where?" });
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
     logger.info("Download Remote Folder Started");
     const workspaceFolder = GetCurrentWorkspaceFolder().fsPath;
+    const folderPath = (result == realPath ? realPath : path.basename(remoteFolderPath)) + path.sep;
 
-    await DownloadFiles(system, remoteFolderPath, (file) => {
-        return workspaceFolder + path.sep + path.basename(remoteFolderPath) + path.sep +
-            (path.relative(remoteFolderPath, file.FilePath) != '' ? path.relative(remoteFolderPath, file.FilePath) + path.sep : '') +
-            file.ObjectName;
-    })
+    function getPath(item: File | Folder) {
+        if ('FolderName' in item) {
+            return workspaceFolder + path.sep + folderPath +
+                (path.relative(remoteFolderPath, item.Path) != '' ? path.relative(remoteFolderPath, item.Path) : '');
+        }
+        else {
+            return workspaceFolder + path.sep + folderPath +
+                (path.relative(remoteFolderPath, item.FilePath) != '' ? path.relative(remoteFolderPath, item.FilePath) + path.sep : '') +
+                item.ObjectName;
+        }
+    }
+
+    await DownloadFiles(system, remoteFolderPath, getPath);
     statusBar.updateBar('Done', Icon.success, { duration: 1 });
     logger.info("Download Remote Folder Completed");
 }
 
-async function DownloadFiles({ host, port }: System, sourcePath: string, getFilePath: (file: File) => string) {
+async function DownloadFiles({ host, port }: System, sourcePath: string, getPath: (item: File | Folder) => string) {
     const directory: Directory = [];
     const parentPath = path.dirname(sourcePath);
     const rootFolders = await listFoldersService.call({ host, port }, parentPath);
@@ -91,26 +110,36 @@ async function DownloadFiles({ host, port }: System, sourcePath: string, getFile
 
     async function deep(mainFolder: Folder) {
         mainFolder.children = [];
-        const files = await listFilesService.call({ host, port }, mainFolder.Path);
-
+        if (mainFolder.ChildFileCount == 0 && mainFolder.ChildFolderCount == 0) {
+            mkdir(getPath(mainFolder), { recursive: true });
+            return;
+        }
         let promises: Promise<any>[] = [];
-        for (const file of files?.Rowsets?.Rowset?.Row || []) {
-            mainFolder.children.push(file)
-            promises.push(new Promise((resolve,reject)=>{
-                const filePath = getFilePath(file);
-                readFileService.call({ host, port }, file.FilePath + "/" + file.ObjectName).then((binary)=>{
-                    const payload = binary.Rowsets.Rowset.Row.find((row) => row.Name == "Payload");
-                    outputFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" }).then(()=>resolve('success')).catch((error)=> reject(error));
-                });
-                
-            }));            
+        if (mainFolder.ChildFileCount != 0) {
+            const files = await listFilesService.call({ host, port }, mainFolder.Path);
+
+            for (const file of files?.Rowsets?.Rowset?.Row || []) {
+                mainFolder.children.push(file)
+                promises.push(new Promise((resolve, reject) => {
+                    const filePath = getPath(file);
+                    readFileService.call({ host, port }, file.FilePath + "/" + file.ObjectName).then((binary) => {
+                        const payload = binary.Rowsets.Rowset.Row.find((row) => row.Name == "Payload");
+                        outputFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" }).then(() => resolve('success')).catch((error) => reject(error));
+                    });
+
+                }));
+            }
+        }
+        if (mainFolder.ChildFolderCount != 0) {
+            const folders = await listFoldersService.call({ host: host, port: port }, mainFolder.Path);
+            await Promise.all((folders?.Rowsets?.Rowset?.Row || []).map(folder => {
+                mainFolder.children.push(folder);
+                return deep(folder)
+            }));
         }
 
-        const folders = await listFoldersService.call({ host: host, port: port }, mainFolder.Path);
-        await Promise.all((folders?.Rowsets?.Rowset?.Row || []).map(folder => {
-            mainFolder.children.push(folder);
-            return deep(folder)
-        }));
+
+
 
         return (promises);
     }
