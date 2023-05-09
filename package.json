@@ -2,7 +2,7 @@
   "name": "miisync",
   "displayName": "MII Sync",
   "description": "Sync projects in MII server",
-  "publisher": "TaBayramNTT",
+  "publisher": "NTTDataTurkiyeMII",
   "author": {
     "name": "TaBayramNTT",
     "url": "https://github.com/TaBayramNTT"
@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/miisync",
   "icon": "resources/icon.png",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"

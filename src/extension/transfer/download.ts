@@ -72,9 +72,9 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
     if (!await Validate(userConfig, system)) {
         return false;
     }
-    const realPath = path.relative(userConfig.remotePath, remoteFolderPath.replace("/WEB", ""));
+    const realPath = path.relative(userConfig.remotePath, remoteFolderPath.replace("/WEB", "")) || "";
 
-    const result = await ShowQuickPick([path.basename(remoteFolderPath), realPath], { title: "Download Where?" });
+    const result = realPath != "" && realPath != path.basename(remoteFolderPath) ? await ShowQuickPick([path.basename(remoteFolderPath), realPath], { title: "Download Where?" }) : null;
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
     logger.info("Download Remote Folder Started");
     const workspaceFolder = GetCurrentWorkspaceFolder().fsPath;
@@ -99,13 +99,16 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
 
 async function DownloadFiles({ host, port }: System, sourcePath: string, getPath: (item: File | Folder) => string) {
     const directory: Directory = [];
-    const parentPath = path.dirname(sourcePath);
+    const parentPath = path.dirname(sourcePath) == "." ? "" : path.dirname(sourcePath);
     const rootFolders = await listFoldersService.call({ host, port }, parentPath);
 
-    const root = rootFolders.Rowsets.Rowset.Row.find((folder: Folder) => folder.Path == sourcePath);
+    const root = rootFolders?.Rowsets?.Rowset?.Row?.find((folder: Folder) => folder.Path == sourcePath);
     if (root) {
         directory.push(root);
         await Promise.all(await deep(root));
+    }
+    else{
+        logger.error("Root folder doesn't exist.")
     }
 
     async function deep(mainFolder: Folder) {
@@ -123,8 +126,10 @@ async function DownloadFiles({ host, port }: System, sourcePath: string, getPath
                 promises.push(new Promise((resolve, reject) => {
                     const filePath = getPath(file);
                     readFileService.call({ host, port }, file.FilePath + "/" + file.ObjectName).then((binary) => {
-                        const payload = binary.Rowsets.Rowset.Row.find((row) => row.Name == "Payload");
-                        outputFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" }).then(() => resolve('success')).catch((error) => reject(error));
+                        const payload = binary?.Rowsets?.Rowset?.Row.find((row) => row.Name == "Payload");
+                        if(payload){
+                            outputFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" }).then(() => resolve('success')).catch((error) => reject(error));
+                        }
                     });
 
                 }));
@@ -133,8 +138,11 @@ async function DownloadFiles({ host, port }: System, sourcePath: string, getPath
         if (mainFolder.ChildFolderCount != 0) {
             const folders = await listFoldersService.call({ host: host, port: port }, mainFolder.Path);
             await Promise.all((folders?.Rowsets?.Rowset?.Row || []).map(folder => {
-                mainFolder.children.push(folder);
-                return deep(folder)
+                if(folder.IsWebDir){
+                    mainFolder.children.push(folder);
+                    return deep(folder)
+                }
+                return;
             }));
         }
 

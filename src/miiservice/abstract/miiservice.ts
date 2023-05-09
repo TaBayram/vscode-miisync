@@ -1,4 +1,5 @@
 import { XMLParser } from 'fast-xml-parser';
+import { Agent } from 'http';
 import fetch, { Response } from "node-fetch";
 import logger from '../../ui/logger.js';
 import { GetSession } from '../../user/session.js';
@@ -9,6 +10,9 @@ export interface Request {
     port: number,
     body?: string
 }
+
+//todo: Use pool promise instead of limiting sockets
+const agent = new Agent({maxSockets: 20, keepAlive:true, });
 
 export abstract class Service {
     readonly abstract name: string;
@@ -40,7 +44,9 @@ export abstract class Service {
         return fetch(url, {
             method: body ? "POST" : "GET",
             body,
-            headers
+            headers,
+            agent: agent
+
         }).then((response: Response): any => {
             if (response.status != 200)
                 logger.error(this.name + ": " + response.status + "-" + response.statusText);
