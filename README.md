@@ -3,6 +3,14 @@
 
 This extension should sync the file in mii workbench with local file whenever you save it
 
+## Usage
+
+1. Install & enable extension
+2. From 'Command Palette' type 'mii: create config' and press enter
+4. Now configure the miisync.json file.
+5. There must be one main system to connect to. Set isMain property 'true' for one of the systems.
+
+
 ## Features
 
 #### File
@@ -23,6 +31,7 @@ This extension should sync the file in mii workbench with local file whenever yo
 ## Planned Features
  
 1. Adding cancel option to download folder, download remote folder, and upload folder commands.
+2. Add "go to config" command that opens used config file.
 
 ## Requirements
 
@@ -35,10 +44,9 @@ Your folder must contain miisync.json file in .vscode folder to work.
 ##### miisync settings:
 localPath is the folder that contains used .vscode/miisync.json
 * `removeFromLocalPath`: Removes any folder name in local path that is not in remote path.
-**Example**: Local folder path is "E:\2023\Projects\ProjectName\webapp\Screen" and the remote path is "ProjectName\Screen" then you should add "webapp" to removeFromLocalPath. 
-
-* `remotePath`: Starting remote path. Adds itself at the front of localPath. (remotePath + localPath)
-**Example**: Local folder path is "E:\2023\Projects\ProjectName\Screen" and localPath is "ProjectName", then remotePath should be "". But lets say local folder path was  "E:\2023\Projects\A_ProjectName\Screen" and localPath was "Screen" then remotePath should be "ProjectName".
+**Example**: Local folder path is "E:\2023\Projects\ProjectName\webapp\Screen" and the remote path is "ProjectName\Screen" then you should add "webapp" in removeFromLocalPath. 
+* `remotePath`: Remote project path. Must start with the project name.
+**Example**: If you want to work on "productStoppageScreen" then your remote path should be like "PROJECT/PLANT2/Stoppages/productStoppageScreen". If you want to work on "PLANT2" screens then it should be "PROJECT/PLANT2".
 * `system`: Array of systems to connect to.
     * `name`: Name of the system. Your choice
     * `isMain`: Only one of the system must be true. Connects to this system.
@@ -55,7 +63,7 @@ localPath is the folder that contains used .vscode/miisync.json
 ##### Commands:
 
 ###### mii
-* `Create Config`: Creates miisync.json file in the workspace thus activating the extension.
+* `Create Config`: Creates miisync.json file in the workspace thus activating the extension. Your first command.
 * `Open Current Screen`: Opens the screen in the browser. You can also right-click an index.html file to open.
 * `Log in`: Logs in your user. Normally extension should automatically log in when activated.
 * `Log out`: Logs out your user. 

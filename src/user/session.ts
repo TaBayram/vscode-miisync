@@ -56,14 +56,14 @@ export class Session {
 
     parseCookies(response) {
         const raw: string[] = response.headers.raw()['set-cookie'] || [];
-        if (raw.length == 0) return;
+        if (raw.length == 0) {return;}
         let cookies = raw.map((entry) => {
             const parts = entry.split(';');
             const cookiePart = parts[0];
             return cookiePart;
         });
         for (const cookie of cookies) {
-            this.updateCookie(cookie)
+            this.updateCookie(cookie);
         }
         this.saveCookies();
         return cookies.length;
@@ -112,15 +112,15 @@ export class Session {
 
 
     private isExpired(date: Date, duration: number) {
-        return (new Date().getTime() - date.getTime()) / 1000 / 60 >= duration
+        return (new Date().getTime() - date.getTime()) / 1000 / 60 >= duration;
     }
 }
 
 const sessions: Session[] = [];
 
-export function GetSession(host: string, port: number) {
+export function GetSession(host: string, port: string) {
     for (const session of sessions) {
-        if (session.system.host == host && session.system.port == port) {
+        if (session.system.host == host && session.system.port.toString() == port) {
             return session;
         }
     }

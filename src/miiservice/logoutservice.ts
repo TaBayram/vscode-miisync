@@ -1,5 +1,5 @@
 import logger from '../ui/logger.js';
-import { Service, Request } from './abstract/miiservice.js';
+import { Request, Service } from './abstract/miiservice.js';
 
 class LogOutService extends Service {
     name: string = "Log Out";
@@ -10,7 +10,7 @@ class LogOutService extends Service {
         //Bug: Log  out creates a session instead of destroying the current one
         return;
         const url = this.get(host, port);
-        const { value, error, isError } = await this.fetch({host,port},url, false, null, 'none');
+        const { value, error, isError } = await this.fetch(new URL(url), false, null, 'none');
         if (!isError) {
             if (value.redirected && value.url == this.generateIP(host, port) + "/XMII/goService.jsp") {
                 logger.info(this.name + ": success");

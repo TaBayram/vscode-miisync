@@ -60,19 +60,19 @@ class StatusBar {
     private async onConfigChanged({ uploadOnSave }: UserConfig) {
         if (uploadOnSave) {
             statusBar.defaultIcon = Icon.syncEnabled;
-            if(this.stack.length == 0)
+            if (this.stack.length == 0)
                 this.Icon = Icon.syncEnabled
         }
         else {
             statusBar.defaultIcon = Icon.syncDisabled;
-            if(this.stack.length == 0)
+            if (this.stack.length == 0)
                 this.Icon = Icon.syncDisabled
         }
-        this.bar.tooltip = configManager.CurrentSystem.name;
+        this.bar.tooltip = configManager.CurrentSystem.name + ' ' + configManager.CurrentSystem.host + ':' + configManager.CurrentSystem.port;
     }
 
     private onLogStateChange(session: Session) {
-        if(session.system.isMain){
+        if (session.system.isMain) {
             this.mainIcon = session.IsLoggedin ? Icon.itemChecked : Icon.itemUnchecked;
             this.update();
         }

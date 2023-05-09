@@ -28,8 +28,8 @@ export class Logger implements ILogger {
     error(message: string | Error, ...args: any[]): void {
         this.log('[error]', message, ...args);
     }
-    failure(message: string | Error, ...args: any[]): void {
-        this.log('[failure]', message, ...args);
+    fail(message: string | Error, ...args: any[]): void {
+        this.log('[fail]', message, ...args);
     }
 
     toastError(message: string | Error, ...args: any[]) {

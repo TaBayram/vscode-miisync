@@ -33,10 +33,10 @@ class UserManager {
         this.session = new Session(system);
     }
 
-    public onSystemUpdate(system: System) {
+    public async onSystemUpdate(system: System) {
         if (!shallowEqual(system, this.system)) {
             if (this.IsLoggedin) {
-                this.logout();
+                await this.logout();
                 this.system.host = system.host;
                 this.system.port = system.port;
                 this.system.username = system.username;
@@ -59,14 +59,13 @@ class UserManager {
 
 
     async login() {
-        if (this.isLoggedin) return true;
+        if (this.IsLoggedin) {return;}
         await this.setAuth();
         const response = await logInService.call({ host: this.system.host, port: this.system.port }, this.system.name);
         if (response) {
             this.session.haveCookies(response);
             this.IsLoggedin = true;
-            if (this.system.isMain)
-                SetContextValue("loggedin", true);
+            if (this.system.isMain) { SetContextValue("loggedin", true); }
             return true;
         }
         return false;
@@ -77,15 +76,14 @@ class UserManager {
         logger.info('Log out for ' + this.system.name);
         this.session.clear();
         this.IsLoggedin = false;
-        if (this.system.isMain)
-            SetContextValue("loggedin", false);
+        if (this.system.isMain) { SetContextValue("loggedin", false); }
     }
 
     async setAuth(promptPassword = true) {
-        if (this.system.password == null && promptPassword && await this.askPassword()) {            
+        if (this.system.password == null && promptPassword && await this.askPassword()) {
         }
 
-        const newAuth = encodeURIComponent(Buffer.from(this.system.username + ":" + (this.system.password || this.password)).toString('base64'));
+        const newAuth = Buffer.from(this.system.username + ":" + (this.system.password || this.password)).toString('base64');
         this.session.auth = newAuth;
     }
 

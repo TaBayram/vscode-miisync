@@ -1,7 +1,6 @@
 import { writeFile } from 'fs-extra';
-import logger from '../ui/logger.js';
-import { Service, Request } from './abstract/miiservice.js';
 import { GetCurrentWorkspaceFolder, OpenLink } from '../modules/vscode.js';
+import { Request, Service } from './abstract/miiservice.js';
 import path = require('path');
 
 class ExportProjectService extends Service {
@@ -13,7 +12,7 @@ class ExportProjectService extends Service {
         OpenLink(this.get(host, port, projectName));
 
         return
-        const { value, error, isError } = await this.fetch({host,port},url);
+        const { value, error, isError } = await this.fetch(new URL(url));
         if (!isError) {
             //const data = this.parseXML(value);
             //logger.info(this.name + ": " + data?.Rowsets?.Messages?.Message);

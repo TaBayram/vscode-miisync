@@ -7,7 +7,7 @@ class ListFoldersService extends Service {
     mode: string = "XMII/Catalog?Mode=ListFolders&Session=true&DoStateCheck=true&Content-Type=text/xml";
     async call({ host, port }: Request, folderPath: string) {
         const url = this.get(host, port, folderPath);
-        const { value, error, isError } = await this.fetch({host,port},url);
+        const { value, error, isError } = await this.fetch(new URL(url));
         let data: MII<Folder, GeneralColumn2> = null;
         if (!isError) {
             data = this.parseXML(value);

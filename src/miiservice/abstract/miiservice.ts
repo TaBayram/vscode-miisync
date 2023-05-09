@@ -32,8 +32,8 @@ export abstract class Service {
     }
 
     // Dont like this session host port thingy change it
-    protected async fetch({ host, port }: Request, url: string, auth: boolean = false, body?: string, convert: 'text' | 'blob' | 'none' = 'text', skipLogin = true): Promise<{ value: any, error: Error, isError: boolean }> {
-        const session = GetSession(host, port);
+    protected async fetch(url: URL, auth: boolean = false, body?: string, convert: 'text' | 'blob' | 'none' = 'text', skipLogin = true): Promise<{ value: any, error: Error, isError: boolean }> {
+        const session = GetSession(url.hostname, url.port);
         const headers = {
             "Content-Type": "application/x-www-form-urlencoded",
             "cookie": session?.getCookies() || ''
@@ -41,7 +41,7 @@ export abstract class Service {
         if (auth) {
             headers["Authorization"] = 'Basic ' + session.auth;
         }
-        return fetch(url, {
+        return fetch(url.toString(), {
             method: body ? "POST" : "GET",
             body,
             headers,
@@ -49,9 +49,9 @@ export abstract class Service {
 
         }).then((response: Response): any => {
             if (response.status != 200)
-                logger.error(this.name + ": " + response.status + "-" + response.statusText);
+                {logger.error(this.name + ": " + response.status + "-" + response.statusText);}
             if (convert == 'none')
-                return response;
+                {return response;}
             return response[convert]();
         }).then(data => {
             return { value: data, error: null, isError: false };

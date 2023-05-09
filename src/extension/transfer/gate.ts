@@ -40,16 +40,16 @@ export async function Validate(config: UserConfig, system: System, localPath?: s
         return false;
     } */
     if (localPath && !await ValidatePath(localPath, config)) {
-        logger.info("Local file/folder path is not valid.");
+        logger.error(path.basename(localPath) + " local path is not valid.");
         return false;
     }
     if (!await ValidatePassword(system) && !(ignore?.password)) {
-        logger.info("Password is not valid.");
+        logger.error("Password is not valid.");
         return false;
     }
 
     if (!await DoesRemotePathExist(config, system) && !(ignore?.remotePath)) {
-        logger.info("Remote path doesn't exist.");
+        logger.error("Remote path doesn't exist.");
         return false;
     }
 
