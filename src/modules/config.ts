@@ -96,6 +96,9 @@ function ReadConfigsFromFile(configPath): Promise<any[]> {
     return fse.readJson(configPath).then(config => {
         const configs = Array.isArray(config) ? config : [config];
         return configs.map(MergedDefault);
+    }).catch(error=>{
+        logger.error("Config",error);
+        return [];
     });
 }
 
@@ -207,7 +210,12 @@ class ConfigManager {
         this.oldConfig = this.config;
 
         this.selffsPath = GetWorkspaceFolders()[0].uri.fsPath;
-        this.selfConfig = (await this.loadRoot(this.selffsPath, true)).config;
+        this.selfConfig = (await this.loadRoot(this.selffsPath, true))?.config;
+        if(!this.selfConfig){
+            logger.toastError("Config", "no miisync.json file found");
+            return null;
+        }
+
         this.useRoot = false;
         if (this.selfConfig.useRootConfig) {
             const root = await this.loadRoot(this.selffsPath, false);
@@ -274,6 +282,7 @@ class ConfigManager {
         const configs = await TryLoadConfigs(fsPath);
         if (configs?.length) {
             const config: UserConfig = configs[0];
+            if(!config) return null;
             if (!self && config.useRootConfig && path.relative(config.rootConfig, fsPath).trim() != '') {
                 const parentConfig = await this.loadRoot(path.resolve(fsPath, config.rootConfig), false);
                 if (parentConfig) {

@@ -8,12 +8,12 @@
     "url": "https://github.com/TaBayramNTT"
   },
   "repository": {
-    "url": "https://github.com/TaBayramNTT/miisync",
+    "url": "https://github.com/TaBayramNTT/vscode-miisync",
     "type": "github"
   },
-  "homepage": "https://github.com/TaBayramNTT/miisync",
+  "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -37,8 +37,7 @@
       {
         "command": "miisync.createconfig",
         "title": "Create Config",
-        "category": "mii",
-        "enablement": "!miisync.enabled"
+        "category": "mii"
       },
       {
         "command": "miisync.openscreen",

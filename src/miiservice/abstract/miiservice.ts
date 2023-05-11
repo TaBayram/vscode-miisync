@@ -27,7 +27,7 @@ export abstract class Service {
     protected generateURL(host: string, port: number, protocol: 'http' | 'https' = 'http') {
         return `${this.generateIP(host, port, protocol)}/${this.mode}`;
     }
-    protected generateIP(host: string, port, protocol: 'http' | 'https' = 'http') {
+    protected generateIP(host: string, port: number, protocol: 'http' | 'https' = 'http') {
         return `${protocol}://${host}:${port}`;
     }
 

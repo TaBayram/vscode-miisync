@@ -5,20 +5,17 @@ import { configManager } from "../modules/config.js";
 import { GetRemotePath, ValidatePath } from "../modules/file.js";
 import { CompareDocuments, OpenTextDocument, ShowConfirmPreviewMessage } from "../modules/vscode.js";
 import { filePropertiesTree } from "../ui/explorer/filepropertiestree.js";
-import logger from "../ui/logger.js";
 import { DownloadFile } from "./transfer/download.js";
 import { UploadFile } from "./transfer/upload.js";
 import path = require("path");
 
 
 export async function OnDidSaveTextDocument(document: vscode.TextDocument) {
-    const userConfig = await configManager.load();
-    if (userConfig) {
-        if (userConfig.uploadOnSave) { UploadFile(document.uri, document.getText(), userConfig, configManager.CurrentSystem); }
+    const userConfig = await configManager.load();    
+    if (userConfig?.uploadOnSave) { 
+        UploadFile(document.uri, document.getText(), userConfig, configManager.CurrentSystem); 
     }
-    else {
-        logger.warn('user config not available');
-    }
+
 }
 
 export async function OnDidOpenTextDocument(document: vscode.TextDocument) {
@@ -46,7 +43,7 @@ export async function OnDidChangeActiveTextEditor(textEditor: vscode.TextEditor)
             else {
                 const modifiedUser = fileProp.ModifiedBy;
                 if (system.username != modifiedUser) {
-                    if(saidNoToTheseDocuments.find((no)=> no.fsPath === document.uri.fsPath && no.modifiedTime == fileProp.Modified && no.modifiedUser == fileProp.ModifiedBy)) return;
+                    if (saidNoToTheseDocuments.find((no) => no.fsPath === document.uri.fsPath && no.modifiedTime == fileProp.Modified && no.modifiedUser == fileProp.ModifiedBy)) return;
 
                     const file = await readFileService.call({ host: system.host, port: system.port }, sourcePath);
                     const payload = file.Rowsets.Rowset.Row.find((row) => row.Name == "Payload");
@@ -62,7 +59,7 @@ export async function OnDidChangeActiveTextEditor(textEditor: vscode.TextEditor)
                             const newDocument = OpenTextDocument(remoteContent, language, true);
                             CompareDocuments(document.uri, (await newDocument).uri);
                         }
-                        else if(response === 0){
+                        else if (response === 0) {
                             saidNoToTheseDocuments.push({
                                 fsPath: document.uri.fsPath,
                                 modifiedTime: fileProp.Modified,
@@ -80,4 +77,4 @@ export async function OnDidChangeActiveTextEditor(textEditor: vscode.TextEditor)
 }
 
 
-let saidNoToTheseDocuments: {fsPath: string, modifiedUser: string, modifiedTime: string}[] = [];
+let saidNoToTheseDocuments: { fsPath: string, modifiedUser: string, modifiedTime: string }[] = [];

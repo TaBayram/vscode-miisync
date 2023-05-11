@@ -72,13 +72,20 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
     if (!await Validate(userConfig, system)) {
         return false;
     }
-    const realPath = path.relative(userConfig.remotePath, remoteFolderPath.replace("/WEB", "")) || "";
+    const absolutePath = remoteFolderPath;
+    const realPath = (path.relative(userConfig.remotePath, remoteFolderPath.replace("/WEB", "")) || "").trim();
 
-    const result = realPath != "" && realPath != path.basename(remoteFolderPath) ? await ShowQuickPick([path.basename(remoteFolderPath), realPath], { title: "Download Where?" }) : null;
+    let options = [path.basename(remoteFolderPath).trim()];
+    if (!options.find((value) => value === realPath)) options.push(realPath);
+    if (!options.find((value) => value === absolutePath)) options.push(absolutePath);
+
+
+    const result = options.length > 1 ? await ShowQuickPick(options, { title: "Download Where?" }) : options[0];
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
     logger.info("Download Remote Folder Started");
     const workspaceFolder = GetCurrentWorkspaceFolder().fsPath;
-    const folderPath = (result == realPath ? realPath : path.basename(remoteFolderPath)) + path.sep;
+    const folderPath = (result != null ? result : options[0]) + path.sep;
+
 
     function getPath(item: File | Folder) {
         if ('FolderName' in item) {
@@ -95,6 +102,7 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
     await DownloadFiles(system, remoteFolderPath, getPath);
     statusBar.updateBar('Done', Icon.success, { duration: 1 });
     logger.info("Download Remote Folder Completed");
+
 }
 
 async function DownloadFiles({ host, port }: System, sourcePath: string, getPath: (item: File | Folder) => string) {
@@ -107,7 +115,7 @@ async function DownloadFiles({ host, port }: System, sourcePath: string, getPath
         directory.push(root);
         await Promise.all(await deep(root));
     }
-    else{
+    else {
         logger.error("Root folder doesn't exist.")
     }
 
@@ -127,7 +135,7 @@ async function DownloadFiles({ host, port }: System, sourcePath: string, getPath
                     const filePath = getPath(file);
                     readFileService.call({ host, port }, file.FilePath + "/" + file.ObjectName).then((binary) => {
                         const payload = binary?.Rowsets?.Rowset?.Row.find((row) => row.Name == "Payload");
-                        if(payload){
+                        if (payload) {
                             outputFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" }).then(() => resolve('success')).catch((error) => reject(error));
                         }
                     });
@@ -138,7 +146,7 @@ async function DownloadFiles({ host, port }: System, sourcePath: string, getPath
         if (mainFolder.ChildFolderCount != 0) {
             const folders = await listFoldersService.call({ host: host, port: port }, mainFolder.Path);
             await Promise.all((folders?.Rowsets?.Rowset?.Row || []).map(folder => {
-                if(folder.IsWebDir){
+                if (folder.IsWebDir) {
                     mainFolder.children.push(folder);
                     return deep(folder)
                 }

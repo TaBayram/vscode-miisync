@@ -34,13 +34,8 @@ export async function ValidatePassword(system: System) {
 
 
 export async function Validate(config: UserConfig, system: System, localPath?: string, ignore?: { password?: boolean, remotePath?: boolean }): Promise<boolean> {
-    /* const validationError = configManager.validate();
-    if (validationError) {
-        logger.error(validationError);
-        return false;
-    } */
     if (localPath && !await ValidatePath(localPath, config)) {
-        logger.error(path.basename(localPath) + " local path is not valid.");
+        logger.info(path.basename(localPath) + " local path is not valid.");
         return false;
     }
     if (!await ValidatePassword(system) && !(ignore?.password)) {

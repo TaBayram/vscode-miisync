@@ -4,6 +4,20 @@ All notable changes to the "miisync" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.8.6] - 11/05/2023
+
+### Added
+
+- Option of absolute path when downloading remote folder.
+
+### Changed
+
+- Create Config command doesn't dissapear after creation. 
+
+### Removed
+
+- File save event firing warning log. 
+
 ## [0.8.5] - 09/05/2023
 
 ### Added

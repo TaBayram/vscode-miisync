@@ -32,6 +32,8 @@ This extension should sync the file in mii workbench with local file whenever yo
  
 1. Adding cancel option to download folder, download remote folder, and upload folder commands.
 2. Add "go to config" command that opens used config file.
+3. Have an option to use some of the settings defined in the self config instead of root config.
+4. Check project folder existince with ListFolder&Folder=""
 
 ## Requirements
 
