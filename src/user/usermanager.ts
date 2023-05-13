@@ -14,6 +14,7 @@ class UserManager {
 
     private password: string;
     private isLoggedin: boolean;
+    private awaitsLogin: boolean = false;
 
     public set IsLoggedin(value: boolean) {
         this.isLoggedin = value;
@@ -59,9 +60,14 @@ class UserManager {
 
 
     async login() {
-        if (this.IsLoggedin) {return;}
+        if (this.awaitsLogin) {
+            return false;
+        }
+        if (this.session.IsLoggedin && !this.session.didCookiesExpire()) return true;
+        this.awaitsLogin = true;
         await this.setAuth();
         const response = await logInService.call({ host: this.system.host, port: this.system.port }, this.system.name);
+        this.awaitsLogin = false;
         if (response) {
             this.session.haveCookies(response);
             this.IsLoggedin = true;
@@ -69,6 +75,10 @@ class UserManager {
             return true;
         }
         return false;
+    }
+
+    async checkLogin() {
+
     }
 
     async logout() {

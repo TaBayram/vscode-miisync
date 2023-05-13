@@ -8,6 +8,19 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 
+
+### Changed
+
+
+
+### Fixed
+
+- Where upload on save was calling before log in service was succesful, causing system to create multiple sessions.
+
+## [0.8.6] - 11/05/2023
+
+### Added
+
 - Option of absolute path when downloading remote folder.
 
 ### Changed

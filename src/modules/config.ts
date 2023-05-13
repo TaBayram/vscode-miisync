@@ -61,7 +61,7 @@ function GetWorkspaceConfig(): UserConfig {
         removeFromLocalPath: conf.get("removeFromLocalPath", ['webapp']),
         remotePath: conf.get("remotePath", 'MES'),
         downloadOnOpen: false,
-        uploadOnSave: true,
+        uploadOnSave: false,
         ignore: conf.get('ignore', ['*.json']),
         useRootConfig: conf.get('useRootConfig', false),
         rootConfig: conf.get('rootConfig', '')

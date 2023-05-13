@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { System } from "../modules/config";
 
 export class Session {
-    private static context: vscode.ExtensionContext;    
+    private static context: vscode.ExtensionContext;
     public static onLogStateChange: vscode.EventEmitter<Session> = new vscode.EventEmitter();
     public static set Context(value: vscode.ExtensionContext) {
         Session.context = value;
@@ -11,15 +11,15 @@ export class Session {
     private cookies: string[] = [];
     private lastUpdated: Date;
     private isLoggedin: boolean;
-    private hasMIICookies: boolean = false;
-    public auth: string;    
+    private hasCookies: boolean = false;
+    public auth: string;
 
 
-    public set HasMIICookies(value: boolean) {
-        this.hasMIICookies = value;
+    public set HasCookies(value: boolean) {
+        this.hasCookies = value;
     }
-    public get HasMIICookies() {
-        return this.hasMIICookies;
+    public get HasCookies() {
+        return this.hasCookies;
     }
 
     public set IsLoggedin(value: boolean) {
@@ -31,32 +31,38 @@ export class Session {
         return this.isLoggedin;
     }
 
+    get Cookies(): string {
+        if (!this.isExpired(this.lastUpdated, 60)) {
+            this.HasCookies = false;
+        }
+        return this.cookies.join(";");
+    }
 
     public constructor(readonly system: System) {
         sessions.push(this);
         this.loadCookies();
     }
 
+    didCookiesExpire(){
+        return this.isExpired(this.lastUpdated, 59);
+    }
 
+    haveCookies(response) {
+        this.parseCookies(response);
+        this.HasCookies = true;
+    }    
 
     clear() {
-        this.HasMIICookies = false;
+        this.HasCookies = false;
         this.IsLoggedin = false;
         this.auth = "";
         this.cookies = [];
         this.clearCookies();
     }
 
-    haveCookies(response) {
-        if (!this.hasMIICookies) {
-            this.parseCookies(response);
-            this.HasMIICookies = true;
-        }
-    }
-
-    parseCookies(response) {
+    private parseCookies(response) {
         const raw: string[] = response.headers.raw()['set-cookie'] || [];
-        if (raw.length == 0) {return;}
+        if (raw.length == 0) { return; }
         let cookies = raw.map((entry) => {
             const parts = entry.split(';');
             const cookiePart = parts[0];
@@ -69,17 +75,7 @@ export class Session {
         return cookies.length;
     }
 
-
-    getCookies(): string {
-        if (!this.isExpired(this.lastUpdated, 60)) {
-            this.HasMIICookies = false;
-        }
-        return this.cookies.join(";");
-    }
-
-
-
-    updateCookie(cookie: string) {
+    private updateCookie(cookie: string) {
         for (var index = 0; index < this.cookies.length; index++) {
             const iCookie = this.cookies[index];
             if (iCookie.split("=")[0] == cookie.split("=")[0]) {
@@ -93,17 +89,19 @@ export class Session {
         this.lastUpdated = new Date();
     }
 
-    loadCookies() {
+
+    private loadCookies() {
         this.lastUpdated = new Date(Session.context.globalState.get(this.system.name + "lastUpdated", Date.now()));
         if (!this.isExpired(this.lastUpdated, 60)) {
             this.cookies = Session.context.globalState.get<string[]>(this.system.name + "cookies", []);
         }
     }
 
-    saveCookies() {
+    private saveCookies() {
         Session.context.globalState.update(this.system.name + "lastUpdated", this.lastUpdated);
         Session.context.globalState.update(this.system.name + "cookies", this.cookies);
     }
+
 
     private clearCookies() {
         Session.context.globalState.update(this.system.name + "lastUpdated", null);

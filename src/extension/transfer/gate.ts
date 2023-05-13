@@ -25,25 +25,24 @@ export async function DoesFolderExist(remoteFilePath: string, { host, port }: Sy
 }
 
 
-export async function ValidatePassword(system: System) {
+export async function ValidateLogin(system: System) {
     const userManager = GetUserManager(system, false);
-    if (!userManager) {return;}
-    if (userManager.Session.IsLoggedin) {return true;}
+    if (!userManager) { return false; }
     return await userManager.login();
 }
 
 
-export async function Validate(config: UserConfig, system: System, localPath?: string, ignore?: { password?: boolean, remotePath?: boolean }): Promise<boolean> {
+export async function Validate(config: UserConfig, system: System, localPath?: string, ignore?: { login?: boolean, remotePath?: boolean, logged?: boolean }): Promise<boolean> {
     if (localPath && !await ValidatePath(localPath, config)) {
         logger.info(path.basename(localPath) + " local path is not valid.");
         return false;
     }
-    if (!await ValidatePassword(system) && !(ignore?.password)) {
-        logger.error("Password is not valid.");
+    if (!(ignore?.login) && !await ValidateLogin(system)) {
+        logger.error("Session is not valid.");
         return false;
     }
 
-    if (!await DoesRemotePathExist(config, system) && !(ignore?.remotePath)) {
+    if (!(ignore?.remotePath) && !await DoesRemotePathExist(config, system)) {
         logger.error("Remote path doesn't exist.");
         return false;
     }

@@ -11,6 +11,7 @@ import { OnCommandDisableDownloadOnOpen, OnCommandDisableSyncSave, OnCommandEnab
 import { OnCommandTransferFolder } from './commands/commandtransferfolder';
 import { OnCommandUploadFile } from './commands/commanduploadfile';
 import { OnCommandUploadFolder } from './commands/commanduploadfolder';
+import { EXTENSION_NAME } from './constants';
 import { OnDidChangeActiveTextEditor, OnDidOpenTextDocument, OnDidSaveTextDocument } from './extension/events';
 import { SetContextValue } from './modules/vscode';
 import { filePropertiesTree } from './ui/explorer/filepropertiestree';
@@ -25,6 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
 	activateTree(context);
 	RegisterCommands(context);
 	RegisterEvents(context)
+	const conf = vscode.workspace.getConfiguration(EXTENSION_NAME);
 
 	SetContextValue("enabled", true);
 	Session.Context = context;

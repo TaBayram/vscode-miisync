@@ -41,7 +41,7 @@ export async function DownloadFile(uri: Uri, userConfig: UserConfig, system: Sys
 
 export async function DownloadFolder(folderUri: Uri | string, userConfig: UserConfig, system: System) {
     const folderPath = typeof (folderUri) === "string" ? folderUri : folderUri.fsPath;
-    if (! await Validate(userConfig, system, folderPath)) {
+    if (!await Validate(userConfig, system, folderPath)) {
         return false;
     }
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
@@ -72,12 +72,12 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
     if (!await Validate(userConfig, system)) {
         return false;
     }
-    const absolutePath = remoteFolderPath;
+    const absolutePath = remoteFolderPath.trim();
     const realPath = (path.relative(userConfig.remotePath, remoteFolderPath.replace("/WEB", "")) || "").trim();
 
     let options = [path.basename(remoteFolderPath).trim()];
-    if (!options.find((value) => value === realPath)) options.push(realPath);
-    if (!options.find((value) => value === absolutePath)) options.push(absolutePath);
+    if (!options.find((value) => value === realPath) && realPath != "") options.push(realPath);
+    if (!options.find((value) => value === absolutePath) && realPath != "") options.push(absolutePath);
 
 
     const result = options.length > 1 ? await ShowQuickPick(options, { title: "Download Where?" }) : options[0];

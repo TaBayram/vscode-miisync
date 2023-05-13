@@ -12,7 +12,7 @@ export interface Request {
 }
 
 //todo: Use pool promise instead of limiting sockets
-const agent = new Agent({maxSockets: 20, keepAlive:true, });
+const agent = new Agent({ maxSockets: 20, keepAlive: true, });
 
 export abstract class Service {
     readonly abstract name: string;
@@ -31,14 +31,13 @@ export abstract class Service {
         return `${protocol}://${host}:${port}`;
     }
 
-    // Dont like this session host port thingy change it
     protected async fetch(url: URL, auth: boolean = false, body?: string, convert: 'text' | 'blob' | 'none' = 'text', skipLogin = true): Promise<{ value: any, error: Error, isError: boolean }> {
         const session = GetSession(url.hostname, url.port);
         const headers = {
             "Content-Type": "application/x-www-form-urlencoded",
-            "cookie": session?.getCookies() || ''
+            "cookie": session?.Cookies || ''
         };
-        if (auth) {
+        if (auth && session?.auth) {
             headers["Authorization"] = 'Basic ' + session.auth;
         }
         return fetch(url.toString(), {
@@ -49,9 +48,13 @@ export abstract class Service {
 
         }).then((response: Response): any => {
             if (response.status != 200)
-                {logger.error(this.name + ": " + response.status + "-" + response.statusText);}
+                logger.error(this.name + ": " + response.status + "-" + response.statusText);
             if (convert == 'none')
-                {return response;}
+                return response;
+            else{
+                session.haveCookies(response);
+            }
+
             return response[convert]();
         }).then(data => {
             return { value: data, error: null, isError: false };
