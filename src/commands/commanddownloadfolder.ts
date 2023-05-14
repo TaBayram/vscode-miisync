@@ -1,6 +1,6 @@
 import { Uri } from "vscode";
-import { DownloadFolder } from "../extension/transfer/download.js";
 import { configManager } from "../modules/config.js";
+import { DownloadFolder } from "../transfer/download.js";
 
 
 export async function OnCommandDownloadFolder(uri: Uri) {

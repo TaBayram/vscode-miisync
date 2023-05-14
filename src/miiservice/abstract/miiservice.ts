@@ -20,7 +20,7 @@ export abstract class Service {
 
     constructor() { }
 
-    abstract call(request: Request, ...args: any): Promise<MII<Row, Column> | void>;
+    abstract call(request: Request, ...args: any): Promise<MII<Row, Column> | any>;
     abstract get(host: string, port: number, ...args: any);
     protected abstract generateParams(...args: any);
 

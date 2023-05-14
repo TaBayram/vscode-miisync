@@ -32,6 +32,10 @@ export class Logger implements ILogger {
         this.log('[fail]', message, ...args);
     }
 
+    infos(source: string, message: string, ...args: any[]) {
+        this.log('[info]', "(" + source + ")", message, ...args);
+    }
+
     toastError(message: string | Error, ...args: any[]) {
         vscode.window.showErrorMessage(this.mapArgs(message, ...args));
         this.error(message, args);

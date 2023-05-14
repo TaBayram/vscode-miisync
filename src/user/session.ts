@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { System } from "../modules/config";
+import { SystemConfig } from "../modules/config";
 
 export class Session {
     private static context: vscode.ExtensionContext;
@@ -38,7 +38,7 @@ export class Session {
         return this.cookies.join(";");
     }
 
-    public constructor(readonly system: System) {
+    public constructor(readonly system: SystemConfig) {
         sessions.push(this);
         this.loadCookies();
     }

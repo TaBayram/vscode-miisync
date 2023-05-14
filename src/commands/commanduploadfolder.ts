@@ -1,6 +1,6 @@
 import { Uri } from "vscode";
-import { UploadFolder } from "../extension/transfer/upload.js";
 import { configManager } from "../modules/config.js";
+import { UploadFolder } from "../transfer/upload.js";
 
 
 export async function OnCommandUploadFolder(uri: Uri) {

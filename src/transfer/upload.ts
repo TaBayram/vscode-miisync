@@ -1,15 +1,15 @@
 import path = require("path");
 import { readFile } from "fs-extra";
 import { Uri } from "vscode";
-import { saveFileService } from "../../miiservice/savefileservice";
-import { System, UserConfig } from "../../modules/config";
-import { GetAllFilesInDir, GetRemotePath, ValidatePath } from "../../modules/file";
-import { ShowConfirmMessage } from "../../modules/vscode";
-import logger from "../../ui/logger";
-import statusBar, { Icon } from "../../ui/statusbar";
+import { saveFileService } from "../miiservice/savefileservice";
+import { SystemConfig, UserConfig } from "../modules/config";
+import { GetAllFilesInDir, GetRemotePath, ValidatePath } from "../modules/file";
+import { ShowConfirmMessage } from "../modules/vscode";
+import logger from "../ui/logger";
+import statusBar, { Icon } from "../ui/statusbar";
 import { DoesFileExist, DoesFolderExist, Validate } from "./gate";
 
-export async function UploadFile(uri: Uri, content: string, userConfig: UserConfig, system: System) {
+export async function UploadFile(uri: Uri, content: string, userConfig: UserConfig, system: SystemConfig) {
     if (!await Validate(userConfig, system, uri.fsPath)) {
         return false;
     }
@@ -23,12 +23,15 @@ export async function UploadFile(uri: Uri, content: string, userConfig: UserConf
 
 
     statusBar.updateBar('Sending', Icon.spinLoading, { duration: -1 });
-    await saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
+    const response = await saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
+    if(response){
+        logger.infos("Upload File",fileName+" : " + response?.Rowsets?.Messages?.Message);
+    }
     statusBar.updateBar("Done " + fileName, Icon.success, { duration: 3 });
 }
 
 
-export async function UploadFolder(folderUri: Uri | string, userConfig: UserConfig, system: System) {
+export async function UploadFolder(folderUri: Uri | string, userConfig: UserConfig, system: SystemConfig) {
     const folderPath = typeof (folderUri) === "string" ? folderUri : folderUri.fsPath;
     if (!await Validate(userConfig, system, folderPath)) {
         return false;

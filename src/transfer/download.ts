@@ -1,21 +1,21 @@
 import { mkdir, outputFile, writeFile } from "fs-extra";
 import { Uri } from "vscode";
-import { Directory, File, Folder } from "../../miiservice/abstract/responsetypes";
-import { listFilesService } from "../../miiservice/listfilesservice";
-import { listFoldersService } from "../../miiservice/listfoldersservice";
-import { loadFilesInsideService } from "../../miiservice/loadfilesinsideservice";
-import { readFileService } from "../../miiservice/readfileservice";
-import { System, UserConfig } from "../../modules/config";
-import { GetRemotePath } from "../../modules/file";
-import { GetCurrentWorkspaceFolder, ShowQuickPick } from "../../modules/vscode";
-import { remoteDirectoryTree } from "../../ui/explorer/remotedirectorytree";
-import logger from "../../ui/logger";
-import statusBar, { Icon } from "../../ui/statusbar";
+import { Directory, File, Folder } from "../miiservice/abstract/responsetypes";
+import { listFilesService } from "../miiservice/listfilesservice";
+import { listFoldersService } from "../miiservice/listfoldersservice";
+import { loadFilesInsideService } from "../miiservice/loadfilesinsideservice";
+import { readFileService } from "../miiservice/readfileservice";
+import { SystemConfig, UserConfig } from "../modules/config";
+import { GetRemotePath } from "../modules/file";
+import { GetCurrentWorkspaceFolder, ShowQuickPick } from "../modules/vscode";
+import { remoteDirectoryTree } from "../ui/explorer/remotedirectorytree";
+import logger from "../ui/logger";
+import statusBar, { Icon } from "../ui/statusbar";
 import { DoesFileExist, Validate } from "./gate";
 import path = require("path");
 
 
-export async function DownloadFile(uri: Uri, userConfig: UserConfig, system: System) {
+export async function DownloadFile(uri: Uri, userConfig: UserConfig, system: SystemConfig) {
     const filePath = uri.fsPath;
     if (!await Validate(userConfig, system, filePath)) {
         return false;
@@ -39,7 +39,7 @@ export async function DownloadFile(uri: Uri, userConfig: UserConfig, system: Sys
 }
 
 
-export async function DownloadFolder(folderUri: Uri | string, userConfig: UserConfig, system: System) {
+export async function DownloadFolder(folderUri: Uri | string, userConfig: UserConfig, system: SystemConfig) {
     const folderPath = typeof (folderUri) === "string" ? folderUri : folderUri.fsPath;
     if (!await Validate(userConfig, system, folderPath)) {
         return false;
@@ -68,7 +68,7 @@ export async function DownloadFolder(folderUri: Uri | string, userConfig: UserCo
 }
 
 
-export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig: UserConfig, system: System) {
+export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig: UserConfig, system: SystemConfig) {
     if (!await Validate(userConfig, system)) {
         return false;
     }
@@ -105,7 +105,7 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
 
 }
 
-async function DownloadFiles({ host, port }: System, sourcePath: string, getPath: (item: File | Folder) => string) {
+async function DownloadFiles({ host, port }: SystemConfig, sourcePath: string, getPath: (item: File | Folder) => string) {
     const directory: Directory = [];
     const parentPath = path.dirname(sourcePath) == "." ? "" : path.dirname(sourcePath);
     const rootFolders = await listFoldersService.call({ host, port }, parentPath);
@@ -163,7 +163,7 @@ async function DownloadFiles({ host, port }: System, sourcePath: string, getPath
 
 
 
-export async function DownloadContextDirectory(userConfig: UserConfig, system: System) {
+export async function DownloadContextDirectory(userConfig: UserConfig, system: SystemConfig) {
     if (!await Validate(userConfig, system)) {
         return false;
     }
@@ -182,7 +182,7 @@ export async function DownloadContextDirectory(userConfig: UserConfig, system: S
 }
 
 
-async function DownloadDirDepth(mainFolder: Folder, system: System) {
+async function DownloadDirDepth(mainFolder: Folder, system: SystemConfig) {
     mainFolder.children = [];
 
     const folders = await listFoldersService.call({ host: system.host, port: system.port }, mainFolder.Path);

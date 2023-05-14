@@ -11,7 +11,6 @@ class CurrentUsersService extends Service {
         let data: MII<CurrentUser, GeneralColumn> = null;
         if (!isError) {
             data = JSON.parse(value);
-            /* logger.info(this.name + ": " + data?.Rowsets?.Rowset?.Row?.length); */
         }
         return data;
     }

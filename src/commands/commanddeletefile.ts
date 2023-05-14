@@ -1,8 +1,7 @@
 import { lstat } from "fs-extra";
 import { Uri } from "vscode";
-import { DownloadFile } from "../extension/transfer/download.js";
 import { configManager } from "../modules/config.js";
-import { DeleteFile } from "../extension/transfer/request.js";
+import { DeleteFile } from "../transfer/request.js";
 
 export async function OnCommandDeleteFile(...uris: any[]) {
     const userConfig = await configManager.load();

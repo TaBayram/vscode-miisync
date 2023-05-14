@@ -1,24 +1,24 @@
 import { readFile } from "fs-extra";
 import { Uri } from "vscode";
-import { saveFileService } from "../../miiservice/savefileservice";
-import { System, UserConfig, configManager } from "../../modules/config";
-import { GetAllFilesInDir, GetRemotePath, ValidatePath } from "../../modules/file";
-import { ShowQuickPick } from "../../modules/vscode";
-import logger from "../../ui/logger";
-import { QuickPickItem } from "../../ui/quickpick";
-import statusBar, { Icon } from "../../ui/statusbar";
-import { GetUserManager } from "../../user/usermanager";
+import { saveFileService } from "../miiservice/savefileservice";
+import { SystemConfig, UserConfig, configManager } from "../modules/config";
+import { GetAllFilesInDir, GetRemotePath, ValidatePath } from "../modules/file";
+import { ShowQuickPick } from "../modules/vscode";
+import logger from "../ui/logger";
+import { QuickPickItem } from "../ui/quickpick";
+import statusBar, { Icon } from "../ui/statusbar";
+import { GetUserManager } from "../user/usermanager";
 
 
 export async function TransferFolder(uri: Uri, userConfig: UserConfig) {
-    let picks: QuickPickItem<System>[] = [];
+    let picks: QuickPickItem<SystemConfig>[] = [];
     for (const system of userConfig.systems) {
         if (configManager.CurrentSystem != system) {
             picks.push({ label: system.name, description: system.host + ':' + system.port, object: system })
         }
     }
 
-    const response: QuickPickItem<System> = await ShowQuickPick(picks, { title: 'Pick System' });
+    const response: QuickPickItem<SystemConfig> = await ShowQuickPick(picks, { title: 'Pick System' });
     if (response) {
         const system = response.object;
         const user = GetUserManager(system, true);
