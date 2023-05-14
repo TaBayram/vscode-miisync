@@ -4,14 +4,15 @@ All notable changes to the "miisync" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [0.8.6] - 11/05/2023
+## [0.8.7] - 11/05/2023
 
 ### Added
 
+- Periodic session refreshing
 
 ### Changed
 
-
+- Save and Delete commands log shows which file
 
 ### Fixed
 
