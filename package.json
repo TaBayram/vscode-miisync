@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.9.0",
+  "version": "0.8.7",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -271,6 +271,11 @@
             "type": "integer",
             "default": 60,
             "description": "How long does session lasts in minutes."
+          },
+          "miisync.refreshSession": {
+            "type": "boolean",
+            "default": true,
+            "description": "Perodically sends request to renew session."
           }
         }
       },

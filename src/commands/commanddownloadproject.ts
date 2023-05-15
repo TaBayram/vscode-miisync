@@ -1,7 +1,7 @@
-import { DoesRemotePathExist } from "../extension/transfer/gate.js";
 import { exportProjectService } from "../miiservice/exportprojectservice.js";
 import { configManager } from "../modules/config.js";
 import { GetRemotePath } from "../modules/file.js";
+import { DoesRemotePathExist } from "../transfer/gate.js";
 import logger from "../ui/logger.js";
 import path = require("path");
 

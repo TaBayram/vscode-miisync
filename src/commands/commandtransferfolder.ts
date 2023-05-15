@@ -1,6 +1,6 @@
 import { Uri } from "vscode";
-import { TransferFolder } from "../extension/transfer/transfer";
 import { configManager } from "../modules/config";
+import { TransferFolder } from "../transfer/transfer";
 
 
 export async function OnCommandTransferFolder(uri: Uri) {

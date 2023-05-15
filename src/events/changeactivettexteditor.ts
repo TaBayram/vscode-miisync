@@ -4,25 +4,10 @@ import { readFileService } from "../miiservice/readfileservice.js";
 import { configManager } from "../modules/config.js";
 import { GetRemotePath, ValidatePath } from "../modules/file.js";
 import { CompareDocuments, OpenTextDocument, ShowConfirmPreviewMessage } from "../modules/vscode.js";
+import { DownloadFile } from "../transfer/download.js";
 import { filePropertiesTree } from "../ui/explorer/filepropertiestree.js";
-import { DownloadFile } from "./transfer/download.js";
-import { UploadFile } from "./transfer/upload.js";
 import path = require("path");
 
-
-export async function OnDidSaveTextDocument(document: vscode.TextDocument) {
-    const userConfig = await configManager.load();    
-    if (userConfig?.uploadOnSave) { 
-        UploadFile(document.uri, document.getText(), userConfig, configManager.CurrentSystem); 
-    }
-
-}
-
-export async function OnDidOpenTextDocument(document: vscode.TextDocument) {
-
-
-
-}
 
 export async function OnDidChangeActiveTextEditor(textEditor: vscode.TextEditor) {
     if (!textEditor) { return; }

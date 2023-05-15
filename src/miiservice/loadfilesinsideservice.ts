@@ -11,7 +11,6 @@ class LoadFilesInsideService extends Service {
         let data: MII<File, GeneralColumn2> = null;
         if (!isError) {
             data = this.parseXML(value);
-            /* logger.info(this.name + ": " + data?.Rowsets?.Rowset?.Row?.length); */
         }
         return data;
     }

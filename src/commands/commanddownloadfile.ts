@@ -1,9 +1,9 @@
 import { lstat, pathExists } from "fs-extra";
 import { Uri } from "vscode";
-import { DownloadFile } from "../extension/transfer/download.js";
-import { GetFileProperties } from "../extension/transfer/request.js";
 import { configManager } from "../modules/config.js";
 import { GetActiveTextEditor } from "../modules/vscode.js";
+import { DownloadFile } from "../transfer/download.js";
+import { GetFileProperties } from "../transfer/request.js";
 import logger from "../ui/logger.js";
 
 export async function OnCommandDownloadFile(...uris: any[]) {

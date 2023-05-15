@@ -2,7 +2,7 @@ import { ExtensionContext } from "vscode";
 import { shallowEqual } from "../extends/lib";
 import { logInService } from "../miiservice/loginservice";
 import { logOutService } from "../miiservice/logoutservice";
-import { System, configManager } from "../modules/config";
+import { SystemConfig, configManager } from "../modules/config";
 import { SetContextValue, ShowInputBox } from "../modules/vscode";
 import logger from "../ui/logger";
 import { Session } from "./session";
@@ -30,11 +30,11 @@ class UserManager {
     }
 
 
-    constructor(readonly system: System) {
+    constructor(readonly system: SystemConfig) {
         this.session = new Session(system);
     }
 
-    public async onSystemUpdate(system: System) {
+    public async onSystemUpdate(system: SystemConfig) {
         if (!shallowEqual(system, this.system)) {
             if (this.IsLoggedin) {
                 await this.logout();
@@ -60,25 +60,37 @@ class UserManager {
 
 
     async login() {
-        if (this.awaitsLogin) {
-            return false;
-        }
+        if (this.awaitsLogin) return false;
         if (this.session.IsLoggedin && !this.session.didCookiesExpire()) return true;
         this.awaitsLogin = true;
         await this.setAuth();
         const response = await logInService.call({ host: this.system.host, port: this.system.port }, this.system.name);
         this.awaitsLogin = false;
         if (response) {
+            logger.info("Login successful for " + this.system.name);
             this.session.haveCookies(response);
             this.IsLoggedin = true;
-            if (this.system.isMain) { SetContextValue("loggedin", true); }
+            if (this.system.isMain)
+                SetContextValue("loggedin", true);
+
+            if (!this.refreshTimer)
+                this.refreshTimer = setInterval(() => { this.refreshLogin() }, 5 * 60 * 1000)
+
             return true;
+        }
+        else {
+            logger.error("Login not successful for " + this.system.name);
         }
         return false;
     }
 
-    async checkLogin() {
-
+    refreshTimer: NodeJS.Timer;
+    // extension setting changes this 
+    async refreshLogin() {
+        const response = await logInService.call({ host: this.system.host, port: this.system.port }, this.system.name);
+        if (response) {
+            this.session.haveCookies(response);
+        }
     }
 
     async logout() {
@@ -86,7 +98,10 @@ class UserManager {
         logger.info('Log out for ' + this.system.name);
         this.session.clear();
         this.IsLoggedin = false;
-        if (this.system.isMain) { SetContextValue("loggedin", false); }
+        if (this.system.isMain)
+            SetContextValue("loggedin", false);
+        if (this.refreshTimer)
+            clearInterval(this.refreshTimer);
     }
 
     async setAuth(promptPassword = true) {
@@ -117,7 +132,7 @@ class UserManager {
 const userManagers: UserManager[] = [];
 
 
-export function GetUserManager(system: System, create: boolean = false) {
+export function GetUserManager(system: SystemConfig, create: boolean = false) {
     for (const manager of userManagers) {
         if (manager.system.name == system.name && manager.system.host == system.host && manager.system.port == system.port) {
             return manager;
@@ -141,8 +156,8 @@ export async function InitiliazeMainUserManager({ subscriptions }: ExtensionCont
     await configManager.load();
 }
 
-export async function OnSystemsChange(system: System[]) {
-    let newSystems: System[] = [...(system || [])];
+export async function OnSystemsChange(system: SystemConfig[]) {
+    let newSystems: SystemConfig[] = [...(system || [])];
     let oldManagers: UserManager[] = [];
 
     let wasMainLoggedIn = userManagers.length == 0 || userManagers.find((manager) => manager.system.isMain && manager.IsLoggedin) != null;

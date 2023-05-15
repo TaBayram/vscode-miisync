@@ -1,4 +1,4 @@
-import logger from '../ui/logger.js';
+import { Response } from 'node-fetch';
 import { Request, Service } from './abstract/miiservice.js';
 
 class LogInService extends Service {
@@ -8,17 +8,14 @@ class LogInService extends Service {
 
     async call({ host, port }: Request, name: string) {
         const url = this.get(host, port);
-        const { value, error, isError }= await this.fetch(new URL(url), true, null, 'none', true);
+        const { value, error, isError }: { value: Response, error: Error, isError: boolean } = await this.fetch(new URL(url), true, null, 'none', true);
         if (!isError) {
             if (value.redirected && value.url == this.generateIP(host, port) + "/XMII/goService.jsp") {
-                logger.info(this.name + ": success for " + name);
                 return value;
-            }
-            else {
-                logger.error(this.name + ": fail for " + name);
             }
             return null;
         }
+        return null;
     }
     get(host: string, port: number) {
         return this.generateURL(host, port, "http") + this.optionals;

@@ -9,6 +9,7 @@ import { GetWorkspaceFolders, SetContextValue, ShowTextDocument } from './vscode
 
 const nullable = schema => schema.optional().allow(null);
 
+//todo make port optional
 let joiSystem = Joi.object().keys({
     name: Joi.string().required(),
     isMain: Joi.boolean().default(false),
@@ -30,7 +31,7 @@ const configScheme = Joi.object({
 });
 
 
-export interface System {
+export interface SystemConfig {
     name: string,
     isMain: boolean,
     host?: string,
@@ -40,7 +41,7 @@ export interface System {
 }
 
 export interface UserConfig {
-    systems?: System[],
+    systems?: SystemConfig[],
     removeFromLocalPath?: string[],
     remotePath?: string,
     uploadOnSave?: boolean,
@@ -50,7 +51,7 @@ export interface UserConfig {
     rootConfig?: string,
 }
 
-export interface ConfigSystem extends System, UserConfig {
+export interface ConfigSystem extends SystemConfig, UserConfig {
 
 }
 
@@ -68,7 +69,7 @@ function GetWorkspaceConfig(): UserConfig {
     };
 }
 
-const defaultSystem: System = {
+const defaultSystem: SystemConfig = {
     name: "dev",
     isMain: false,
     host: '11.22.33',
@@ -145,10 +146,10 @@ class ConfigManager {
     private selffsPath: string;
     private selfConfig: UserConfig;
 
-    private currentSystem: System;
+    private currentSystem: SystemConfig;
 
     public onConfigChange: vscode.EventEmitter<UserConfig> = new vscode.EventEmitter();
-    public onSystemsChange: vscode.EventEmitter<System[]> = new vscode.EventEmitter();
+    public onSystemsChange: vscode.EventEmitter<SystemConfig[]> = new vscode.EventEmitter();
 
     private lastLoadedTime: number;
     private lastLoadThreshold = 500;
@@ -265,7 +266,7 @@ class ConfigManager {
 
     private setCurrentSystem() {
 
-        let candidate: System = this.config.systems[0];
+        let candidate: SystemConfig = this.config.systems[0];
         for (const system of this.config.systems) {
             if (system.isMain) {
                 candidate = system;

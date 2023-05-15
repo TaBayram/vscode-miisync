@@ -11,7 +11,6 @@ class ReadFileService extends Service {
         let data: MII<FileBinary, GeneralColumn> = null;
         if (!isError) {
             data = this.parseXML(value.replaceAll("&#13;",""));
-           /*  logger.info(this.name + ": " + data?.Rowsets?.Rowset?.Row?.length); */
         }
         return data;
     }

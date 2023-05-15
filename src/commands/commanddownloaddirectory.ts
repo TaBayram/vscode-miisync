@@ -1,6 +1,6 @@
 
-import { DownloadContextDirectory, DownloadRemoteFolder } from "../extension/transfer/download.js";
 import { configManager } from "../modules/config.js";
+import { DownloadContextDirectory, DownloadRemoteFolder } from "../transfer/download.js";
 import { TreeItem } from "../ui/explorer/tree.js";
 import path = require("path");
 
