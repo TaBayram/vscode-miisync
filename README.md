@@ -1,7 +1,9 @@
 
 # miisync README
 
-This extension should sync the file in mii workbench with local file whenever you save it
+This extension tries to be a replacement for the web side of the standart mii workbench.
+
+**Made by NTT Data Business Solutions Turkiye MII Team**
 
 ## Usage
 
@@ -43,7 +45,7 @@ Visual Studio Code, MII system to connect to.
 
 Your folder must contain miisync.json file in .vscode folder to work.
 
-##### miisync settings:
+##### miisync.json settings:
 localPath is the folder that contains used .vscode/miisync.json
 * `removeFromLocalPath`: Removes any folder name in local path that is not in remote path.
 **Example**: Local folder path is "E:\2023\Projects\ProjectName\webapp\Screen" and the remote path is "ProjectName\Screen" then you should add "webapp" in removeFromLocalPath. 

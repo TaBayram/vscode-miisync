@@ -15,13 +15,6 @@ export class Session {
     public auth: string;
 
 
-    public set HasCookies(value: boolean) {
-        this.hasCookies = value;
-    }
-    public get HasCookies() {
-        return this.hasCookies;
-    }
-
     public set IsLoggedin(value: boolean) {
         this.isLoggedin = value;
         Session.onLogStateChange.fire(this);
@@ -32,8 +25,8 @@ export class Session {
     }
 
     get Cookies(): string {
-        if (!this.isExpired(this.lastUpdated, 60)) {
-            this.HasCookies = false;
+        if(this.areStoredCookiesFresher()){
+            this.loadCookies();
         }
         return this.cookies.join(";");
     }
@@ -49,11 +42,9 @@ export class Session {
 
     haveCookies(response) {
         this.parseCookies(response);
-        this.HasCookies = true;
     }    
 
     clear() {
-        this.HasCookies = false;
         this.IsLoggedin = false;
         this.auth = "";
         this.cookies = [];
@@ -106,6 +97,14 @@ export class Session {
     private clearCookies() {
         Session.context.globalState.update(this.system.name + "lastUpdated", null);
         Session.context.globalState.update(this.system.name + "cookies", null);
+    }
+
+    private areStoredCookiesFresher(){
+        const lastUpdated = new Date(Session.context.globalState.get(this.system.name + "lastUpdated", Date.now()));
+        if(lastUpdated.getTime() > this.lastUpdated.getTime() && !this.isExpired(lastUpdated, 60)){
+            return true;
+        }
+        return false;
     }
 
 

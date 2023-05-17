@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.8.7",
+  "version": "0.8.8",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -72,14 +72,16 @@
       {
         "command": "miisync.uploadfile",
         "title": "Upload Current File",
+        "icon": "$(arrow-up)",
         "category": "mii",
         "enablement": "editorIsOpen && miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.downloadfile",
         "title": "Download Current File",
+        "icon": "$(arrow-down)",
         "category": "mii",
-        "enablement": "miisync.enabled  && miisync.loggedin"
+        "enablement": "editorIsOpen && miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.deletefile",
@@ -142,7 +144,7 @@
         "title": "Download File Properties",
         "icon": "$(timeline-refresh)",
         "category": "zmii",
-        "enablement": "miisync.enabled  && miisync.loggedin"
+        "enablement": "editorIsOpen && miisync.enabled  && miisync.loggedin"
       }
     ],
     "menus": {
@@ -222,7 +224,17 @@
         {
           "command": "miisync.downloadfileproperties",
           "when": "view == fileproperties",
-          "group": "navigation"
+          "group": "navigation@2"
+        },
+        {
+          "command": "miisync.downloadfile",
+          "when": "view == fileproperties",
+          "group": "navigation@1"
+        },
+        {
+          "command": "miisync.uploadfile",
+          "when": "view == fileproperties",
+          "group": "navigation@0"
         }
       ],
       "view/item/context": [

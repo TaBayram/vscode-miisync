@@ -4,7 +4,22 @@ All notable changes to the "miisync" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [0.8.7] - 11/05/2023
+
+## [0.8.8] - 15/05/2023
+
+### Added
+
+- Upload and Download folder to file properties view.
+
+### Changed
+
+- Save and Delete commands log shows which file
+
+### Fixed
+
+- Where upload on save was calling before log in service was succesful, causing system to create multiple sessions.
+
+## [0.8.7] - 15/05/2023
 
 ### Added
 
