@@ -3,9 +3,9 @@ import { SystemConfig } from "../modules/config";
 export class System implements SystemConfig {
     name: string;
     isMain: boolean;
-    host?: string;
-    port?: number;
-    username?: string;
+    host: string;
+    port: number;
+    username: string;
     password?: string;
 
 

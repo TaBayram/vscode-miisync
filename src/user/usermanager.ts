@@ -87,6 +87,7 @@ class UserManager {
     refreshTimer: NodeJS.Timer;
     // extension setting changes this 
     async refreshLogin() {
+        if(this.session.loadCookiesIfCookedIn(5)) return;
         const response = await logInService.call({ host: this.system.host, port: this.system.port }, this.system.name);
         if (response) {
             this.session.haveCookies(response);

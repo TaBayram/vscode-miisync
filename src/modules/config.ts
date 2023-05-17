@@ -34,9 +34,9 @@ const configScheme = Joi.object({
 export interface SystemConfig {
     name: string,
     isMain: boolean,
-    host?: string,
-    port?: number,
-    username?: string,
+    host: string,
+    port: number,
+    username: string,
     password?: string,
 }
 

@@ -9,7 +9,7 @@ export class Session {
     }
 
     private cookies: string[] = [];
-    private lastUpdated: Date;
+    private lastUpdated: number;
     private isLoggedin: boolean;
     private hasCookies: boolean = false;
     public auth: string;
@@ -25,7 +25,7 @@ export class Session {
     }
 
     get Cookies(): string {
-        if(this.areStoredCookiesFresher()){
+        if (this.areStoredCookiesFresher()) {
             this.loadCookies();
         }
         return this.cookies.join(";");
@@ -36,13 +36,13 @@ export class Session {
         this.loadCookies();
     }
 
-    didCookiesExpire(){
+    didCookiesExpire() {
         return this.isExpired(this.lastUpdated, 59);
     }
 
-    haveCookies(response) {
+    haveCookies(response: any) {
         this.parseCookies(response);
-    }    
+    }
 
     clear() {
         this.IsLoggedin = false;
@@ -51,7 +51,15 @@ export class Session {
         this.clearCookies();
     }
 
-    private parseCookies(response) {
+    loadCookiesIfCookedIn(minutes: number) {
+        if (this.areStoredCookiesFresher(minutes)) {
+            this.loadCookies();
+            return true;
+        }
+        return false;
+    }
+
+    private parseCookies(response: any) {
         const raw: string[] = response.headers.raw()['set-cookie'] || [];
         if (raw.length == 0) { return; }
         let cookies = raw.map((entry) => {
@@ -77,39 +85,64 @@ export class Session {
         if (index == this.cookies.length) {
             this.cookies.push(cookie);
         }
-        this.lastUpdated = new Date();
+        this.lastUpdated = Date.now();
     }
 
 
     private loadCookies() {
-        this.lastUpdated = new Date(Session.context.globalState.get(this.system.name + "lastUpdated", Date.now()));
+        this.lastUpdated = this.StoredLastUpdated;
         if (!this.isExpired(this.lastUpdated, 60)) {
-            this.cookies = Session.context.globalState.get<string[]>(this.system.name + "cookies", []);
+            this.cookies = this.StoredCookies;
         }
     }
 
     private saveCookies() {
-        Session.context.globalState.update(this.system.name + "lastUpdated", this.lastUpdated);
-        Session.context.globalState.update(this.system.name + "cookies", this.cookies);
+        this.StoredLastUpdated = this.lastUpdated;
+        this.StoredCookies = this.cookies;
     }
 
 
     private clearCookies() {
-        Session.context.globalState.update(this.system.name + "lastUpdated", null);
-        Session.context.globalState.update(this.system.name + "cookies", null);
+        this.StoredLastUpdated = 0;
+        this.StoredCookies = [];
     }
 
-    private areStoredCookiesFresher(){
-        const lastUpdated = new Date(Session.context.globalState.get(this.system.name + "lastUpdated", Date.now()));
-        if(lastUpdated.getTime() > this.lastUpdated.getTime() && !this.isExpired(lastUpdated, 60)){
+    private areStoredCookiesFresher(cookedIn?: number) {
+        const lastUpdated = this.StoredLastUpdated;
+        let isCookedInTime = cookedIn ? Date.now() - cookedIn * 60 * 1000 <= lastUpdated : true;
+        if (lastUpdated > this.lastUpdated && !this.isExpired(lastUpdated, 60) && isCookedInTime) {
             return true;
         }
         return false;
     }
 
+    private get StoredLastUpdated() {
+        return this.getFromStore("lastUpdated", 0);
+    }
 
-    private isExpired(date: Date, duration: number) {
-        return (new Date().getTime() - date.getTime()) / 1000 / 60 >= duration;
+    private set StoredLastUpdated(milliSeconds: number) {
+        this.putToStore("lastUpdated", milliSeconds);
+    }
+
+    private get StoredCookies() {
+        return this.getFromStore("cookies", []);
+    }
+
+    private set StoredCookies(cookies: string[]) {
+        this.putToStore("cookies", cookies);
+    }
+
+    private getFromStore(id: string, defaultValue?: any) {
+        return Session.context.globalState.get(this.system.name + id, defaultValue);
+    }
+
+    private putToStore(id: string, value: any) {
+        return Session.context.globalState.update(this.system.name + id, value);
+    }
+
+
+    private isExpired(date: number, duration: number) {
+        return (Date.now() - date) / 1000 / 60 >= duration;
     }
 }
 
@@ -117,7 +150,7 @@ const sessions: Session[] = [];
 
 export function GetSession(host: string, port: string) {
     for (const session of sessions) {
-        if (session.system.host == host && session.system.port.toString() == port) {
+        if (session.system.host == host && session.system.port?.toString() == port) {
             return session;
         }
     }
