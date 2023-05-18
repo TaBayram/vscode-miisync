@@ -12,8 +12,12 @@ export class System implements SystemConfig {
     private constructor() { }
 
 
-    getHost() {
+    toURL() {
         return this.host + (this.port ? ":" + this.port : "");
+    }
+
+    toString(){
+        return this.name + "-"+ this.host + (this.port ? ":" + this.port : "");
     }
 
 }

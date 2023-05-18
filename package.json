@@ -279,12 +279,12 @@
         "title": "Settings",
         "order": 0,
         "properties": {
-          "miisync.sessionDuration": {
+          "miisync.settings.sessionDuration": {
             "type": "integer",
             "default": 60,
             "description": "How long does session lasts in minutes."
           },
-          "miisync.refreshSession": {
+          "miisync.settings.refreshSession": {
             "type": "boolean",
             "default": true,
             "description": "Perodically sends request to renew session."
@@ -367,7 +367,7 @@
           "miisync.ignore": {
             "type": "array",
             "default": [
-              ""
+              "*.json"
             ],
             "items": {
               "type": "string"
@@ -378,13 +378,13 @@
           "miisync.useRootConfig": {
             "type": "boolean",
             "default": false,
-            "description": "Gets the config from specified miisync.json file.",
+            "description": "Enables using the config from specified miisync.json file.",
             "order": 4
           },
           "miisync.rootConfig": {
             "type": "string",
-            "default": "10.20.30.40",
-            "description": "Gets the config from specified miisync.json file.",
+            "default": "../",
+            "description": "Gets the config from specified miisync.json file. Should be relative. Paths are calculated from the root config.",
             "order": 5
           }
         }

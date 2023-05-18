@@ -5,19 +5,22 @@ All notable changes to the "miisync" extension will be documented in this file.
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 
-## [0.8.8] - 15/05/2023
+## [0.8.8] - 18/05/2023
 
 ### Added
 
 - Upload and Download folder to file properties view.
+- New Settings: "sessionDuration" and "refreshSession"
 
 ### Changed
 
-- Save and Delete commands log shows which file
+- Save and Delete commands log shows which file.
+- Now there should be only one session throughout multiple open vs code projects. 
 
 ### Fixed
 
 - Where upload on save was calling before log in service was succesful, causing system to create multiple sessions.
+- Where extension settings couldn't be read.
 
 ## [0.8.7] - 15/05/2023
 

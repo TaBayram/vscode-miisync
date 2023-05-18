@@ -39,18 +39,24 @@ This extension tries to be a replacement for the web side of the standart mii wo
 
 ## Requirements
 
-Visual Studio Code, MII system to connect to.
+- Visual Studio Code.
+- MII system to connect to.
+- .vscode/miisync.json file for full features.
 
 ## Extension Settings
+
+* `Session Duration`: How long does session lasts in minutes in the MII system.
+* `Refresh Session`: Should extension perodically send request to renew session?
+
+
+------------
+
+
 
 Your folder must contain miisync.json file in .vscode folder to work.
 
 ##### miisync.json settings:
-localPath is the folder that contains used .vscode/miisync.json
-* `removeFromLocalPath`: Removes any folder name in local path that is not in remote path.
-**Example**: Local folder path is "E:\2023\Projects\ProjectName\webapp\Screen" and the remote path is "ProjectName\Screen" then you should add "webapp" in removeFromLocalPath. 
-* `remotePath`: Remote project path. Must start with the project name.
-**Example**: If you want to work on "productStoppageScreen" then your remote path should be like "PROJECT/PLANT2/Stoppages/productStoppageScreen". If you want to work on "PLANT2" screens then it should be "PROJECT/PLANT2".
+localPath is the folder that contains used .vscode/miisync.json. (if rootconfig enabled then it path calculation starts from there)
 * `system`: Array of systems to connect to.
     * `name`: Name of the system. Your choice
     * `isMain`: Only one of the system must be true. Connects to this system.
@@ -58,9 +64,13 @@ localPath is the folder that contains used .vscode/miisync.json
     * `port`: Port of the target system. 100, 50000.
     * `username`: Your username in the mii system to authenticate.
     * `password`: Your pasword in the mii system to authenticate. If not provided in the file extension will ask the password during.
+* `remotePath`: Remote project path. Must start with the project name.
+**Example**: If you want to work on "productStoppageScreen" then your remote path should be like "PROJECT/PLANT2/Stoppages/productStoppageScreen". If you want to work on "PLANT2" screens then it should be "PROJECT/PLANT2".
+* `removeFromLocalPath`: Removes any folder name in local path that is not in remote path.
+**Example**: Local folder path is "E:\2023\Projects\ProjectName\webapp\Screen" and the remote path is "ProjectName\Screen" then you should add "webapp" in removeFromLocalPath. 
+* `ignore`: Wildcards specified in this doesn't get uploaded/downloaded. Look at [micromatch](https://github.com/micromatch/micromatch)
 * `uploadOnSave`: Uploads the current file when saved.
 * `downloadOnOpen`: Downloads the current file when opened.
-* `ignore`: Wildcards specified in this doesn't get uploaded/downloaded. Look at [micromatch](https://github.com/micromatch/micromatch)
 * `useRootConfig`: Enables usage of another miisync.json outside of the workspace.
 * `rootConfig`: Path of another miisync.json file to be used.
 

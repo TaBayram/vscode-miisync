@@ -25,7 +25,7 @@ export async function UploadFile(uri: Uri, content: string, userConfig: UserConf
     statusBar.updateBar('Sending', Icon.spinLoading, { duration: -1 });
     const response = await saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
     if(response){
-        logger.infos("Upload File",fileName+" : " + response?.Rowsets?.Messages?.Message);
+        logger.infos("Upload File",fileName+": " + response?.Rowsets?.Messages?.Message);
     }
     statusBar.updateBar("Done " + fileName, Icon.success, { duration: 3 });
 }

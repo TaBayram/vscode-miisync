@@ -14,7 +14,7 @@ export async function OnDidChangeActiveTextEditor(textEditor: vscode.TextEditor)
     const document = textEditor.document;
     const userConfig = await configManager.load();
     if (userConfig) {
-        //Move this somewhere else
+        //todo: Move this somewhere else
         const system = configManager.CurrentSystem;
         if (!await ValidatePath(document.fileName, userConfig)) { return; }
         const sourcePath = GetRemotePath(document.fileName, userConfig);

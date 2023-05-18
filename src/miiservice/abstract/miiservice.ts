@@ -11,6 +11,11 @@ export interface Request {
     body?: string
 }
 
+export interface MIIParams {
+    "Session"?: boolean
+}
+
+
 //todo: Use pool promise instead of limiting sockets
 const agent = new Agent({ maxSockets: 20, keepAlive: true, });
 
@@ -51,7 +56,7 @@ export abstract class Service {
                 logger.error(this.name + ": " + response.status + "-" + response.statusText);
             if (convert == 'none')
                 return response;
-            else{
+            else {
                 session.haveCookies(response);
             }
 
@@ -70,9 +75,17 @@ export abstract class Service {
                 return tagName == "Row";
             },
         });
-
-
         return parser.parse(data);
+    }
 
+    protected parseParameters(miiParams: MIIParams) {
+        if (!miiParams) return '';
+        const params: string[] = [];
+        for (const key in miiParams) {
+            if (miiParams[key] != null) {
+                params.push(key + "=" + miiParams[key]);
+            }
+        }
+        return '&' + params.join('&');
     }
 }
