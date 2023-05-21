@@ -1,6 +1,6 @@
 import { XMLParser } from 'fast-xml-parser';
 import { Agent } from 'http';
-import fetch, { Response } from "node-fetch";
+import fetch, { HeadersInit, Response } from "node-fetch";
 import logger from '../../ui/logger.js';
 import { GetSession } from '../../user/session.js';
 import { Column, MII, Row } from './responsetypes.js';
@@ -26,8 +26,8 @@ export abstract class Service {
     constructor() { }
 
     abstract call(request: Request, ...args: any): Promise<MII<Row, Column> | any>;
-    abstract get(host: string, port: number, ...args: any);
-    protected abstract generateParams(...args: any);
+    abstract get(host: string, port: number, ...args: any): string;
+    protected abstract generateParams(...args: any): string;
 
     protected generateURL(host: string, port: number, protocol: 'http' | 'https' = 'http') {
         return `${this.generateIP(host, port, protocol)}/${this.mode}`;
@@ -38,7 +38,7 @@ export abstract class Service {
 
     protected async fetch(url: URL, auth: boolean = false, body?: string, convert: 'text' | 'blob' | 'none' = 'text', skipLogin = true): Promise<{ value: any, error: Error, isError: boolean }> {
         const session = GetSession(url.hostname, url.port);
-        const headers = {
+        const headers: HeadersInit = {
             "Content-Type": "application/x-www-form-urlencoded",
             "cookie": session?.Cookies || ''
         };
@@ -83,7 +83,7 @@ export abstract class Service {
         const params: string[] = [];
         for (const key in miiParams) {
             if (miiParams[key] != null) {
-                params.push(key + "=" + miiParams[key]);
+                params.push(key + "=" + miiParams[key].toString());
             }
         }
         return '&' + params.join('&');

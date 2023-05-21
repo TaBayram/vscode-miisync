@@ -39,6 +39,6 @@ export function deepEqual(object1: any, object2: any) {
     return true;
 }
 
-function isObject(object) {
+function isObject(object: any) {
     return object != null && typeof object === 'object';
 }

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { EXTENSION_NAME } from '../constants.js';
 
-const paddingTime = time => ('00' + time).slice(-2);
+const paddingTime = (time: string | number) => ('00' + time.toString()).slice(-2);
 
 
 export interface ILogger {
@@ -56,13 +56,13 @@ export class Logger implements ILogger {
         this.print(`[${month}-${date} ${h}:${m}:${s}]`, message, ...args);
     }
 
-    print(...args) {
+    print(...args: any) {
         const message = this.mapArgs(...args);
         this.outputChannel.appendLine(message);
     }
 
-    private mapArgs(...args) {
-        args = args.map(arg => {
+    private mapArgs(...args: any) {
+        args = args.map((arg: any) => {
             if (!arg) {
                 return arg;
             }

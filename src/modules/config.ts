@@ -7,8 +7,6 @@ import { deepEqual } from '../extends/lib.js';
 import logger from '../ui/logger.js';
 import { GetWorkspaceFolders, SetContextValue, ShowTextDocument } from './vscode';
 
-const nullable = schema => schema.optional().allow(null);
-
 //todo make port optional
 let joiSystem = Joi.object().keys({
     name: Joi.string().required(),
@@ -82,18 +80,18 @@ const defaultConfig: UserConfig = {
     downloadOnOpen: false
 };
 
-function MergedDefault(config) {
+function MergedDefault(config: UserConfig) {
     return {
         ...defaultConfig,
         ...config,
     };
 }
 
-function GetConfigPath(basePath) {
+function GetConfigPath(basePath: string) {
     return path.join(basePath, CONFIG_PATH);
 }
 
-function ReadConfigsFromFile(configPath): Promise<any[]> {
+function ReadConfigsFromFile(configPath: string): Promise<any[]> {
     return fse.readJson(configPath).then(config => {
         const configs = Array.isArray(config) ? config : [config];
         return configs.map(MergedDefault);
@@ -103,7 +101,7 @@ function ReadConfigsFromFile(configPath): Promise<any[]> {
     });
 }
 
-function TryLoadConfigs(workspace): Promise<any[]> {
+function TryLoadConfigs(workspace: string): Promise<any[]> {
     const configPath = GetConfigPath(workspace);
     return fse.pathExists(configPath).then(
         exist => {
@@ -117,7 +115,7 @@ function TryLoadConfigs(workspace): Promise<any[]> {
 }
 
 
-export function NewConfig(basePath) {
+export function NewConfig(basePath: string) {
     const configPath = GetConfigPath(basePath);
 
     return fse

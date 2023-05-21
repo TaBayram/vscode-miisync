@@ -20,7 +20,7 @@ class CurrentUsersService extends Service {
     get(host: string, port: number) {
         return this.generateURL(host, port, "http");
     }
-    protected generateParams(file: string) { }
+    protected generateParams() { return '' }
 }
 
 
