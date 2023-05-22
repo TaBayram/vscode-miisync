@@ -52,6 +52,7 @@ export class Session {
         }
         else if (num == 0) {
             this.lastUpdated = Date.now();
+            this.StoredLastUpdated = this.lastUpdated;
         }
         return num;
     }
