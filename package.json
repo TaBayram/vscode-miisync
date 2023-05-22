@@ -140,6 +140,13 @@
         "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
+        "command": "miisync.downloadremotefile",
+        "title": "Download Remote File",
+        "icon": "$(extensions-install-count)",
+        "category": "zmii",
+        "enablement": "miisync.enabled  && miisync.loggedin"
+      },
+      {
         "command": "miisync.downloadfileproperties",
         "title": "Download File Properties",
         "icon": "$(timeline-refresh)",
@@ -167,6 +174,10 @@
         },
         {
           "command": "miisync.downloadremotefolder",
+          "when": "false"
+        },
+        {
+          "command": "miisync.downloadremotefile",
           "when": "false"
         },
         {
@@ -241,6 +252,11 @@
         {
           "command": "miisync.downloadremotefolder",
           "when": "view == remotedirectory && viewItem == folder",
+          "group": "inline"
+        },
+        {
+          "command": "miisync.downloadremotefile",
+          "when": "view == remotedirectory && viewItem != folder",
           "group": "inline"
         }
       ]

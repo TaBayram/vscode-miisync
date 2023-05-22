@@ -5,12 +5,13 @@ All notable changes to the "miisync" extension will be documented in this file.
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 
-## [0.8.8] - 18/05/2023
+## [0.8.8] - 22/05/2023
 
 ### Added
 
 - Upload and Download folder to file properties view.
 - New Settings: "sessionDuration" and "refreshSession"
+- Download remote file command.
 
 ### Changed
 

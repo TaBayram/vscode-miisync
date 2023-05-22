@@ -1,6 +1,6 @@
 
 import { configManager } from "../modules/config.js";
-import { DownloadContextDirectory, DownloadRemoteFolder } from "../transfer/download.js";
+import { DownloadContextDirectory, DownloadRemoteFile, DownloadRemoteFolder } from "../transfer/download.js";
 import { TreeItem } from "../ui/explorer/tree.js";
 import path = require("path");
 
@@ -16,5 +16,12 @@ export async function OnCommandDownloadRemoteFolder(treeItem: TreeItem) {
     if (!userConfig) return;
 
     DownloadRemoteFolder(treeItem.data, userConfig, configManager.CurrentSystem);
+}
+
+export async function OnCommandDownloadRemoteFile(treeItem: TreeItem) {
+    const userConfig = await configManager.load();
+    if (!userConfig) return;
+
+    DownloadRemoteFile(treeItem.data, userConfig, configManager.CurrentSystem);
 }
 

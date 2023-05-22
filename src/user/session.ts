@@ -1,7 +1,10 @@
+import { Response } from "node-fetch";
 import * as vscode from "vscode";
 import { SystemConfig } from "../modules/config";
 
 export class Session {
+    private static readonly authNeededCookieID: "com.sap.engine.security.authentication.original_application_url";
+
     private static context: vscode.ExtensionContext;
     public static onLogStateChange: vscode.EventEmitter<Session> = new vscode.EventEmitter();
     public static set Context(value: vscode.ExtensionContext) {
@@ -14,10 +17,12 @@ export class Session {
     private hasCookies: boolean = false;
     public auth: string;
 
+    public onLogStateChange: vscode.EventEmitter<Session> = new vscode.EventEmitter();
 
     public set IsLoggedin(value: boolean) {
         this.isLoggedin = value;
         Session.onLogStateChange.fire(this);
+        this.onLogStateChange.fire(this);
     }
 
     public get IsLoggedin() {
@@ -40,8 +45,15 @@ export class Session {
         return this.isExpired(this.lastUpdated, 59);
     }
 
-    haveCookies(response: any) {
-        this.parseCookies(response);
+    haveCookies(response: Response): number {
+        const num = this.parseCookies(response);
+        if (num == -1) {
+            this.IsLoggedin = false;
+        }
+        else if (num == 0) {
+            this.lastUpdated = Date.now();
+        }
+        return num;
     }
 
     clear() {
@@ -59,14 +71,19 @@ export class Session {
         return false;
     }
 
-    private parseCookies(response: any) {
+    private parseCookies(response: Response) {
         const raw: string[] = response.headers.raw()['set-cookie'] || [];
-        if (raw.length == 0) { return; }
+        if (raw.length == 0) { return 0; }
         let cookies = raw.map((entry) => {
             const parts = entry.split(';');
             const cookiePart = parts[0];
             return cookiePart;
         });
+        for (const cookie of cookies) {
+            if (cookie.startsWith(Session.authNeededCookieID)) {
+                return -1;
+            }
+        }
         for (const cookie of cookies) {
             this.updateCookie(cookie);
         }

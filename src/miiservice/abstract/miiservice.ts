@@ -57,7 +57,9 @@ export abstract class Service {
             if (convert == 'none')
                 return response;
             else {
-                session.haveCookies(response);
+                if(session.haveCookies(response) == -1){
+                    throw Error("Not logged in");
+                }
             }
 
             return response[convert]();

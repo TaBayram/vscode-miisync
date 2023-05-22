@@ -25,7 +25,7 @@ export abstract class TreeDataProvider implements vscode.TreeDataProvider<TreeIt
 }
 
 export class TreeItem extends vscode.TreeItem {
-    data: string;
+    data: any;
     children: TreeItem[] | undefined;
 
     constructor(label: string, children?: TreeItem[]) {

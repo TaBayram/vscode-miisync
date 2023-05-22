@@ -67,33 +67,36 @@ export async function DownloadFolder(folderUri: Uri | string, userConfig: UserCo
 
 }
 
+async function AskRemoteDownloadPathOptions(remoteObjectPath: string, { remotePath }: UserConfig) {
+    const absolutePath = remoteObjectPath.trim();
+    const basename = path.basename(remoteObjectPath).trim();
+    const realPath = (path.relative(remotePath, remoteObjectPath.replace("/WEB", "")) || "").trim().replaceAll(path.sep, '/');
+
+    let options = [basename];
+    if (!options.find((value) => value === realPath) && realPath != "") options.push(realPath);
+    if (!options.find((value) => value === absolutePath) && realPath != "") options.push(absolutePath);
+
+    const result = options.length > 1 ? await ShowQuickPick(options, { title: "Download Where?" }) : options[0];
+    return (result != null ? result : options[0]) + path.sep;
+}
 
 export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig: UserConfig, system: SystemConfig) {
     if (!await Validate(userConfig, system)) {
         return false;
     }
-    const absolutePath = remoteFolderPath.trim();
-    const realPath = (path.relative(userConfig.remotePath, remoteFolderPath.replace("/WEB", "")) || "").trim();
-
-    let options = [path.basename(remoteFolderPath).trim()];
-    if (!options.find((value) => value === realPath) && realPath != "") options.push(realPath);
-    if (!options.find((value) => value === absolutePath) && realPath != "") options.push(absolutePath);
-
-
-    const result = options.length > 1 ? await ShowQuickPick(options, { title: "Download Where?" }) : options[0];
+    const chosenfolderPath = await AskRemoteDownloadPathOptions(remoteFolderPath, userConfig);
+    
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
     logger.info("Download Remote Folder Started");
     const workspaceFolder = GetCurrentWorkspaceFolder().fsPath;
-    const folderPath = (result != null ? result : options[0]) + path.sep;
-
 
     function getPath(item: File | Folder) {
         if ('FolderName' in item) {
-            return workspaceFolder + path.sep + folderPath +
+            return workspaceFolder + path.sep + chosenfolderPath +
                 (path.relative(remoteFolderPath, item.Path) != '' ? path.relative(remoteFolderPath, item.Path) : '');
         }
         else {
-            return workspaceFolder + path.sep + folderPath +
+            return workspaceFolder + path.sep + chosenfolderPath +
                 (path.relative(remoteFolderPath, item.FilePath) != '' ? path.relative(remoteFolderPath, item.FilePath) + path.sep : '') +
                 item.ObjectName;
         }
@@ -102,6 +105,29 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
     await DownloadFiles(system, remoteFolderPath, getPath);
     statusBar.updateBar('Done', Icon.success, { duration: 1 });
     logger.info("Download Remote Folder Completed");
+
+}
+
+export async function DownloadRemoteFile({ filePath, name }: { filePath: string, name: string }, userConfig: UserConfig, system: SystemConfig) {
+    if (!await Validate(userConfig, system)) {
+        return false;
+    }
+
+    const chosenFilePath = await AskRemoteDownloadPathOptions(filePath, userConfig);
+    
+    statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
+    logger.info("Download Remote File Started");
+    const workspaceFolder = GetCurrentWorkspaceFolder().fsPath;    
+
+    const localFilePath = path.join(workspaceFolder, chosenFilePath, name);
+    const binary = await readFileService.call({ host: system.host, port: system.port }, filePath + '/' + name);
+    const payload = binary?.Rowsets?.Rowset?.Row.find((row) => row.Name == "Payload");
+    if (payload) {
+        await outputFile(localFilePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" });
+    }
+
+    statusBar.updateBar('Done', Icon.success, { duration: 1 });
+    logger.info("Download Remote File Completed");
 
 }
 

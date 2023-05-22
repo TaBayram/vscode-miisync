@@ -13,30 +13,16 @@ class UserManager {
     private session: Session;
 
     private password: string;
-    private isLoggedin: boolean;
     private awaitsLogin: boolean = false;
 
     private refreshTimer: NodeJS.Timer;
 
     public set IsLoggedin(value: boolean) {
-        this.isLoggedin = value;
         this.session.IsLoggedin = value;
-
-        if (this.system.isMain)
-            SetContextValue("loggedin", value);
-
-        if (value && !this.refreshTimer) {
-            this.refreshTimer = setInterval(() => {
-                this.refreshLogin();
-            }, 10 * 60 * 1000);
-        }
-        else if (!value && this.refreshTimer) {
-            clearInterval(this.refreshTimer);
-        }
     }
 
     public get IsLoggedin() {
-        return this.isLoggedin;
+        return this.session.IsLoggedin;
     }
 
     public get Session() {
@@ -46,7 +32,23 @@ class UserManager {
 
     constructor(readonly system: SystemConfig) {
         this.session = new Session(system);
+        this.session.onLogStateChange.event(this.onLogStateChange, this);
     }
+
+    private onLogStateChange(session: Session) {
+        if (this.system.isMain)
+            SetContextValue("loggedin", this.IsLoggedin);
+
+        if (this.IsLoggedin && !this.refreshTimer) {
+            this.refreshTimer = setInterval(() => {
+                this.refreshLogin();
+            }, 10 * 60 * 1000);
+        }
+        else if (!this.IsLoggedin && this.refreshTimer) {
+            clearInterval(this.refreshTimer);
+        }
+    }
+
 
     public async onSystemUpdate(system: SystemConfig) {
         if (!shallowEqual(system, this.system)) {

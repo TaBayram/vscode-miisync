@@ -27,7 +27,7 @@ This extension tries to be a replacement for the web side of the standart mii wo
 - Transfer folder between systems.
 ------------
 
-- View remote directory and download certain folder from it.
+- View remote directory and download certain folder/file from it.
 - Open the current screen with command or right click on index.html
 
 ## Planned Features
