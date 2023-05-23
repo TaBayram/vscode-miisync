@@ -137,7 +137,7 @@ export function NewConfig(basePath: string) {
 
 
 class ConfigManager {
-    private useRoot: boolean;
+    private _useRoot: boolean;
     private rootfsPath: string;
     private rootConfig: UserConfig;
 
@@ -152,6 +152,14 @@ class ConfigManager {
     private lastLoadedTime: number;
     private lastLoadThreshold = 500;
     private oldConfig: UserConfig;
+
+    private get useRoot(): boolean {
+        return this._useRoot;
+    }
+    private set useRoot(value: boolean) {
+        this._useRoot = value;
+        SetContextValue('userootconfig', value);
+    }
 
     private get config() {
         return this.useRoot ? this.rootConfig : this.selfConfig;
@@ -169,6 +177,9 @@ class ConfigManager {
         return this.currentSystem;
     }
 
+    get SelfConfig(){
+        return  { ...this.selfConfig };
+    }
 
 
     constructor() {

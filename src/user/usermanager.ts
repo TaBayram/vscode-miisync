@@ -1,5 +1,6 @@
 import { ExtensionContext } from "vscode";
 import { shallowEqual } from "../extends/lib";
+import { settingsManager } from "../extension/settings";
 import { logInService } from "../miiservice/loginservice";
 import { logOutService } from "../miiservice/logoutservice";
 import { SystemConfig, configManager } from "../modules/config";
@@ -33,18 +34,35 @@ class UserManager {
     constructor(readonly system: SystemConfig) {
         this.session = new Session(system);
         this.session.onLogStateChange.event(this.onLogStateChange, this);
+        settingsManager.onSettingsChange.event(this.onSettingsChange, this);
     }
 
     private onLogStateChange(session: Session) {
-        if (this.system.isMain)
+        if (this.system.isMain) {
             SetContextValue("loggedin", this.IsLoggedin);
-
-        if (this.IsLoggedin && !this.refreshTimer) {
-            this.refreshTimer = setInterval(() => {
-                this.refreshLogin();
-            }, 10 * 60 * 1000);
+            this.onIntervalRefresh(false);
         }
-        else if (!this.IsLoggedin && this.refreshTimer) {
+    }
+
+    private onSettingsChange() {
+        if (this.system.isMain) {
+            this.onIntervalRefresh(true);
+        }
+    }
+
+    private onIntervalRefresh(restart: boolean) {
+        const settings = settingsManager.Settings;
+        if (this.IsLoggedin && settings.refreshSession) {
+            if (!this.refreshTimer || restart) {
+                clearInterval(this.refreshTimer);
+                this.refreshTimer = setInterval(() => {
+                    this.refreshLogin();
+                }, settings.sessionDuration / 3 * 60 * 1000);
+                if (restart)
+                    this.refreshLogin();
+            }
+        }
+        else {
             clearInterval(this.refreshTimer);
         }
     }
@@ -103,7 +121,6 @@ class UserManager {
     }
 
 
-    // extension setting changes this 
     async refreshLogin(useCookies = true) {
         if (useCookies && this.session.loadCookiesIfCookedIn(10)) return true;
         const response = await logInService.call({ host: this.system.host, port: this.system.port }, false, { Session: true });

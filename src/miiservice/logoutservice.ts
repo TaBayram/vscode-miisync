@@ -1,28 +1,24 @@
-import logger from '../ui/logger.js';
 import { Request, Service } from './abstract/miiservice.js';
 
 class LogOutService extends Service {
     name: string = "Log Out";
     mode: string = "XMII/Illuminator?service=logout";
-    optionals: string = "&Session=false";
 
     async call({ host, port }: Request) {
-        //Bug: Log  out creates a session instead of destroying the current one
-        return;
+        // bug: This creates a session instead of destroying current
+        
+        /* 
         const url = this.get(host, port);
         const { value, error, isError } = await this.fetch(new URL(url), false, null, 'none');
         if (!isError) {
             if (value.redirected && value.url == this.generateIP(host, port) + "/XMII/goService.jsp") {
-                logger.info(this.name + ": success");
                 return value;
             }
-            else{
-                logger.error(this.name + ": fail. Response "+ JSON.stringify(value));
-            }   
-        }
+            return null;  
+        }  */
     }
     get(host: string, port: number) {
-        return this.generateURL(host, port, "http") + this.optionals;
+        return this.generateURL(host, port, "http");
     }
     protected generateParams(objectName: string) {
         return "ObjectName=" + objectName;

@@ -15,6 +15,11 @@ export interface MIIParams {
     "Session"?: boolean
 }
 
+/* "Connection": 'keep-alive',
+"Accept-Encoding": 'gzip, deflate',
+"Accept-Language": 'en-US,en;q=0.9',
+"Referer": "http://10.1.3.210:50000/XMII/CM/MES/GENERAL/masterNavigator/index.html",
+ */
 
 //todo: Use pool promise instead of limiting sockets
 const agent = new Agent({ maxSockets: 20, keepAlive: true, });
@@ -39,11 +44,14 @@ export abstract class Service {
     protected async fetch(url: URL, auth: boolean = false, body?: string, convert: 'text' | 'blob' | 'none' = 'text', skipLogin = true): Promise<{ value: any, error: Error, isError: boolean }> {
         const session = GetSession(url.hostname, url.port);
         const headers: HeadersInit = {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "cookie": session?.Cookies || ''
+            "Cookie": session?.Cookies || '',
+
         };
         if (auth && session?.auth) {
             headers["Authorization"] = 'Basic ' + session.auth;
+        }
+        if (body) {
+            headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
         return fetch(url.toString(), {
             method: body ? "POST" : "GET",
@@ -57,7 +65,7 @@ export abstract class Service {
             if (convert == 'none')
                 return response;
             else {
-                if(session.haveCookies(response) == -1){
+                if (session.haveCookies(response) == -1) {
                     throw Error("Not logged in");
                 }
             }

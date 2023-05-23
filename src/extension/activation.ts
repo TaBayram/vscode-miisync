@@ -6,6 +6,7 @@ import { OnCommandDownloadRemoteDirectory, OnCommandDownloadRemoteFile, OnComman
 import { OnCommandDownloadFile, OnCommandDownloadFileProperties } from '../commands/commanddownloadfile';
 import { OnCommandDownloadFolder } from '../commands/commanddownloadfolder';
 import { OnCommandDownloadProject } from '../commands/commanddownloadproject';
+import { OnCommandOpenRootConfig } from '../commands/commandopenrootconfig';
 import { OnCommandOpenScreen } from '../commands/commandopenscreen';
 import { OnCommandLogin, OnCommandLogout } from '../commands/commandsession';
 import { OnCommandDisableDownloadOnOpen, OnCommandDisableSyncSave, OnCommandEnableDownloadOnOpen, OnCommandEnableSyncSave } from '../commands/commandtogglesync';
@@ -47,6 +48,7 @@ export function RegisterCommands(context: vscode.ExtensionContext) {
 	RegisterCommand('miisync.disabledownloadonopen', OnCommandDisableDownloadOnOpen, context);
 	RegisterCommand('miisync.enabledownloadonopen', OnCommandEnableDownloadOnOpen, context);
 	RegisterCommand('miisync.deletefile', OnCommandDeleteFile, context);
+	RegisterCommand('miisync.openrootconfig', OnCommandOpenRootConfig, context);
 
 }
 

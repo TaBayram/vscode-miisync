@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.8.8",
+  "version": "0.9.0",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -152,6 +152,13 @@
         "icon": "$(timeline-refresh)",
         "category": "zmii",
         "enablement": "editorIsOpen && miisync.enabled  && miisync.loggedin"
+      },
+      {
+        "command": "miisync.openrootconfig",
+        "title": "Open Root Config",
+        "icon": "$(timeline-refresh)",
+        "category": "zmii",
+        "enablement": "miisync.enabled"
       }
     ],
     "menus": {
@@ -186,6 +193,10 @@
         },
         {
           "command": "miisync.transferfolder",
+          "when": "false"
+        },
+        {
+          "command": "miisync.openrootconfig",
           "when": "false"
         }
       ],
@@ -224,6 +235,11 @@
           "command": "miisync.transferfolder",
           "group": "miisync@4",
           "when": "miisync.enabled && explorerResourceIsFolder"
+        },
+        {
+          "command": "miisync.openrootconfig",
+          "group": "miisync@0",
+          "when": "miisync.enabled && resourceFilename == miisync.json && miisync.userootconfig"
         }
       ],
       "view/title": [

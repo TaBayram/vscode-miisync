@@ -20,7 +20,7 @@ export async function DownloadFile(uri: Uri, userConfig: UserConfig, system: Sys
     if (!await Validate(userConfig, system, filePath)) {
         return false;
     }
-    const fileName = filePath.substring(filePath.lastIndexOf(path.sep)).replace(path.sep, '');
+    const fileName = path.basename(filePath);
     const sourcePath = GetRemotePath(filePath, userConfig);
     if (!await DoesFileExist(sourcePath, system)) {
         logger.error("File doesn't exist");
@@ -28,14 +28,13 @@ export async function DownloadFile(uri: Uri, userConfig: UserConfig, system: Sys
     }
 
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
-    logger.info("Download File Started");
 
     const file = await readFileService.call({ host: system.host, port: system.port }, sourcePath);
     const payload = file.Rowsets.Rowset.Row.find((row) => row.Name == "Payload");
     await writeFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" })
 
     statusBar.updateBar("Done " + fileName, Icon.success, { duration: 3 });
-    logger.info("Download File Completed");
+    logger.infos('Download File', fileName + " finished.");
 }
 
 
@@ -85,7 +84,7 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
         return false;
     }
     const chosenfolderPath = await AskRemoteDownloadPathOptions(remoteFolderPath, userConfig);
-    
+
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
     logger.info("Download Remote Folder Started");
     const workspaceFolder = GetCurrentWorkspaceFolder().fsPath;
@@ -114,10 +113,9 @@ export async function DownloadRemoteFile({ filePath, name }: { filePath: string,
     }
 
     const chosenFilePath = await AskRemoteDownloadPathOptions(filePath, userConfig);
-    
+
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
-    logger.info("Download Remote File Started");
-    const workspaceFolder = GetCurrentWorkspaceFolder().fsPath;    
+    const workspaceFolder = GetCurrentWorkspaceFolder().fsPath;
 
     const localFilePath = path.join(workspaceFolder, chosenFilePath, name);
     const binary = await readFileService.call({ host: system.host, port: system.port }, filePath + '/' + name);
@@ -127,8 +125,7 @@ export async function DownloadRemoteFile({ filePath, name }: { filePath: string,
     }
 
     statusBar.updateBar('Done', Icon.success, { duration: 1 });
-    logger.info("Download Remote File Completed");
-
+    logger.infos('Download Remote File', name + " finished.");
 }
 
 async function DownloadFiles({ host, port }: SystemConfig, sourcePath: string, getPath: (item: File | Folder) => string) {

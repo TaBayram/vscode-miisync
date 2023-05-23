@@ -1,5 +1,6 @@
 import { Response } from "node-fetch";
 import * as vscode from "vscode";
+import { settingsManager } from "../extension/settings";
 import { SystemConfig } from "../modules/config";
 
 export class Session {
@@ -14,7 +15,6 @@ export class Session {
     private cookies: string[] = [];
     private lastUpdated: number;
     private isLoggedin: boolean;
-    private hasCookies: boolean = false;
     public auth: string;
 
     public onLogStateChange: vscode.EventEmitter<Session> = new vscode.EventEmitter();
@@ -33,7 +33,7 @@ export class Session {
         if (this.areStoredCookiesFresher()) {
             this.loadCookies();
         }
-        return this.cookies.join(";");
+        return this.cookies.join("; ");
     }
 
     public constructor(readonly system: SystemConfig) {
@@ -42,7 +42,7 @@ export class Session {
     }
 
     didCookiesExpire() {
-        return this.isExpired(this.lastUpdated, 59);
+        return this.isExpired(this.lastUpdated, settingsManager.Settings.sessionDuration - 1);
     }
 
     haveCookies(response: Response): number {
@@ -109,7 +109,7 @@ export class Session {
 
     private loadCookies() {
         this.lastUpdated = this.StoredLastUpdated;
-        if (!this.isExpired(this.lastUpdated, 60)) {
+        if (!this.isExpired(this.lastUpdated, settingsManager.Settings.sessionDuration)) {
             this.cookies = this.StoredCookies;
         }
     }
@@ -128,7 +128,7 @@ export class Session {
     private areStoredCookiesFresher(cookedIn?: number) {
         const lastUpdated = this.StoredLastUpdated;
         let isCookedInTime = cookedIn ? Date.now() - cookedIn * 60 * 1000 <= lastUpdated : true;
-        if (lastUpdated > this.lastUpdated && !this.isExpired(lastUpdated, 60) && isCookedInTime) {
+        if (lastUpdated > this.lastUpdated && !this.isExpired(lastUpdated, settingsManager.Settings.sessionDuration) && isCookedInTime) {
             return true;
         }
         return false;

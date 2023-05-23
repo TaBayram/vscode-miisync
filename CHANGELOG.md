@@ -5,18 +5,20 @@ All notable changes to the "miisync" extension will be documented in this file.
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 
-## [0.8.8] - 22/05/2023
+## [0.9.0] - 24/05/2023
 
 ### Added
 
 - Upload and Download folder to file properties view.
-- New Settings: "sessionDuration" and "refreshSession"
+- New Settings: `sessionDuration` and `refreshSession`
 - Download remote file command.
+- `Open Root Config` explorer/context command for miisync.json file that opens the root config if useRootConfig is true.
 
 ### Changed
 
 - Save and Delete commands log shows which file.
 - Now there should be only one session throughout multiple open vs code projects. 
+- Instead of checking if the `remotePath` exists, it now checks if the project exists (the first folder name in `remotePath`).
 
 ### Fixed
 

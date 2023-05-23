@@ -24,6 +24,16 @@ export async function DoesFolderExist(remoteFilePath: string, { host, port }: Sy
     return root != null;
 }
 
+export async function DoesProjectExist({ remotePath }: UserConfig, { host, port }: SystemConfig) {
+    const projectName = remotePath.split("/")[0].trim();
+    if (projectName != "") {
+        const folders = await listFoldersService.call({ host, port }, projectName);
+        const hasWeb = folders?.Rowsets?.Rowset?.Row?.find((folder) => folder.IsWebDir);
+        return hasWeb != null;
+    }
+    return false;
+}
+
 
 export async function ValidateLogin(system: SystemConfig) {
     const userManager = GetUserManager(system, false);
@@ -41,11 +51,15 @@ export async function Validate(config: UserConfig, system: SystemConfig, localPa
         logger.error("Session is not valid.");
         return false;
     }
-
-    if (!(ignore?.remotePath) && !await DoesRemotePathExist(config, system)) {
-        logger.error("Remote path doesn't exist.");
+    if (!(ignore?.remotePath) && !await DoesProjectExist(config, system)) {
+        logger.error("Project " + config.remotePath.split("/")[0].trim() + " doesn't exist.");
         return false;
     }
+
+    /* if (!(ignore?.remotePath) && !await DoesRemotePathExist(config, system)) {
+        logger.error("Remote path doesn't exist.");
+        return false;
+    } */
 
     return true;
 }
