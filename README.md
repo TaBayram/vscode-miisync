@@ -106,18 +106,5 @@ localPath is the folder that contains used .vscode/miisync.json. (if rootconfig 
 
 - Logout doesn't terminate session.
 
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
 
 **Enjoy!**
