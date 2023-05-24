@@ -32,7 +32,7 @@ export async function DeleteFile(uri: Uri, userConfig: UserConfig, system: Syste
     const response = await deleteBatchService.call({ host: system.host, port: system.port }, sourcePath);
     if (response) {
         const fileName = path.basename(sourcePath);
-        logger.infos("Delete File", fileName + " : " + response?.Rowsets?.Messages?.Message);
+        logger.infos("Delete File", fileName + ": " + response?.Rowsets?.Messages?.Message);
     }
     statusBar.updateBar('Deleted', Icon.success, { duration: 1 })
 

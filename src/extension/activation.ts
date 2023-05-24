@@ -2,10 +2,11 @@
 import * as vscode from 'vscode';
 import { OnCommandCreateConfig } from '../commands/commandconfig';
 import { OnCommandDeleteFile } from '../commands/commanddeletefile';
-import { OnCommandDownloadRemoteDirectory, OnCommandDownloadRemoteFolder } from '../commands/commanddownloaddirectory';
+import { OnCommandDownloadRemoteDirectory, OnCommandDownloadRemoteFile, OnCommandDownloadRemoteFolder } from '../commands/commanddownloaddirectory';
 import { OnCommandDownloadFile, OnCommandDownloadFileProperties } from '../commands/commanddownloadfile';
 import { OnCommandDownloadFolder } from '../commands/commanddownloadfolder';
 import { OnCommandDownloadProject } from '../commands/commanddownloadproject';
+import { OnCommandOpenRootConfig } from '../commands/commandopenrootconfig';
 import { OnCommandOpenScreen } from '../commands/commandopenscreen';
 import { OnCommandLogin, OnCommandLogout } from '../commands/commandsession';
 import { OnCommandDisableDownloadOnOpen, OnCommandDisableSyncSave, OnCommandEnableDownloadOnOpen, OnCommandEnableSyncSave } from '../commands/commandtogglesync';
@@ -39,6 +40,7 @@ export function RegisterCommands(context: vscode.ExtensionContext) {
 	RegisterCommand('miisync.logout', OnCommandLogout, context);
 	RegisterCommand('miisync.downloadproject', OnCommandDownloadProject, context);
 	RegisterCommand('miisync.downloadremotefolder', OnCommandDownloadRemoteFolder, context);
+	RegisterCommand('miisync.downloadremotefile', OnCommandDownloadRemoteFile, context);
 	RegisterCommand('miisync.downloadremotedirectory', OnCommandDownloadRemoteDirectory, context);
 	RegisterCommand('miisync.downloadfileproperties', OnCommandDownloadFileProperties, context);
 	RegisterCommand('miisync.uploadfolder', OnCommandUploadFolder, context);
@@ -46,6 +48,7 @@ export function RegisterCommands(context: vscode.ExtensionContext) {
 	RegisterCommand('miisync.disabledownloadonopen', OnCommandDisableDownloadOnOpen, context);
 	RegisterCommand('miisync.enabledownloadonopen', OnCommandEnableDownloadOnOpen, context);
 	RegisterCommand('miisync.deletefile', OnCommandDeleteFile, context);
+	RegisterCommand('miisync.openrootconfig', OnCommandOpenRootConfig, context);
 
 }
 

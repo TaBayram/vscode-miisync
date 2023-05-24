@@ -7,8 +7,6 @@ import { deepEqual } from '../extends/lib.js';
 import logger from '../ui/logger.js';
 import { GetWorkspaceFolders, SetContextValue, ShowTextDocument } from './vscode';
 
-const nullable = schema => schema.optional().allow(null);
-
 //todo make port optional
 let joiSystem = Joi.object().keys({
     name: Joi.string().required(),
@@ -34,9 +32,9 @@ const configScheme = Joi.object({
 export interface SystemConfig {
     name: string,
     isMain: boolean,
-    host?: string,
-    port?: number,
-    username?: string,
+    host: string,
+    port: number,
+    username: string,
     password?: string,
 }
 
@@ -82,18 +80,18 @@ const defaultConfig: UserConfig = {
     downloadOnOpen: false
 };
 
-function MergedDefault(config) {
+function MergedDefault(config: UserConfig) {
     return {
         ...defaultConfig,
         ...config,
     };
 }
 
-function GetConfigPath(basePath) {
+function GetConfigPath(basePath: string) {
     return path.join(basePath, CONFIG_PATH);
 }
 
-function ReadConfigsFromFile(configPath): Promise<any[]> {
+function ReadConfigsFromFile(configPath: string): Promise<any[]> {
     return fse.readJson(configPath).then(config => {
         const configs = Array.isArray(config) ? config : [config];
         return configs.map(MergedDefault);
@@ -103,7 +101,7 @@ function ReadConfigsFromFile(configPath): Promise<any[]> {
     });
 }
 
-function TryLoadConfigs(workspace): Promise<any[]> {
+function TryLoadConfigs(workspace: string): Promise<any[]> {
     const configPath = GetConfigPath(workspace);
     return fse.pathExists(configPath).then(
         exist => {
@@ -117,7 +115,7 @@ function TryLoadConfigs(workspace): Promise<any[]> {
 }
 
 
-export function NewConfig(basePath) {
+export function NewConfig(basePath: string) {
     const configPath = GetConfigPath(basePath);
 
     return fse
@@ -139,7 +137,7 @@ export function NewConfig(basePath) {
 
 
 class ConfigManager {
-    private useRoot: boolean;
+    private _useRoot: boolean;
     private rootfsPath: string;
     private rootConfig: UserConfig;
 
@@ -154,6 +152,14 @@ class ConfigManager {
     private lastLoadedTime: number;
     private lastLoadThreshold = 500;
     private oldConfig: UserConfig;
+
+    private get useRoot(): boolean {
+        return this._useRoot;
+    }
+    private set useRoot(value: boolean) {
+        this._useRoot = value;
+        SetContextValue('userootconfig', value);
+    }
 
     private get config() {
         return this.useRoot ? this.rootConfig : this.selfConfig;
@@ -171,6 +177,9 @@ class ConfigManager {
         return this.currentSystem;
     }
 
+    get SelfConfig(){
+        return  { ...this.selfConfig };
+    }
 
 
     constructor() {

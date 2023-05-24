@@ -6,7 +6,7 @@ export abstract class TreeDataProvider implements vscode.TreeDataProvider<TreeIt
 
     protected items: TreeItem[];
 
-    abstract generateItems(...args: any)
+    abstract generateItems(...args: any): any;
 
     refresh() {
         this._onDidChangeTreeData.fire(undefined);
@@ -25,7 +25,7 @@ export abstract class TreeDataProvider implements vscode.TreeDataProvider<TreeIt
 }
 
 export class TreeItem extends vscode.TreeItem {
-    data: string;
+    data: any;
     children: TreeItem[] | undefined;
 
     constructor(label: string, children?: TreeItem[]) {

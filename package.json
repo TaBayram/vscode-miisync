@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.8.7",
+  "version": "0.9.0",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -72,14 +72,16 @@
       {
         "command": "miisync.uploadfile",
         "title": "Upload Current File",
+        "icon": "$(arrow-up)",
         "category": "mii",
         "enablement": "editorIsOpen && miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.downloadfile",
         "title": "Download Current File",
+        "icon": "$(arrow-down)",
         "category": "mii",
-        "enablement": "miisync.enabled  && miisync.loggedin"
+        "enablement": "editorIsOpen && miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.deletefile",
@@ -138,11 +140,25 @@
         "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
+        "command": "miisync.downloadremotefile",
+        "title": "Download Remote File",
+        "icon": "$(extensions-install-count)",
+        "category": "zmii",
+        "enablement": "miisync.enabled  && miisync.loggedin"
+      },
+      {
         "command": "miisync.downloadfileproperties",
         "title": "Download File Properties",
         "icon": "$(timeline-refresh)",
         "category": "zmii",
-        "enablement": "miisync.enabled  && miisync.loggedin"
+        "enablement": "editorIsOpen && miisync.enabled  && miisync.loggedin"
+      },
+      {
+        "command": "miisync.openrootconfig",
+        "title": "Open Root Config",
+        "icon": "$(timeline-refresh)",
+        "category": "zmii",
+        "enablement": "miisync.enabled"
       }
     ],
     "menus": {
@@ -168,11 +184,19 @@
           "when": "false"
         },
         {
+          "command": "miisync.downloadremotefile",
+          "when": "false"
+        },
+        {
           "command": "miisync.downloadfileproperties",
           "when": "false"
         },
         {
           "command": "miisync.transferfolder",
+          "when": "false"
+        },
+        {
+          "command": "miisync.openrootconfig",
           "when": "false"
         }
       ],
@@ -211,6 +235,11 @@
           "command": "miisync.transferfolder",
           "group": "miisync@4",
           "when": "miisync.enabled && explorerResourceIsFolder"
+        },
+        {
+          "command": "miisync.openrootconfig",
+          "group": "miisync@0",
+          "when": "miisync.enabled && resourceFilename == miisync.json && miisync.userootconfig"
         }
       ],
       "view/title": [
@@ -222,13 +251,28 @@
         {
           "command": "miisync.downloadfileproperties",
           "when": "view == fileproperties",
-          "group": "navigation"
+          "group": "navigation@2"
+        },
+        {
+          "command": "miisync.downloadfile",
+          "when": "view == fileproperties",
+          "group": "navigation@1"
+        },
+        {
+          "command": "miisync.uploadfile",
+          "when": "view == fileproperties",
+          "group": "navigation@0"
         }
       ],
       "view/item/context": [
         {
           "command": "miisync.downloadremotefolder",
           "when": "view == remotedirectory && viewItem == folder",
+          "group": "inline"
+        },
+        {
+          "command": "miisync.downloadremotefile",
+          "when": "view == remotedirectory && viewItem != folder",
           "group": "inline"
         }
       ]
@@ -267,12 +311,12 @@
         "title": "Settings",
         "order": 0,
         "properties": {
-          "miisync.sessionDuration": {
+          "miisync.settings.sessionDuration": {
             "type": "integer",
             "default": 60,
             "description": "How long does session lasts in minutes."
           },
-          "miisync.refreshSession": {
+          "miisync.settings.refreshSession": {
             "type": "boolean",
             "default": true,
             "description": "Perodically sends request to renew session."
@@ -355,7 +399,7 @@
           "miisync.ignore": {
             "type": "array",
             "default": [
-              ""
+              "*.json"
             ],
             "items": {
               "type": "string"
@@ -366,13 +410,13 @@
           "miisync.useRootConfig": {
             "type": "boolean",
             "default": false,
-            "description": "Gets the config from specified miisync.json file.",
+            "description": "Enables using the config from specified miisync.json file.",
             "order": 4
           },
           "miisync.rootConfig": {
             "type": "string",
-            "default": "10.20.30.40",
-            "description": "Gets the config from specified miisync.json file.",
+            "default": "../",
+            "description": "Gets the config from specified miisync.json file. Should be relative. Paths are calculated from the root config.",
             "order": 5
           }
         }

@@ -1,5 +1,5 @@
 import { OpenLink } from '../modules/vscode.js';
-import { Service, Request } from './abstract/miiservice.js';
+import { Request, Service } from './abstract/miiservice.js';
 
 class OpenScreenService extends Service {
     name: string = "Open Screen";
@@ -11,7 +11,7 @@ class OpenScreenService extends Service {
     get(host: string, port: number, remotePath: string) {
         return this.generateURL(host, port, "http") + remotePath;
     }
-    protected generateParams() { }
+    protected generateParams() { return '' }
 }
 
 

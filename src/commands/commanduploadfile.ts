@@ -12,7 +12,7 @@ export async function OnCommandUploadFile(...uris: any[]) {
     if (!userConfig) return;
 
 
-    if (uris && uris.length != 0) {
+    if (uris && uris[0] && uris.length != 0) {
         const selectedUris: Uri[] = uris[1];
         for (let index = 0; index < selectedUris.length; index++) {
             const uri = selectedUris[index];

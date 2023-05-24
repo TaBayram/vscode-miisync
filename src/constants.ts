@@ -1,7 +1,8 @@
 import * as path from 'path';
 
 
-export const EXTENSION_NAME = "miisync"
+export const EXTENSION_NAME = "miisync";
+export const EXTENSION_SETTINGS = "miisync.settings";
 
 const VENDOR_FOLDER = '.vscode';
 export const CONGIF_FILENAME = 'miisync.json';

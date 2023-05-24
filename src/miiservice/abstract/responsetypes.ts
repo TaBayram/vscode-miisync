@@ -25,7 +25,7 @@ export interface RowsetsMessage {
 
 export interface Rowset<T extends Row, Y extends Column> {
     Columns: Columns<Y>
-    Row: T[]
+    Row: T[] | undefined
 }
 
 export interface Columns<Y extends Column> {

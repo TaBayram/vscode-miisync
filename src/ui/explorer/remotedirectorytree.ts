@@ -1,6 +1,6 @@
-import { Directory, File, Folder } from "../../miiservice/abstract/responsetypes";
-import { TreeDataProvider, TreeItem } from "./tree";
 import * as vscode from "vscode";
+import { File, Folder } from "../../miiservice/abstract/responsetypes";
+import { TreeDataProvider, TreeItem } from "./tree";
 
 class RemoteDirectoryTree extends TreeDataProvider {
     private directory: (File | Folder)[];
@@ -19,6 +19,7 @@ class RemoteDirectoryTree extends TreeDataProvider {
             const folder = findFolder(file.FilePath);
             const item = new TreeItem(file.ObjectName);
             item.iconPath = vscode.ThemeIcon.File;
+            item.data = { filePath: file.FilePath, name: file.ObjectName };
             folder.children.push(item);
         }
 
@@ -77,7 +78,6 @@ class RemoteDirectoryTree extends TreeDataProvider {
 
             folder.children.sort(function (a, b) {
                 const isAFolder = a.children != null; const isBFolder = b.children != null;
-                //console.log(a.hey+ isAFolder +" - "+b.hey+isBFolder)
                 if (isAFolder == isBFolder) return a.label < b.label ? -1 : 1;
                 if (!isAFolder && isBFolder) return 1;
                 if (isAFolder && !isBFolder) return -1;
