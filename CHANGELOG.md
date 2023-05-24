@@ -4,7 +4,6 @@ All notable changes to the "miisync" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-
 ## [0.9.0] - 24/05/2023
 
 ### Added
@@ -24,7 +23,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - Where upload on save was calling before log in service was succesful, causing system to create multiple sessions.
 - Where extension settings couldn't be read.
-
+- 
 ## [0.8.7] - 15/05/2023
 
 ### Added
