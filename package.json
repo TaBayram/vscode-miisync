@@ -365,16 +365,14 @@
                   "description": ""
                 }
               },
-              "default":
-                {
-                  "name": "dev",
-                  "isMain": false,
-                  "host": "11.22.33.44",
-                  "port": 50000,
-                  "username": "x-name",
-                  "password": "1234"
-                }
-              
+              "default": {
+                "name": "dev",
+                "isMain": false,
+                "host": "11.22.33.44",
+                "port": 50000,
+                "username": "x-name",
+                "password": "1234"
+              }
             },
             "description": "Systems to conenct to",
             "order": 0
@@ -456,6 +454,7 @@
     "fast-xml-parser": "^4.2.0",
     "joi": "^17.9.1",
     "micromatch": "^4.0.5",
-    "node-fetch": "^2.6.9"
+    "node-fetch": "^2.6.9",
+    "p-limit": "^3.1.0"
   }
 }

@@ -6,9 +6,9 @@ class DeleteBatchService extends Service {
     mode: string = "XMII/Catalog?Mode=BatchDelete&Class=Content&Content-Type=text/xml";
     optionals: string = "&TemporaryFile=false&Notify=true&Session=true"
 
-    async call({ host, port, body }: Request, sourcePath: string) {
+    async call({ host, port }: Request, sourcePath: string) {
         const url = this.get(host, port, sourcePath);
-        const { value, error, isError } = await this.fetch(new URL(url), false, body);
+        const { value, error, isError } = await this.fetch(new URL(url), false);
         let data: MII<null, null, RowsetsMessage> = null;
         if (!isError) {
             data = this.parseXML(value);
