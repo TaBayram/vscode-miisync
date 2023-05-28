@@ -24,12 +24,12 @@ export async function UploadFile(uri: Uri, content: string, userConfig: UserConf
     }
 
 
-    statusBar.updateBar('Sending', Icon.spinLoading, { duration: -1 });
+    statusBar.updateBar('Uploading', Icon.spinLoading, { duration: -1 });
     const response = await saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
     if (response) {
         logger.infos("Upload File", fileName + ": " + response?.Rowsets?.Messages?.Message);
     }
-    statusBar.updateBar("Done " + fileName, Icon.success, { duration: 3 });
+    statusBar.updateBar("Uploaded " + fileName, Icon.success, { duration: 3 });
 }
 
 
@@ -44,12 +44,12 @@ export async function UploadFolder(folderUri: Uri | string, userConfig: UserConf
         return;
     }
     statusBar.updateBar('Uploading', Icon.spinLoading, { duration: -1 });
-    logger.info("Upload Folder Started");
+    logger.infos("Download Folder", path.basename(folderPath) +": Started");
 
     await UploadFolderLimited(folderPath, userConfig, system);
 
-    logger.info("Upload Folder Completed");
-    statusBar.updateBar('Done', Icon.success, { duration: 1 });
+    statusBar.updateBar('Uploaded', Icon.success, { duration: 1 });
+    logger.infos("Download Folder", path.basename(folderPath) +": Completed");
 }
 
 

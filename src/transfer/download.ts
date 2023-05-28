@@ -33,8 +33,8 @@ export async function DownloadFile(uri: Uri, userConfig: UserConfig, system: Sys
     const payload = file.Rowsets.Rowset.Row.find((row) => row.Name == "Payload");
     await writeFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" })
 
-    statusBar.updateBar("Done " + fileName, Icon.success, { duration: 3 });
-    logger.infos('Download File', fileName + " finished.");
+    statusBar.updateBar("Downloaded " + fileName, Icon.success, { duration: 3 });
+    logger.infos('Download File', fileName + ": Finished.");
 }
 
 
@@ -44,7 +44,7 @@ export async function DownloadFolder(folderUri: Uri | string, userConfig: UserCo
         return false;
     }
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
-    logger.info("Download Folder Started");
+    logger.infos("Download Folder", path.basename(folderPath) +": Started");
 
     function getPath(item: File | Folder) {
         if ('FolderName' in item) {
@@ -61,9 +61,8 @@ export async function DownloadFolder(folderUri: Uri | string, userConfig: UserCo
     const sourcePath = GetRemotePath(folderPath, userConfig);
     await DownloadFiles(system, sourcePath, getPath);
 
-    statusBar.updateBar('Done', Icon.success, { duration: 1 });
-    logger.info("Download Folder Completed");
-
+    statusBar.updateBar('Downloaded', Icon.success, { duration: 1 });
+    logger.infos("Download Folder", path.basename(folderPath) +": Completed");
 }
 
 async function AskRemoteDownloadPathOptions(remoteObjectPath: string, { remotePath }: UserConfig) {
@@ -86,7 +85,7 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
     const chosenfolderPath = await AskRemoteDownloadPathOptions(remoteFolderPath, userConfig);
 
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
-    logger.info("Download Remote Folder Started");
+    logger.infos("Download Remote Folder", path.basename(remoteFolderPath) +": Started");
     const workspaceFolder = GetCurrentWorkspaceFolder().fsPath;
 
     function getPath(item: File | Folder) {
@@ -102,8 +101,8 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
     }
 
     await DownloadFiles(system, remoteFolderPath, getPath);
-    statusBar.updateBar('Done', Icon.success, { duration: 1 });
-    logger.info("Download Remote Folder Completed");
+    statusBar.updateBar('Downloaded', Icon.success, { duration: 1 });
+    logger.infos("Download Remote Folder", path.basename(remoteFolderPath) +": Completed");
 
 }
 
@@ -124,8 +123,8 @@ export async function DownloadRemoteFile({ filePath, name }: { filePath: string,
         await outputFile(localFilePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" });
     }
 
-    statusBar.updateBar('Done', Icon.success, { duration: 1 });
-    logger.infos('Download Remote File', name + " finished.");
+    statusBar.updateBar('Downloaded', Icon.success, { duration: 1 });
+    logger.infos('Download Remote File', name + ": Finished.");
 }
 
 async function DownloadFiles({ host, port }: SystemConfig, sourcePath: string, getPath: (item: File | Folder) => string) {
@@ -194,14 +193,12 @@ export async function DownloadContextDirectory(userConfig: UserConfig, system: S
     const parentPath = path.dirname(sourcePath).replaceAll(path.sep, "/");
 
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
-    logger.info("Download Context Directory Started");
+    logger.infos("Download Context Directory", sourcePath +": Started");
 
     const files = await loadFilesInsideService.call({ host: system.host, port: system.port }, sourcePath);
     remoteDirectoryTree.generateItemsByFiles(files?.Rowsets?.Rowset?.Row);
-    statusBar.updateBar('Done', Icon.success, { duration: 2 });
-    logger.info("Download Context Directory Completed");
-    return;
-
+    statusBar.updateBar('Downloaded', Icon.success, { duration: 2 });
+    logger.infos("Download Context Directory", sourcePath +": Completed");
 }
 
 

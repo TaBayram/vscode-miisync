@@ -6,6 +6,7 @@ import { QuickPickItem } from "../ui/quickpick";
 import statusBar, { Icon } from "../ui/statusbar";
 import { GetUserManager } from "../user/usermanager";
 import { UploadFolderLimited } from "./upload";
+import path = require("path");
 
 
 export async function TransferFolder(uri: Uri, userConfig: UserConfig) {
@@ -23,10 +24,10 @@ export async function TransferFolder(uri: Uri, userConfig: UserConfig) {
         if(!await user.login()) return;
 
         statusBar.updateBar('Transfering', Icon.spinLoading, { duration: -1 });
-        logger.info("Transfer Folder Started");        
+        logger.infos("Transfer Folder", path.basename(uri.fsPath) +": Started"); 
 
         await UploadFolderLimited(uri.fsPath, userConfig, system);
-        statusBar.updateBar('Done', Icon.success, { duration: 1 });
-        logger.info("Transfer Folder Completed");
+        statusBar.updateBar('Transferred', Icon.success, { duration: 1 });
+        logger.infos("Transfer Folder", path.basename(uri.fsPath) +": Completed"); 
     }
 }
