@@ -20,6 +20,7 @@ class RemoteDirectoryTree extends TreeDataProvider {
             const item = new TreeItem(file.ObjectName);
             item.iconPath = vscode.ThemeIcon.File;
             item.data = { filePath: file.FilePath, name: file.ObjectName };
+            item.contextValue = file.ObjectName;
             folder.children.push(item);
         }
 

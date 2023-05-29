@@ -9,10 +9,15 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ### Added
 
 - `Upload/Download Current Workspace`commands.
+- `Open Current Screen` button to remote directory.
 
-### Changes
+### Changed
 
 - Now every upload/download log should say the file/folder name.
+
+### Fixed
+
+- Issue #4 [Uploading folder and its contents creates duplicate folders](https://github.com/TaBayramNTT/vscode-miisync/issues/4)
 
 ## [0.9.0] - 24/05/2023
 

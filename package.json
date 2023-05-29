@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -42,6 +42,7 @@
       {
         "command": "miisync.openscreen",
         "title": "Open Current Screen",
+        "icon": "$(link-external)",
         "category": "mii",
         "enablement": "miisync.enabled"
       },
@@ -285,9 +286,14 @@
           "group": "inline"
         },
         {
+          "command": "miisync.openscreen",
+          "when": "view == remotedirectory && viewItem == index.html",
+          "group": "inline@0"
+        },
+        {
           "command": "miisync.downloadremotefile",
           "when": "view == remotedirectory && viewItem != folder",
-          "group": "inline"
+          "group": "inline@1"
         }
       ]
     },
