@@ -4,6 +4,21 @@ All notable changes to the "miisync" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.9.1] - 29/05/2023
+
+### Added
+
+- `Upload/Download Current Workspace`commands.
+- `Open Current Screen` button to remote directory.
+
+### Changed
+
+- Now every upload/download log should say the file/folder name.
+
+### Fixed
+
+- Issue #4 [Uploading folder and its contents creates duplicate folders](https://github.com/TaBayramNTT/vscode-miisync/issues/4)
+
 ## [0.9.0] - 24/05/2023
 
 ### Added

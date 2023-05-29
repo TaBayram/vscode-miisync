@@ -11,6 +11,13 @@ export function InsertWeb(path: string) {
     return path.splice(index != -1 ? index : path.length, 0, web);
 }
 
+export function RemoveWeb(path: string, sep: string = '/') {
+    const web = "WEB";
+    let newPath = path.replace(sep + web, '');
+    newPath = path == newPath ? path.replace(web + sep, '') : newPath;
+    return newPath;
+}
+
 
 /**
  * Converts local file path to remote path using user config
@@ -19,7 +26,7 @@ export function InsertWeb(path: string) {
 export function GetRemotePath(filePath: string, { remotePath, removeFromLocalPath }: UserConfig, addWeb = true) {
     const configPath = configManager.ConfigFilePath;
 
-    let sourcePath = filePath != "" ?  path.relative(configPath, filePath) : "";
+    let sourcePath = filePath != "" ? path.relative(configPath, filePath) : "";
     for (const remove of removeFromLocalPath || []) {
         sourcePath = sourcePath.replace(path.sep + remove, '');
         sourcePath = sourcePath.replace(remove + path.sep, '');
@@ -93,3 +100,33 @@ export async function GetAllFilesInDir(startPath: string): Promise<string[]> {
 
     return files;
 }
+
+export interface SimpleFolder {
+    path: string,
+    files: string[],
+    folders: SimpleFolder[],
+}
+
+export async function GetAllFilesInDirTree(startPath: string): Promise<SimpleFolder> {
+    if (!await exists(startPath)) {
+        return null;
+    }
+    const folder: SimpleFolder = { path: startPath, files: [], folders: [] };
+    const directory = await readdir(startPath);
+    const promises = [];
+    for (const file of directory) {
+        const name = path.join(startPath, file);
+        const stat = await lstat(name);
+        if (stat.isDirectory()) {
+            promises.push(GetAllFilesInDirTree(name).then((cFolder) => {
+                return folder.folders.push(cFolder);
+            }));
+        }
+        else {
+            folder.files.push(name);
+        }
+    }
+    await Promise.all(promises);
+    return folder;
+}
+

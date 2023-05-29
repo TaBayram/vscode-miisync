@@ -34,6 +34,7 @@ This extension tries to be a replacement for the web side of the standart mii wo
  
 1. Adding cancel option to download folder, download remote folder, and upload folder commands.
 2. Have an option to use some of the settings defined in the self config instead of root config.
+3. Upload current workspace folder
 
 ## Requirements
 
@@ -83,6 +84,8 @@ localPath is the folder that contains used .vscode/miisync.json. (if rootconfig 
 * `Disable/Enable Download on Open`: Enables/Disables download functionality when a file is opened. 
 * `Upload Current File`: Uploads the active file to the remote system. Also is in explorer context menu.
 * `Download Current File`: Downloads the active file from the remote system. Also is in explorer context menu.
+* `Upload Current Workspace`: Uploads the first workspace to the remote system.
+* `Download Current Workspace`: Downloads the first workspace from the remote system.
 * `Export Project`: Exports the project as a zip file. (Opens link)
 
 
@@ -105,6 +108,5 @@ localPath is the folder that contains used .vscode/miisync.json. (if rootconfig 
 ## Known Issues
 
 - Logout doesn't terminate session.
-
 
 **Enjoy!**

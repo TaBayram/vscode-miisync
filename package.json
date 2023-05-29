@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -42,6 +42,7 @@
       {
         "command": "miisync.openscreen",
         "title": "Open Current Screen",
+        "icon": "$(link-external)",
         "category": "mii",
         "enablement": "miisync.enabled"
       },
@@ -100,6 +101,20 @@
         "title": "Log in",
         "category": "mii",
         "enablement": "miisync.enabled && !miisync.loggedin"
+      },
+      {
+        "command": "miisync.downloadworkspace",
+        "title": "Download Current Workspace",
+        "icon": "$(arrow-down)",
+        "category": "mii",
+        "enablement": "miisync.enabled  && miisync.loggedin"
+      },
+      {
+        "command": "miisync.uploadworkspace",
+        "title": "Upload Current Workspace",
+        "icon": "$(arrow-up)",
+        "category": "mii",
+        "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.downloadproject",
@@ -271,9 +286,14 @@
           "group": "inline"
         },
         {
+          "command": "miisync.openscreen",
+          "when": "view == remotedirectory && viewItem == index.html",
+          "group": "inline@0"
+        },
+        {
           "command": "miisync.downloadremotefile",
           "when": "view == remotedirectory && viewItem != folder",
-          "group": "inline"
+          "group": "inline@1"
         }
       ]
     },
@@ -365,16 +385,14 @@
                   "description": ""
                 }
               },
-              "default":
-                {
-                  "name": "dev",
-                  "isMain": false,
-                  "host": "11.22.33.44",
-                  "port": 50000,
-                  "username": "x-name",
-                  "password": "1234"
-                }
-              
+              "default": {
+                "name": "dev",
+                "isMain": false,
+                "host": "11.22.33.44",
+                "port": 50000,
+                "username": "x-name",
+                "password": "1234"
+              }
             },
             "description": "Systems to conenct to",
             "order": 0
@@ -446,6 +464,7 @@
     "@vscode/test-electron": "^2.3.0",
     "esbuild": "^0.17.16",
     "eslint": "^8.36.0",
+    "fs-extra": "^11.1.1",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
     "typescript": "^4.9.5"
@@ -456,6 +475,7 @@
     "fast-xml-parser": "^4.2.0",
     "joi": "^17.9.1",
     "micromatch": "^4.0.5",
-    "node-fetch": "^2.6.9"
+    "node-fetch": "^2.6.9",
+    "p-limit": "^3.1.0"
   }
 }
