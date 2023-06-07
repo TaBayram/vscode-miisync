@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -141,6 +141,12 @@
         "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
+        "command": "miisync.deletefolder",
+        "title": "Delete Folder",
+        "category": "mii",
+        "enablement": "miisync.enabled  && miisync.loggedin"
+      },
+      {
         "command": "miisync.downloadremotedirectory",
         "title": "Download Remote Directory",
         "icon": "$(extensions-install-count)",
@@ -150,14 +156,14 @@
       {
         "command": "miisync.downloadremotefolder",
         "title": "Download Remote Folder",
-        "icon": "$(extensions-install-count)",
+        "icon": "$(arrow-down)",
         "category": "zmii",
         "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.downloadremotefile",
         "title": "Download Remote File",
-        "icon": "$(extensions-install-count)",
+        "icon": "$(arrow-down)",
         "category": "zmii",
         "enablement": "miisync.enabled  && miisync.loggedin"
       },
@@ -211,6 +217,10 @@
           "when": "false"
         },
         {
+          "command": "miisync.deletefolder",
+          "when": "false"
+        },
+        {
           "command": "miisync.openrootconfig",
           "when": "false"
         }
@@ -250,6 +260,11 @@
           "command": "miisync.transferfolder",
           "group": "miisync@4",
           "when": "miisync.enabled && explorerResourceIsFolder"
+        },
+        {
+          "command": "miisync.deletefolder",
+          "group": "miisync@5",
+          "when": "miisync.enabled && !explorerResourceIsRoot && explorerResourceIsFolder"
         },
         {
           "command": "miisync.openrootconfig",

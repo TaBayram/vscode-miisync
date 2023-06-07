@@ -5,7 +5,7 @@ import logger from "../ui/logger";
 import { QuickPickItem } from "../ui/quickpick";
 import statusBar, { Icon } from "../ui/statusbar";
 import { GetUserManager } from "../user/usermanager";
-import { UploadFolderLimited } from "./upload";
+import { UploadFolderLimited } from "./limited/upload";
 import path = require("path");
 
 
