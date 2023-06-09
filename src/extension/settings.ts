@@ -3,12 +3,14 @@ import { EXTENSION_SETTINGS } from "../constants";
 
 export interface ExtensionSettings {
     sessionDuration: number,
-    refreshSession: boolean
+    refreshSession: boolean,
+    requestLimit: number,
 }
 
 const defaultSettings: ExtensionSettings = {
     sessionDuration: 60,
-    refreshSession: true
+    refreshSession: true,
+    requestLimit: 40,
 }
 
 class SettingsManager {
@@ -27,6 +29,7 @@ class SettingsManager {
             ...{
                 sessionDuration: config.get('sessionDuration'),
                 refreshSession: config.get('refreshSession'),
+                requestLimit: config.get('requestLimit')
             }
         }
     }

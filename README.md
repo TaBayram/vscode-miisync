@@ -32,8 +32,7 @@ This extension tries to be a replacement for the web side of the standart mii wo
 
 ## Planned Features
  
-1. Adding cancel option to download folder, download remote folder, and upload folder commands.
-2. Have an option to use some of the settings defined in the self config instead of root config.
+1. Have an option to use some of the settings defined in the self config instead of root config.
 
 ## Requirements
 

@@ -17,17 +17,25 @@ export async function TransferFolder(uri: Uri, userConfig: UserConfig) {
         }
     }
 
-    const response: QuickPickItem<SystemConfig> = await ShowQuickPick(picks, { title: 'Pick System' });
-    if (response) {
-        const system = response.object;
+    const quickResponse: QuickPickItem<SystemConfig> = await ShowQuickPick(picks, { title: 'Pick System' });
+    if (quickResponse) {
+        const system = quickResponse.object;
         const user = GetUserManager(system, true);
-        if(!await user.login()) return;
+        if (!await user.login()) return;
 
         statusBar.updateBar('Transfering', Icon.spinLoading, { duration: -1 });
-        logger.infos("Transfer Folder", path.basename(uri.fsPath) +": Started"); 
+        logger.infos("Transfer Folder", path.basename(uri.fsPath) + ": Started");
 
-        await UploadFolderLimited(uri.fsPath, userConfig, system);
-        statusBar.updateBar('Transferred', Icon.success, { duration: 1 });
-        logger.infos("Transfer Folder", path.basename(uri.fsPath) +": Completed"); 
+        const response = await UploadFolderLimited(uri.fsPath, userConfig, system);
+
+        if (response.aborted) {
+            statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
+            logger.infos("Transfer Folder", path.basename(uri.fsPath) + ": Cancelled");
+        }
+        else {
+            statusBar.updateBar('Transferred', Icon.success, { duration: 1 });
+            logger.infos("Transfer Folder", path.basename(uri.fsPath) + ": Completed");
+        }
     }
+
 }

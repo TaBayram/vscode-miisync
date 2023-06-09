@@ -349,12 +349,20 @@
           "miisync.settings.sessionDuration": {
             "type": "integer",
             "default": 60,
-            "description": "How long does session lasts in minutes."
+            "description": "How long does session lasts in minutes.",
+            "order": 0
           },
           "miisync.settings.refreshSession": {
             "type": "boolean",
             "default": true,
-            "description": "Perodically sends request to renew session."
+            "description": "Periodically sends request to renew session.",
+            "order": 0
+          },
+          "miisync.settings.requestLimit": {
+            "type": "integer",
+            "default": 40,
+            "description": "The maximum amount of request to send to server in upload/download folder commands. Too high number could cause instability",
+            "order": 1
           }
         }
       },

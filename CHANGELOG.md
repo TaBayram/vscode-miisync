@@ -4,14 +4,13 @@ All notable changes to the "miisync" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [0.10.0] - 07/06/2023
-
+## [0.10.0] - 09/06/2023
 
 ### Added
 
 - `Delete Folder` explorer command.
 - New Setting: `Request Limit`.
-- Progress window for downloading/uploading folder.
+- Progress window for downloading/uploading folder. Now can be cancellable by pressing it thus changing it to notification window and clicking 'Cancel'
 
 ### Changed
 

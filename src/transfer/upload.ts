@@ -44,9 +44,17 @@ export async function UploadFolder(folderUri: Uri | string, userConfig: UserConf
     statusBar.updateBar('Uploading', Icon.spinLoading, { duration: -1 });
     logger.infos("Upload Folder", path.basename(folderPath) + ": Started");
 
-    await UploadFolderLimited(folderPath, userConfig, system);
+    const response = await UploadFolderLimited(folderPath, userConfig, system);
 
-    statusBar.updateBar('Uploaded', Icon.success, { duration: 1 });
-    logger.infos("Upload Folder", path.basename(folderPath) + ": Completed");
+    if(response.aborted){
+        statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
+        logger.infos("Upload Folder", path.basename(folderPath) + ": Cancelled");
+    }
+    else{
+        statusBar.updateBar('Uploaded', Icon.success, { duration: 1 });
+        logger.infos("Upload Folder", path.basename(folderPath) + ": Completed");
+    }
+
+    
 }
 

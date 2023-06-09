@@ -60,10 +60,16 @@ export async function DownloadFolder(folderUri: Uri | string, userConfig: UserCo
     }
 
     const sourcePath = GetRemotePath(folderPath, userConfig);
-    await DownloadFolderLimited(system, sourcePath, getPath);
-
-    statusBar.updateBar('Downloaded', Icon.success, { duration: 1 });
-    logger.infos("Download Folder", path.basename(folderPath) + ": Completed");
+    const response = await DownloadFolderLimited(system, sourcePath, getPath);
+    
+    if(response.aborted){
+        statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
+        logger.infos("Download Folder", path.basename(folderPath) + ": Cancelled");
+    }
+    else{
+        statusBar.updateBar('Downloaded', Icon.success, { duration: 1 });
+        logger.infos("Download Folder", path.basename(folderPath) + ": Completed");
+    }
 }
 
 async function AskRemoteDownloadPathOptions(remoteObjectPath: string, { remotePath }: UserConfig) {
@@ -86,8 +92,9 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
     const chosenfolderPath = await AskRemoteDownloadPathOptions(remoteFolderPath, userConfig);
     if(chosenfolderPath == null) return;
 
+    const folderName = path.basename(remoteFolderPath);
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
-    logger.infos("Download Remote Folder", path.basename(remoteFolderPath) + ": Started");
+    logger.infos("Download Remote Folder", folderName + ": Started");
     const workspaceFolder = GetCurrentWorkspaceFolder().fsPath;
 
     function getPath(item: File | Folder) {
@@ -102,9 +109,17 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
         }
     }
 
-    await DownloadFolderLimited(system, remoteFolderPath, getPath);
-    statusBar.updateBar('Downloaded', Icon.success, { duration: 1 });
-    logger.infos("Download Remote Folder", path.basename(remoteFolderPath) + ": Completed");
+    const response = await DownloadFolderLimited(system, remoteFolderPath, getPath);
+
+    if(response.aborted){
+        statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
+        logger.infos("Download Remote Folder", folderName + ": Cancelled");
+    }
+    else{
+        statusBar.updateBar('Downloaded', Icon.success, { duration: 1 });
+        logger.infos("Download Remote Folder", folderName + ": Completed");
+    }
+    
 
 }
 
