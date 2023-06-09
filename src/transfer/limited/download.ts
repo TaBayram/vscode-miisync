@@ -28,7 +28,7 @@ export async function DownloadFolderLimited({ host, port }: SystemConfig, source
 
     const root = rootFolders?.Rowsets?.Rowset?.Row?.find((folder: Folder) => folder.Path == sourcePath);
     if (!root) {
-        logger.error("Root folder doesn't exist.")
+        logger.error("Folder doesn't exist.")
         return {
             aborted: true,
             data: directory

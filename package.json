@@ -440,25 +440,25 @@
           "miisync.ignore": {
             "type": "array",
             "default": [
-              "*.json"
+              "package.json"
             ],
             "items": {
               "type": "string"
             },
-            "description": "files to ignore",
+            "description": "files/folders to ignore",
             "order": 3
           },
           "miisync.useRootConfig": {
             "type": "boolean",
             "default": false,
             "description": "Enables using the config from specified miisync.json file.",
-            "order": 4
+            "order": 5
           },
           "miisync.rootConfig": {
             "type": "string",
             "default": "../",
             "description": "Gets the config from specified miisync.json file. Should be relative. Paths are calculated from the root config.",
-            "order": 5
+            "order": 6
           }
         }
       }
@@ -496,6 +496,7 @@
     "@types/micromatch": "^4.0.2",
     "@types/node-fetch": "^2.6.3",
     "fast-xml-parser": "^4.2.0",
+    "ignore": "^5.2.4",
     "joi": "^17.9.1",
     "micromatch": "^4.0.5",
     "node-fetch": "^2.6.9",

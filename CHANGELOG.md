@@ -14,6 +14,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Changed
 
+- Ignore uses [ignore](https://github.com/kaelzhang/node-ignore) instead of micromatch. Now you manually have to ignore dot files/folders.
 - Download Folder is now promise limited.
 - Cancelling "Download Where" pick now cancels the download process.
 

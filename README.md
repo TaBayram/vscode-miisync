@@ -33,6 +33,7 @@ This extension tries to be a replacement for the web side of the standart mii wo
 ## Planned Features
  
 1. Have an option to use some of the settings defined in the self config instead of root config.
+2. Have an include option in config.
 
 ## Requirements
 
@@ -65,7 +66,7 @@ localPath is the folder that contains used .vscode/miisync.json. (if rootconfig 
 **Example**: If you want to work on "productStoppageScreen" then your remote path should be like "PROJECT/PLANT2/Stoppages/productStoppageScreen". If you want to work on "PLANT2" screens then it should be "PROJECT/PLANT2".
 * `removeFromLocalPath`: Removes any folder name in local path that is not in remote path.
 **Example**: Local folder path is "E:\2023\Projects\ProjectName\webapp\Screen" and the remote path is "ProjectName\Screen" then you should add "webapp" in removeFromLocalPath. 
-* `ignore`: Wildcards specified in this doesn't get uploaded/downloaded. Look at [micromatch](https://github.com/micromatch/micromatch)
+* `ignore`: Items that matches any of these glob patterns does not get uploaded/downloaded. Look at [ignore](https://github.com/kaelzhang/node-ignore)
 * `uploadOnSave`: Uploads the current file when saved.
 * `downloadOnOpen`: Downloads the current file when opened.
 * `useRootConfig`: Enables usage of another miisync.json outside of the workspace.
