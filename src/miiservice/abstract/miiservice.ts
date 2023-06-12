@@ -22,7 +22,7 @@ export interface MIIParams {
  */
 
 //todo: Use pool promise instead of limiting sockets
-const agent = new Agent({ maxSockets: 20, keepAlive: true, });
+const agent = new Agent({ keepAlive: true, });
 
 export abstract class Service {
     readonly abstract name: string;

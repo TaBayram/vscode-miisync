@@ -10,8 +10,8 @@ export async function OnCommandDownloadFile(...uris: any[]) {
     const userConfig = await configManager.load();
     if (!userConfig) return;
 
-    if (uris && uris[0] && uris.length != 0) {
-        const selectedUris: Uri[] = uris[1];
+    if (uris && Array.isArray(uris) && uris[1] != undefined) {
+        const selectedUris: Uri[] = uris[1] || [];
         for (let index = 0; index < selectedUris.length; index++) {
             const uri = selectedUris[index];
             lstat(uri.fsPath).then(stat => {

@@ -4,6 +4,31 @@ All notable changes to the "miisync" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.10.0] - 12/06/2023
+
+### Added
+
+- `Delete Folder` explorer command.
+- New Config: `Include` which basically will override ignores if they match the same.
+- New Setting: `Request Limit`.
+- Progress window for downloading/uploading folder. Now can be cancellable by pressing it thus changing it to notification window and clicking 'Cancel'
+
+### Changed
+
+- Ignore uses [ignore](https://github.com/kaelzhang/node-ignore) instead of micromatch. Now you manually have to ignore dot files/folders.
+- Download Folder is now promise limited.
+- Cancelling "Download Where" pick now cancels the download process.
+
+### Fixed
+
+- Upload folder logging "Download Folder" text.
+- Upload folder not creating empty folders.
+
+### Fixed
+
+- Where pressing on upload/download file on fileproperties view wouldn't work.
+
+
 ## [0.9.1] - 29/05/2023
 
 ### Added
@@ -17,7 +42,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Fixed
 
-- Issue #4 [Uploading folder and its contents creates duplicate folders](https://github.com/TaBayramNTT/vscode-miisync/issues/4)
+- Issue #4 [Uploading folder and its contents creates duplicate folders]
 
 ## [0.9.0] - 24/05/2023
 

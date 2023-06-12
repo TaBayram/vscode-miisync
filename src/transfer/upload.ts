@@ -1,15 +1,13 @@
 import path = require("path");
-import { readFile } from "fs-extra";
 import { Uri } from "vscode";
-import { deleteBatchService } from "../miiservice/deletebatchservice";
 import { saveFileService } from "../miiservice/savefileservice";
 import { SystemConfig, UserConfig } from "../modules/config";
-import { GetAllFilesInDirTree, GetRemotePath, SimpleFolder, ValidatePath } from "../modules/file";
+import { GetRemotePath } from "../modules/file";
 import { ShowConfirmMessage } from "../modules/vscode";
 import logger from "../ui/logger";
 import statusBar, { Icon } from "../ui/statusbar";
 import { DoesFileExist, DoesFolderExist, Validate } from "./gate";
-import pLimit = require("p-limit");
+import { UploadFolderLimited } from "./limited/upload";
 
 export async function UploadFile(uri: Uri, content: string, userConfig: UserConfig, system: SystemConfig) {
     if (!await Validate(userConfig, system, uri.fsPath)) {
@@ -44,60 +42,19 @@ export async function UploadFolder(folderUri: Uri | string, userConfig: UserConf
         return;
     }
     statusBar.updateBar('Uploading', Icon.spinLoading, { duration: -1 });
-    logger.infos("Download Folder", path.basename(folderPath) +": Started");
+    logger.infos("Upload Folder", path.basename(folderPath) + ": Started");
 
-    await UploadFolderLimited(folderPath, userConfig, system);
+    const response = await UploadFolderLimited(folderPath, userConfig, system);
 
-    statusBar.updateBar('Uploaded', Icon.success, { duration: 1 });
-    logger.infos("Download Folder", path.basename(folderPath) +": Completed");
+    if(response.aborted){
+        statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
+        logger.infos("Upload Folder", path.basename(folderPath) + ": Cancelled");
+    }
+    else{
+        statusBar.updateBar('Uploaded', Icon.success, { duration: 1 });
+        logger.infos("Upload Folder", path.basename(folderPath) + ": Completed");
+    }
+
+    
 }
 
-
-
-export async function UploadFolderLimited(folderPath: string, userConfig: UserConfig, system: SystemConfig) {
-    const limit = pLimit(30);
-
-    const folder = await GetAllFilesInDirTree(folderPath);
-    let promises: Promise<any>[] = [];
-    const deletePaths = [];
-    await deep(folder);
-
-    async function deep(folder: SimpleFolder) {
-        //todo: find a way to create a folder in the system instead of this.
-        if (folder.files.length + folder.folders.length > 1) {
-            const deletePath = path.join(folder.path, '.delete');
-            await saveFile(deletePath, Buffer.from('delete'));
-            deletePaths.push(deletePath);
-        }
-
-
-        for (let index = 0; index < folder.files.length; index++) {
-            const file = folder.files[index];
-            if (!await ValidatePath(file, userConfig)) continue;
-            promises.push(limit(() =>
-                readFile(file).then((content) => {
-                    return saveFile(file, content);
-                })
-            ));
-
-        }
-
-        for (let index = 0; index < folder.folders.length; index++) {
-            const cFolder = folder.folders[index];
-            await deep(cFolder);
-        }
-    }
-
-    async function saveFile(file: string, content: Buffer) {
-        const sourcePath = GetRemotePath(file, userConfig);
-        const base64Content = encodeURIComponent(content.length != 0 ? content.toString('base64') : Buffer.from(" ").toString('base64'));
-        return saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
-    }
-
-    for (const path of deletePaths) {
-        const sourcePath = GetRemotePath(path, userConfig);
-        promises.push(limit(() => deleteBatchService.call({ host: system.host, port: system.port }, sourcePath)));
-    }
-
-    await Promise.all(promises);
-}

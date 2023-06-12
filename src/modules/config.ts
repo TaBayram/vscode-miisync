@@ -24,6 +24,7 @@ const configScheme = Joi.object({
     uploadOnSave: Joi.boolean(),
     downloadOnOpen: Joi.boolean(),
     ignore: Joi.array<string>(),
+    include: Joi.array<string>(),
     rootConfig: Joi.string().allow('', null),
     useRootConfig: Joi.boolean()
 });
@@ -45,6 +46,7 @@ export interface UserConfig {
     uploadOnSave?: boolean,
     downloadOnOpen?: boolean,
     ignore?: string[],
+    include?: string[],
     useRootConfig?: boolean,
     rootConfig?: string,
 }
@@ -61,7 +63,8 @@ function GetWorkspaceConfig(): UserConfig {
         remotePath: conf.get("remotePath", 'MES'),
         downloadOnOpen: false,
         uploadOnSave: false,
-        ignore: conf.get('ignore', ['*.json']),
+        ignore: conf.get('ignore', ['package.json']),
+        include: conf.get('include', []),
         useRootConfig: conf.get('useRootConfig', false),
         rootConfig: conf.get('rootConfig', '')
     };

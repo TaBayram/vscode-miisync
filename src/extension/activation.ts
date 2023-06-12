@@ -2,6 +2,7 @@
 import * as vscode from 'vscode';
 import { OnCommandCreateConfig } from '../commands/commandconfig';
 import { OnCommandDeleteFile } from '../commands/commanddeletefile';
+import { OnCommandDeleteFolder } from '../commands/commanddeletefolder';
 import { OnCommandDownloadRemoteDirectory, OnCommandDownloadRemoteFile, OnCommandDownloadRemoteFolder } from '../commands/commanddownloaddirectory';
 import { OnCommandDownloadFile, OnCommandDownloadFileProperties } from '../commands/commanddownloadfile';
 import { OnCommandDownloadFolder } from '../commands/commanddownloadfolder';
@@ -50,6 +51,7 @@ export function RegisterCommands(context: vscode.ExtensionContext) {
 	RegisterCommand('miisync.disabledownloadonopen', OnCommandDisableDownloadOnOpen, context);
 	RegisterCommand('miisync.enabledownloadonopen', OnCommandEnableDownloadOnOpen, context);
 	RegisterCommand('miisync.deletefile', OnCommandDeleteFile, context);
+	RegisterCommand('miisync.deletefolder', OnCommandDeleteFolder, context);
 	RegisterCommand('miisync.openrootconfig', OnCommandOpenRootConfig, context);
 	RegisterCommand('miisync.uploadworkspace', OnCommandUploadWorkspaceFolder, context);
 	RegisterCommand('miisync.downloadworkspace', OnCommandDownloadWorkspaceFolder, context);

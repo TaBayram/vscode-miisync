@@ -1,5 +1,6 @@
 
 import { exists, lstat, readdir } from "fs-extra";
+import ignore from "ignore";
 import '../extends/string.js';
 import { UserConfig, configManager } from "./config.js";
 import path = require("path");
@@ -45,18 +46,20 @@ export function IsSubDirectory(parent: string, child: string) {
  * Checks if the filepath is in the local path directory, folder starts with . and the file name is in ignore
  */
 export async function ValidatePath(filePath: string, config: UserConfig): Promise<boolean> {
-    //Outer file || dot check
-    if (!IsSubDirectory(configManager.ConfigFilePath, filePath) || !micromatch.isMatch(filePath, "**")) return false;
-    if (!config.ignore) {
-        return true;
+    //Outer file 
+    if (!IsSubDirectory(configManager.ConfigFilePath, filePath)) return;
+    let relativePath = path.relative(configManager.ConfigFilePath, filePath);
+    if (config.include) {
+        const include = ignore().add(config.include);
+        if (include.ignores(relativePath))
+            return true;
     }
-    const stat = await lstat(filePath);
-    if (stat.isDirectory()) {
-        return !micromatch.isMatch(filePath, config.ignore);
-    }
-    else {
-        return !micromatch.isMatch(filePath, config.ignore, { basename: true }) || micromatch.isMatch(filePath, config.ignore);
-    }
+
+    if (!config.ignore) return true;
+
+
+    const ignor = ignore().add(config.ignore);
+    return !ignor.ignores(relativePath);
 }
 
 

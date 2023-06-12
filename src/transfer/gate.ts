@@ -44,7 +44,7 @@ export async function ValidateLogin(system: SystemConfig) {
 
 export async function Validate(config: UserConfig, system: SystemConfig, localPath?: string, ignore?: { login?: boolean, remotePath?: boolean, logged?: boolean }): Promise<boolean> {
     if (localPath && !await ValidatePath(localPath, config)) {
-        logger.info(path.basename(localPath) + " local path is not valid.");
+        logger.info(path.basename(localPath) + ": path is ignored.");
         return false;
     }
     if (!(ignore?.login) && !await ValidateLogin(system)) {
