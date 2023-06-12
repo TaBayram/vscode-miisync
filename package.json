@@ -448,6 +448,15 @@
             "description": "files/folders to ignore",
             "order": 3
           },
+          "miisync.include": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "description": "files/folders to include (not ignore). if the same pattern is in both ignore and include, include wins.",
+            "order": 4
+          },
           "miisync.useRootConfig": {
             "type": "boolean",
             "default": false,

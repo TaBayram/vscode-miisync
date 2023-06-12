@@ -48,11 +48,18 @@ export function IsSubDirectory(parent: string, child: string) {
 export async function ValidatePath(filePath: string, config: UserConfig): Promise<boolean> {
     //Outer file 
     if (!IsSubDirectory(configManager.ConfigFilePath, filePath)) return;
-    if (!config.ignore) return true;
     let relativePath = path.relative(configManager.ConfigFilePath, filePath);
+    if (config.include) {
+        const include = ignore().add(config.include);
+        if (include.ignores(relativePath))
+            return true;
+    }
 
-    const ig = ignore().add(config.ignore);
-    return !ig.ignores(relativePath);
+    if (!config.ignore) return true;
+
+
+    const ignor = ignore().add(config.ignore);
+    return !ignor.ignores(relativePath);
 }
 
 

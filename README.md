@@ -67,6 +67,7 @@ localPath is the folder that contains used .vscode/miisync.json. (if rootconfig 
 * `removeFromLocalPath`: Removes any folder name in local path that is not in remote path.
 **Example**: Local folder path is "E:\2023\Projects\ProjectName\webapp\Screen" and the remote path is "ProjectName\Screen" then you should add "webapp" in removeFromLocalPath. 
 * `ignore`: Items that matches any of these glob patterns does not get uploaded/downloaded. Look at [ignore](https://github.com/kaelzhang/node-ignore)
+* `include`: Matched items gets included. Will override ignore if they have the same pattern. Look at [ignore](https://github.com/kaelzhang/node-ignore)
 * `uploadOnSave`: Uploads the current file when saved.
 * `downloadOnOpen`: Downloads the current file when opened.
 * `useRootConfig`: Enables usage of another miisync.json outside of the workspace.

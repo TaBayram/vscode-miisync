@@ -57,6 +57,13 @@
             },
             "description": "ignores files/folders matching one of the string. wildcards can be used"
         },
+        "include": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "includes files/folders matching one of the string. wildcards can be used (not ignore). If the same item is added in both ignore and include it will be included."
+        },
         "useRootConfig": {
             "type": "boolean",
             "description": "Enables use of root config."
