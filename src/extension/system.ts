@@ -8,6 +8,13 @@ export class System implements SystemConfig {
     username: string;
     password?: string;
 
+    static fromConfig(systemConfig: SystemConfig){
+        const system = new System();
+        for(const key in systemConfig){
+            system[key] = systemConfig[key];
+        }
+        return system;
+    }
 
     private constructor() { }
 

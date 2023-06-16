@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -101,6 +101,12 @@
         "title": "Log in",
         "category": "mii",
         "enablement": "miisync.enabled && !miisync.loggedin"
+      },
+      {
+        "command": "miisync.switchsystem",
+        "title": "Switch System",
+        "category": "mii",
+        "enablement": "miisync.enabled && miisync.loggedin"
       },
       {
         "command": "miisync.downloadworkspace",
@@ -338,7 +344,11 @@
     "jsonValidation": [
       {
         "fileMatch": "/miisync.json",
-        "url": "./schema/schema.json"
+        "url": "./schema/miisyncschema.json"
+      },
+      {
+        "fileMatch": "/miisyncuser.json",
+        "url": "./schema/userschema.json"
       }
     ],
     "configuration": [
@@ -363,6 +373,12 @@
             "default": 40,
             "description": "The maximum amount of request to send to server in upload/download folder commands. Too high number could cause instability",
             "order": 1
+          },
+          "miisync.settings.showDiffNotification": {
+            "type": "boolean",
+            "default": true,
+            "description": "Should the extension see if the currently opened file is different from the remote file and show a notification if it is?",
+            "order": 2
           }
         }
       },

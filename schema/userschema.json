@@ -1,0 +1,27 @@
+{
+    "properties": {
+        "users": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "systemName": {
+                        "type": "string",
+                        "default": "dev",
+                        "description": "Name of the system. Must match a system in miisync.json to work."
+                    },
+                    "username": {
+                        "type": "string",
+                        "default": "x-name",
+                        "description": "Your username for the target system"
+                    },
+                    "password": {
+                        "type": "string",
+                        "default": "1234",
+                        "description": "Your password for the targetsystem"
+                    }
+                }
+            }
+        }
+    }
+}

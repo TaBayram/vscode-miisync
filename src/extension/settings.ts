@@ -5,12 +5,14 @@ export interface ExtensionSettings {
     sessionDuration: number,
     refreshSession: boolean,
     requestLimit: number,
+    showDiffNotification: boolean
 }
 
 const defaultSettings: ExtensionSettings = {
     sessionDuration: 60,
     refreshSession: true,
     requestLimit: 40,
+    showDiffNotification: true
 }
 
 class SettingsManager {
@@ -29,7 +31,8 @@ class SettingsManager {
             ...{
                 sessionDuration: config.get('sessionDuration'),
                 refreshSession: config.get('refreshSession'),
-                requestLimit: config.get('requestLimit')
+                requestLimit: config.get('requestLimit'),
+                showDiffNotification: config.get('showDiffNotification')
             }
         }
     }

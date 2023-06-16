@@ -1,5 +1,5 @@
 import { ExtensionContext } from "vscode";
-import { shallowEqual } from "../extends/lib";
+import { GetDifferentValuedKeys } from "../extends/lib";
 import { settingsManager } from "../extension/settings";
 import { logInService } from "../miiservice/loginservice";
 import { logOutService } from "../miiservice/logoutservice";
@@ -69,29 +69,28 @@ class UserManager {
 
 
     public async onSystemUpdate(system: SystemConfig) {
-        if (!shallowEqual(system, this.system)) {
+        let diff = GetDifferentValuedKeys(system, this.system);
+        if (diff.length != 0) {
+            if(diff.length == 1 && diff[0] == "isMain"){
+                this.system.isMain = system.isMain;
+                return true;
+            }
             if (this.IsLoggedin) {
                 await this.logout();
-                this.system.host = system.host;
-                this.system.port = system.port;
-                this.system.username = system.username;
-                this.system.password = system.password;
-                this.system.isMain = system.isMain;
+                for (const key of diff) {
+                    this.system[key] = system[key];
+                }
                 this.login();
             }
             else {
-                this.system.host = system.host;
-                this.system.port = system.port;
-                this.system.username = system.username;
-                this.system.password = system.password;
-                this.system.isMain = system.isMain;
+                for (const key of diff) {
+                    this.system[key] = system[key];
+                }
             }
             return true;
         }
         return false;
     }
-
-
 
     async login() {
         if (this.awaitsLogin) return false;
@@ -189,6 +188,7 @@ export async function InitiliazeMainUserManager({ subscriptions }: ExtensionCont
     await configManager.load();
 }
 
+//todo
 export async function OnSystemsChange(system: SystemConfig[]) {
     let newSystems: SystemConfig[] = [...(system || [])];
     let oldManagers: UserManager[] = [];

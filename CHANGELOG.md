@@ -4,6 +4,12 @@ All notable changes to the "miisync" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.10.1] - 12/06/2023
+
+### Added
+
+- `Switch System` command. With this command you can switch the current main system.
+
 ## [0.10.0] - 12/06/2023
 
 ### Added

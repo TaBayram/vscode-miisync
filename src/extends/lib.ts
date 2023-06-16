@@ -42,3 +42,20 @@ export function deepEqual(object1: any, object2: any) {
 function isObject(object: any) {
     return object != null && typeof object === 'object';
 }
+
+
+/**
+ * Shallow equal check, add to array if the values are not the same.
+ * @returns array
+ */
+export function GetDifferentValuedKeys<T>(object1: T, object2: T): string[] {
+    const keys = Object.keys(object1);
+    let diffKeys = [];
+
+    for (let key of keys) {
+        if (object1[key] !== object2[key]) {
+            diffKeys.push(key);
+        }
+    }
+    return diffKeys;
+}
