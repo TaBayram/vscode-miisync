@@ -75,14 +75,14 @@
         "title": "Upload Current File",
         "icon": "$(arrow-up)",
         "category": "mii",
-        "enablement": "editorIsOpen && miisync.enabled  && miisync.loggedin"
+        "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.downloadfile",
         "title": "Download Current File",
         "icon": "$(arrow-down)",
         "category": "mii",
-        "enablement": "editorIsOpen && miisync.enabled  && miisync.loggedin"
+        "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.deletefile",
@@ -190,6 +190,14 @@
     ],
     "menus": {
       "commandPalette": [
+        {
+          "command": "miisync.downloadfile",
+          "when": "editorIsOpen"
+        },
+        {
+          "command": "miisync.upload",
+          "when": "editorIsOpen"
+        },
         {
           "command": "miisync.downloadfolder",
           "when": "false"

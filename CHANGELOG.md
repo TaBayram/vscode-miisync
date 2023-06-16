@@ -10,6 +10,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - `Switch System` command. With this command you can switch the current main system.
 
+### Fixed
+
+- Where 'Download/Upload Current File' command on explorer was disabled when there was no open editor.
+
 ## [0.10.0] - 12/06/2023
 
 ### Added
