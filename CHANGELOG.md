@@ -1,9 +1,5 @@
 # Change Log
 
-All notable changes to the "miisync" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
 ## [0.11.0] - 04/07/2023
 
 ### Added

@@ -31,9 +31,8 @@ This extension tries to be a replacement for the web side of the standart mii wo
 - Open the current screen with command or right click on index.html
 
 ## Planned Features
- 
-1. Have an option to use some of the settings defined in the self config instead of root config.
-2. Have an include option in config.
+
+
 
 ## Requirements
 
@@ -46,6 +45,7 @@ This extension tries to be a replacement for the web side of the standart mii wo
 * `Session Duration`: How long does session lasts in minutes in the MII system.
 * `Refresh Session`: Should extension perodically send request to renew session?
 * `Request Limit`: The maximum number of requests to server it can send. Used in folder download/upload/transfer. Increasing it can introduce instability.
+* `Show Diff Notification`: Should the extension see if the currently opened file is different from the remote file and show a notification if it is?
 
 ------------
 
@@ -107,6 +107,6 @@ localPath is the folder that contains used .vscode/miisync.json. (if rootconfig 
 
 ## Known Issues
 
-- Logout doesn't terminate session.
+- 
 
 **Enjoy!**
