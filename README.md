@@ -86,6 +86,7 @@ localPath is the folder that contains used .vscode/miisync.json. (if rootconfig 
 * `Download Current File`: Downloads the active file from the remote system. Also is in explorer context menu.
 * `Upload Current Workspace`: Uploads the first workspace to the remote system.
 * `Download Current Workspace`: Downloads the first workspace from the remote system.
+* `Upload Changes`: Uploads uncommitted changed files.
 * `Export Project`: Exports the project as a zip file. (Opens link)
 
 
