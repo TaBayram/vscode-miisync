@@ -8,6 +8,7 @@ import { OnCommandDownloadFile, OnCommandDownloadFileProperties } from '../comma
 import { OnCommandDownloadFolder } from '../commands/commanddownloadfolder';
 import { OnCommandDownloadProject } from '../commands/commanddownloadproject';
 import { OnCommandDownloadWorkspaceFolder } from '../commands/commanddownloadworkspace';
+import { OnCommandUploadGitChanges } from '../commands/commandgitchanges';
 import { OnCommandOpenRootConfig } from '../commands/commandopenrootconfig';
 import { OnCommandOpenScreen } from '../commands/commandopenscreen';
 import { OnCommandLogin, OnCommandLogout, OnCommandSwitchSystem } from '../commands/commandsession';
@@ -56,6 +57,7 @@ export function RegisterCommands(context: vscode.ExtensionContext) {
 	RegisterCommand('miisync.openrootconfig', OnCommandOpenRootConfig, context);
 	RegisterCommand('miisync.uploadworkspace', OnCommandUploadWorkspaceFolder, context);
 	RegisterCommand('miisync.downloadworkspace', OnCommandDownloadWorkspaceFolder, context);
+	RegisterCommand('miisync.uploadgitchanges', OnCommandUploadGitChanges, context);
 
 }
 

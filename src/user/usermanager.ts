@@ -59,7 +59,7 @@ class UserManager {
                     this.refreshLogin();
                 }, settings.sessionDuration / 3 * 60 * 1000);
                 if (restart)
-                    this.refreshLogin();
+                    {this.refreshLogin();}
             }
         }
         else {
@@ -93,8 +93,8 @@ class UserManager {
     }
 
     async login() {
-        if (this.awaitsLogin) return false;
-        if (this.IsLoggedin && !this.session.didCookiesExpire()) return true;
+        if (this.awaitsLogin) {return false;}
+        if (this.IsLoggedin && !this.session.didCookiesExpire()) {return true;}
         this.awaitsLogin = true;
 
         if (await this.refreshLogin(false)) {
@@ -121,7 +121,7 @@ class UserManager {
 
 
     async refreshLogin(useCookies = true) {
-        if (useCookies && this.session.loadCookiesIfCookedIn(10)) return true;
+        if (useCookies && this.session.loadCookiesIfCookedIn(10)) {return true;}
         const response = await logInService.call({ host: this.system.host, port: this.system.port }, false, { Session: true });
         if (response) {
             this.session.haveCookies(response);

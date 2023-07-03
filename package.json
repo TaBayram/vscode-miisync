@@ -123,6 +123,13 @@
         "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
+        "command": "miisync.uploadgitchanges",
+        "title": "Upload Changes",
+        "icon": "$(arrow-up)",
+        "category": "mii",
+        "enablement": "miisync.enabled  && miisync.loggedin"
+      },
+      {
         "command": "miisync.downloadproject",
         "title": "Export Project",
         "category": "mii",
@@ -195,7 +202,7 @@
           "when": "editorIsOpen"
         },
         {
-          "command": "miisync.upload",
+          "command": "miisync.uploadfile",
           "when": "editorIsOpen"
         },
         {

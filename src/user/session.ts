@@ -60,8 +60,8 @@ export class Session {
     clear() {
         this.IsLoggedin = false;
         this.auth = "";
-        //this.cookies = [];
-        //this.clearCookies();
+        this.cookies = [];
+        this.clearCookies();
     }
 
     loadCookiesIfCookedIn(minutes: number) {

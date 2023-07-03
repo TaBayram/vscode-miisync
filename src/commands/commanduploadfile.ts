@@ -11,7 +11,6 @@ export async function OnCommandUploadFile(...uris: any[]) {
     const userConfig = await configManager.load();
     if (!userConfig) return;
 
-
     if (uris && Array.isArray(uris) && uris[1] != undefined) {
         const selectedUris: Uri[] = uris[1] || [];
         for (let index = 0; index < selectedUris.length; index++) {
