@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -75,14 +75,14 @@
         "title": "Upload Current File",
         "icon": "$(arrow-up)",
         "category": "mii",
-        "enablement": "editorIsOpen && miisync.enabled  && miisync.loggedin"
+        "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.downloadfile",
         "title": "Download Current File",
         "icon": "$(arrow-down)",
         "category": "mii",
-        "enablement": "editorIsOpen && miisync.enabled  && miisync.loggedin"
+        "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
         "command": "miisync.deletefile",
@@ -103,6 +103,12 @@
         "enablement": "miisync.enabled && !miisync.loggedin"
       },
       {
+        "command": "miisync.switchsystem",
+        "title": "Switch System",
+        "category": "mii",
+        "enablement": "miisync.enabled && miisync.loggedin"
+      },
+      {
         "command": "miisync.downloadworkspace",
         "title": "Download Current Workspace",
         "icon": "$(arrow-down)",
@@ -112,6 +118,13 @@
       {
         "command": "miisync.uploadworkspace",
         "title": "Upload Current Workspace",
+        "icon": "$(arrow-up)",
+        "category": "mii",
+        "enablement": "miisync.enabled  && miisync.loggedin"
+      },
+      {
+        "command": "miisync.uploadgitchanges",
+        "title": "Upload Changes",
         "icon": "$(arrow-up)",
         "category": "mii",
         "enablement": "miisync.enabled  && miisync.loggedin"
@@ -184,6 +197,14 @@
     ],
     "menus": {
       "commandPalette": [
+        {
+          "command": "miisync.downloadfile",
+          "when": "editorIsOpen"
+        },
+        {
+          "command": "miisync.uploadfile",
+          "when": "editorIsOpen"
+        },
         {
           "command": "miisync.downloadfolder",
           "when": "false"
@@ -338,7 +359,11 @@
     "jsonValidation": [
       {
         "fileMatch": "/miisync.json",
-        "url": "./schema/schema.json"
+        "url": "./schema/miisyncschema.json"
+      },
+      {
+        "fileMatch": "/miisyncuser.json",
+        "url": "./schema/userschema.json"
       }
     ],
     "configuration": [
@@ -363,6 +388,12 @@
             "default": 40,
             "description": "The maximum amount of request to send to server in upload/download folder commands. Too high number could cause instability",
             "order": 1
+          },
+          "miisync.settings.showDiffNotification": {
+            "type": "boolean",
+            "default": true,
+            "description": "Should the extension see if the currently opened file is different from the remote file and show a notification if it is?",
+            "order": 2
           }
         }
       },

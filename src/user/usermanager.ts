@@ -1,5 +1,5 @@
 import { ExtensionContext } from "vscode";
-import { shallowEqual } from "../extends/lib";
+import { GetDifferentValuedKeys } from "../extends/lib";
 import { settingsManager } from "../extension/settings";
 import { logInService } from "../miiservice/loginservice";
 import { logOutService } from "../miiservice/logoutservice";
@@ -59,7 +59,7 @@ class UserManager {
                     this.refreshLogin();
                 }, settings.sessionDuration / 3 * 60 * 1000);
                 if (restart)
-                    this.refreshLogin();
+                    {this.refreshLogin();}
             }
         }
         else {
@@ -69,33 +69,32 @@ class UserManager {
 
 
     public async onSystemUpdate(system: SystemConfig) {
-        if (!shallowEqual(system, this.system)) {
+        let diff = GetDifferentValuedKeys(system, this.system);
+        if (diff.length != 0) {
+            if(diff.length == 1 && diff[0] == "isMain"){
+                this.system.isMain = system.isMain;
+                return true;
+            }
             if (this.IsLoggedin) {
                 await this.logout();
-                this.system.host = system.host;
-                this.system.port = system.port;
-                this.system.username = system.username;
-                this.system.password = system.password;
-                this.system.isMain = system.isMain;
+                for (const key of diff) {
+                    this.system[key] = system[key];
+                }
                 this.login();
             }
             else {
-                this.system.host = system.host;
-                this.system.port = system.port;
-                this.system.username = system.username;
-                this.system.password = system.password;
-                this.system.isMain = system.isMain;
+                for (const key of diff) {
+                    this.system[key] = system[key];
+                }
             }
             return true;
         }
         return false;
     }
 
-
-
     async login() {
-        if (this.awaitsLogin) return false;
-        if (this.IsLoggedin && !this.session.didCookiesExpire()) return true;
+        if (this.awaitsLogin) {return false;}
+        if (this.IsLoggedin && !this.session.didCookiesExpire()) {return true;}
         this.awaitsLogin = true;
 
         if (await this.refreshLogin(false)) {
@@ -122,7 +121,7 @@ class UserManager {
 
 
     async refreshLogin(useCookies = true) {
-        if (useCookies && this.session.loadCookiesIfCookedIn(10)) return true;
+        if (useCookies && this.session.loadCookiesIfCookedIn(10)) {return true;}
         const response = await logInService.call({ host: this.system.host, port: this.system.port }, false, { Session: true });
         if (response) {
             this.session.haveCookies(response);
@@ -189,6 +188,7 @@ export async function InitiliazeMainUserManager({ subscriptions }: ExtensionCont
     await configManager.load();
 }
 
+//todo
 export async function OnSystemsChange(system: SystemConfig[]) {
     let newSystems: SystemConfig[] = [...(system || [])];
     let oldManagers: UserManager[] = [];

@@ -2,7 +2,7 @@ import * as fse from 'fs-extra';
 import * as Joi from 'joi';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { CONFIG_PATH, EXTENSION_NAME } from '../constants.js';
+import { CONFIG_PATH, CONFIG_USER_PATH, EXTENSION_NAME } from '../constants.js';
 import { deepEqual } from '../extends/lib.js';
 import logger from '../ui/logger.js';
 import { GetWorkspaceFolders, SetContextValue, ShowTextDocument } from './vscode';
@@ -51,10 +51,6 @@ export interface UserConfig {
     rootConfig?: string,
 }
 
-export interface ConfigSystem extends SystemConfig, UserConfig {
-
-}
-
 function GetWorkspaceConfig(): UserConfig {
     const conf = vscode.workspace.getConfiguration(EXTENSION_NAME);
     return {
@@ -92,6 +88,10 @@ function MergedDefault(config: UserConfig) {
 
 function GetConfigPath(basePath: string) {
     return path.join(basePath, CONFIG_PATH);
+}
+
+function GetUserConfig(basePath){
+    return path.join(basePath, CONFIG_USER_PATH)
 }
 
 function ReadConfigsFromFile(configPath: string): Promise<any[]> {
@@ -172,11 +172,11 @@ class ConfigManager {
         return { ...this.config };
     }
 
-    get ConfigFilePath() {
+    get ConfigFilePath(): string {
         return this.useRoot ? this.rootfsPath : this.selffsPath;
     }
 
-    get CurrentSystem() {
+    get CurrentSystem(): SystemConfig {
         return this.currentSystem;
     }
 
@@ -258,6 +258,7 @@ class ConfigManager {
             this.rootConfig = config;
             fse.outputJson(GetConfigPath(this.rootfsPath), config, { spaces: 4 });
         }
+        this.setCurrentSystem();
         this.isConfigChanged();
     }
 

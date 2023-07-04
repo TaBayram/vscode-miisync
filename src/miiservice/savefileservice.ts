@@ -7,8 +7,8 @@ class SaveFileService extends Service {
 
     async call({ host, port, body }: Request & { body: string }, sourcePath: string) {
         const url = this.get(host, port, sourcePath);
-        const { value, error, isError } = await this.fetch(new URL(url), false, body);
-        let data: MII<null,null,RowsetsMessage> = null;
+        const { value, error, isError } = await this.fetch(new URL(url), { auth: false, body });
+        let data: MII<null, null, RowsetsMessage> = null;
         if (!isError) {
             data = this.parseXML(value);
         }

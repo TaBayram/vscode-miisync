@@ -1,6 +1,5 @@
 import { XMLParser } from 'fast-xml-parser';
-import { Agent } from 'http';
-import fetch, { HeadersInit, Response } from "node-fetch";
+import fetch, { HeadersInit, RequestRedirect, Response } from "node-fetch";
 import logger from '../../ui/logger.js';
 import { GetSession } from '../../user/session.js';
 import { Column, MII, Row } from './responsetypes.js';
@@ -11,18 +10,16 @@ export interface Request {
     body?: string
 }
 
+export interface FetchSettings {
+    body?: string,
+    auth?: boolean,
+    convertResponse?: 'text' | 'blob' | 'none',
+    redirect?: RequestRedirect
+}
+
 export interface MIIParams {
     "Session"?: boolean
 }
-
-/* "Connection": 'keep-alive',
-"Accept-Encoding": 'gzip, deflate',
-"Accept-Language": 'en-US,en;q=0.9',
-"Referer": "http://10.1.3.210:50000/XMII/CM/MES/GENERAL/masterNavigator/index.html",
- */
-
-//todo: Use pool promise instead of limiting sockets
-const agent = new Agent({ keepAlive: true, });
 
 export abstract class Service {
     readonly abstract name: string;
@@ -41,11 +38,19 @@ export abstract class Service {
         return `${protocol}://${host}:${port}`;
     }
 
-    protected async fetch(url: URL, auth: boolean = false, body?: string, convert: 'text' | 'blob' | 'none' = 'text', skipLogin = true): Promise<{ value: any, error: Error, isError: boolean }> {
+    protected async fetch(url: URL, settings?: FetchSettings): Promise<{ value: any, error: Error, isError: boolean, data?: any }> {
+        const defaultSettings: FetchSettings = {
+            auth: false,
+            body: null,
+            convertResponse: 'text',
+            redirect: 'follow'
+        };
+        let { auth, body, convertResponse, redirect } = {...defaultSettings, ...settings };
+
+
         const session = GetSession(url.hostname, url.port);
         const headers: HeadersInit = {
             "Cookie": session?.Cookies || '',
-
         };
         if (auth && session?.auth) {
             headers["Authorization"] = 'Basic ' + session.auth;
@@ -57,21 +62,21 @@ export abstract class Service {
             method: body ? "POST" : "GET",
             body,
             headers,
-            agent: agent
-
+            redirect,
         }).then((response: Response): any => {
-            if (response.status != 200)
+            if (response.status >= 400) {
                 logger.error(this.name + ": " + response.status + "-" + response.statusText);
-            if (convert == 'none')
+            }
+            if (session.haveCookies(response) == -1) {
+                throw Error("Not logged in");
+            }
+            if (convertResponse == 'none') {
                 return response;
-            else {
-                if (session.haveCookies(response) == -1) {
-                    throw Error("Not logged in");
-                }
             }
 
-            return response[convert]();
-        }).then(data => {
+
+            return response[convertResponse]();
+        }).then(async (data) => {
             return { value: data, error: null, isError: false };
         }).catch((error: Error) => {
             logger.toastError(this.name + ": " + error);
@@ -89,7 +94,7 @@ export abstract class Service {
     }
 
     protected parseParameters(miiParams: MIIParams) {
-        if (!miiParams) return '';
+        if (!miiParams) { return ''; }
         const params: string[] = [];
         for (const key in miiParams) {
             if (miiParams[key] != null) {
