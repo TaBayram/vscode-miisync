@@ -32,8 +32,6 @@ This extension tries to be a replacement for the web side of the standart mii wo
 
 ## Planned Features
 
-
-
 ## Requirements
 
 - Visual Studio Code.
