@@ -1,4 +1,5 @@
-import { configManager, SystemConfig } from "../modules/config";
+import { System } from "../extension/system";
+import { configManager } from "../modules/config";
 import { ShowQuickPick } from "../modules/vscode";
 import logger from "../ui/logger";
 import { QuickPickItem } from "../ui/quickpick";
@@ -16,17 +17,17 @@ export async function OnCommandSwitchSystem() {
     const userConfig = await configManager.load();
     if (!userConfig) return;
 
-    let picks: QuickPickItem<SystemConfig>[] = [];
+    let picks: QuickPickItem<System>[] = [];
     for (const system of userConfig.systems) {
         if (configManager.CurrentSystem != system) {
-            picks.push({ label: system.name, description: system.host + ':' + system.port, object: system })
+            picks.push({ label: system.name, description: system.toHost(), object: system })
         }
     }
     if (picks.length == 0) {
         logger.error('No other system to switch to.');
         return;
     }
-    const quickResponse: QuickPickItem<SystemConfig> = await ShowQuickPick(picks, { title: 'Pick System to Switch' });
+    const quickResponse: QuickPickItem<System> = await ShowQuickPick(picks, { title: 'Pick System to Switch' });
     if (quickResponse) {
         const system = quickResponse.object;
         for (const eSystem of userConfig.systems) {

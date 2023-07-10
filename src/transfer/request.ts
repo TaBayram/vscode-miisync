@@ -1,9 +1,10 @@
 /* For non file transfers */
 
 import { Uri } from "vscode";
+import { System } from "../extension/system";
 import { deleteBatchService } from "../miiservice/deletebatchservice";
 import { readFilePropertiesService } from "../miiservice/readfilepropertiesservice";
-import { SystemConfig, UserConfig } from "../modules/config";
+import { UserConfig } from "../modules/config";
 import { GetRemotePath, ValidatePath } from "../modules/file";
 import { ShowConfirmMessage } from "../modules/vscode";
 import { filePropertiesTree } from "../ui/explorer/filepropertiestree";
@@ -14,7 +15,7 @@ import path = require("path");
 
 
 
-export async function DeleteFile(uri: Uri, userConfig: UserConfig, system: SystemConfig) {
+export async function DeleteFile(uri: Uri, userConfig: UserConfig, system: System) {
     if (!await Validate(userConfig, system, uri.fsPath)) {
         return false;
     }
@@ -37,7 +38,7 @@ export async function DeleteFile(uri: Uri, userConfig: UserConfig, system: Syste
     statusBar.updateBar('Deleted', Icon.success, { duration: 1 })
 
 }
-export async function DeleteFolder(uri: Uri, userConfig: UserConfig, system: SystemConfig) {
+export async function DeleteFolder(uri: Uri, userConfig: UserConfig, system: System) {
     if (!await Validate(userConfig, system, uri.fsPath)) {
         return false;
     }
@@ -61,7 +62,7 @@ export async function DeleteFolder(uri: Uri, userConfig: UserConfig, system: Sys
 
 }
 
-export async function GetFileProperties(uri: Uri, userConfig: UserConfig, system: SystemConfig) {
+export async function GetFileProperties(uri: Uri, userConfig: UserConfig, system: System) {
     if (!await ValidatePath(uri.fsPath, userConfig)) return null;
     const sourcePath = GetRemotePath(uri.fsPath, userConfig);
     const file = await readFilePropertiesService.call({ host: system.host, port: system.port }, sourcePath);

@@ -1,7 +1,14 @@
 import { CancellationToken, ProgressLocation, window } from "vscode";
 
+interface ProgressData {
+    percent: number,
+    end: () => void,
+    thenable: Thenable<void>,
+    token: CancellationToken
+}
+
 export function CreateProgressWindow(title: string, onCancel?: () => void) {
-    const data: { percent: number, end: () => void, thenable: Thenable<void>, token: CancellationToken } = { percent: 0, end: null, token: null, thenable: null };
+    const data: ProgressData = { percent: 0, end: null, token: null, thenable: null };
 
     data.thenable = window.withProgress({
         location: ProgressLocation.Window,
@@ -26,7 +33,7 @@ export function CreateProgressWindow(title: string, onCancel?: () => void) {
             progress.report({
                 increment: data.percent,
                 message: ' ' + data.percent + ' %'
-            })
+            });
             await new Promise(r => setTimeout(r, 1000 / 30));
         }
         progress.report({ increment: 100 });

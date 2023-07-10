@@ -1,9 +1,10 @@
 import { writeFile } from "fs-extra";
 import * as vscode from "vscode";
 import { settingsManager } from "../extension/settings.js";
+import { System } from "../extension/system.js";
 import { FileProperties } from "../miiservice/abstract/responsetypes.js";
 import { readFileService } from "../miiservice/readfileservice.js";
-import { SystemConfig, UserConfig, configManager } from "../modules/config.js";
+import { UserConfig, configManager } from "../modules/config.js";
 import { GetRemotePath } from "../modules/file.js";
 import { CompareDocuments, OpenTextDocument, ShowConfirmPreviewMessage } from "../modules/vscode.js";
 import { DownloadFile } from "../transfer/download.js";
@@ -39,7 +40,7 @@ export async function OnDidChangeActiveTextEditor(textEditor: vscode.TextEditor)
 
 
 let saidNoToTheseDocuments: { fsPath: string, modifiedUser: string, modifiedTime: string }[] = [];
-async function CheckFileDifference(document: vscode.TextDocument, fileProp: FileProperties, userConfig: UserConfig, system: SystemConfig) {
+async function CheckFileDifference(document: vscode.TextDocument, fileProp: FileProperties, userConfig: UserConfig, system: System) {
     const sourcePath = GetRemotePath(document.fileName, userConfig);
     const modifiedUser = fileProp.ModifiedBy;
     if (system.username != modifiedUser) {

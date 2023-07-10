@@ -9,7 +9,7 @@ class LogInService extends Service {
 
     async call({ host, port }: Request, useAuth: boolean = true, params?: MIIParams) {
         const url = this.get(host, port, params);
-        const { value, error, isError } = await this.fetch(new URL(url), { auth: useAuth, convertResponse: 'none' });
+        const { value, error, isError } = await this.fetch(new URL(url), { auth: useAuth, sessionCookies: !useAuth, convertResponse: 'none' });
         if (!isError) {
             if (value.redirected && value.url == this.generateIP(host, port) + "/XMII/goService.jsp") {
                 return value;

@@ -1,5 +1,16 @@
 # Change Log
 
+## [0.11.1] - 10/07/2023
+
+### Changed
+
+- Upload git changes now is limited.
+
+### Fixed
+
+- Where two different systems with the same name's cookies would conflict with eachother.
+- Where changing only the system's name would not log in.
+
 ## [0.11.0] - 04/07/2023
 
 ### Added
@@ -31,9 +42,6 @@
 
 - Upload folder logging "Download Folder" text.
 - Upload folder not creating empty folders.
-
-### Fixed
-
 - Where pressing on upload/download file on fileproperties view wouldn't work.
 
 

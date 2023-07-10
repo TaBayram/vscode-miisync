@@ -1,7 +1,8 @@
 import path = require("path");
 import { Uri } from "vscode";
+import { System } from "../extension/system";
 import { saveFileService } from "../miiservice/savefileservice";
-import { SystemConfig, UserConfig } from "../modules/config";
+import { UserConfig } from "../modules/config";
 import { GetRemotePath } from "../modules/file";
 import { ShowConfirmMessage } from "../modules/vscode";
 import logger from "../ui/logger";
@@ -9,7 +10,7 @@ import statusBar, { Icon } from "../ui/statusbar";
 import { DoesFileExist, DoesFolderExist, Validate } from "./gate";
 import { UploadFolderLimited } from "./limited/upload";
 
-export async function UploadFile(uri: Uri, content: string, userConfig: UserConfig, system: SystemConfig) {
+export async function UploadFile(uri: Uri, content: string, userConfig: UserConfig, system: System) {
     if (!await Validate(userConfig, system, uri.fsPath)) {
         return false;
     }
@@ -31,7 +32,7 @@ export async function UploadFile(uri: Uri, content: string, userConfig: UserConf
 }
 
 
-export async function UploadFolder(folderUri: Uri | string, userConfig: UserConfig, system: SystemConfig) {
+export async function UploadFolder(folderUri: Uri | string, userConfig: UserConfig, system: System) {
     const folderPath = typeof (folderUri) === "string" ? folderUri : folderUri.fsPath;
     if (!await Validate(userConfig, system, folderPath)) {
         return false;
