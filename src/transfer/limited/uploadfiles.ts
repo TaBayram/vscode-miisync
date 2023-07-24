@@ -1,4 +1,4 @@
-import { readFile } from "fs-extra";
+import { exists, readFile } from "fs-extra";
 import { Uri } from "vscode";
 import { settingsManager } from "../../extension/settings";
 import { System } from "../../extension/system";
@@ -29,7 +29,7 @@ export async function UploadFilesLimited(files: Uri[], userConfig: UserConfig, s
         await upload(file.fsPath);
     }
 
-    while (limit.activeCount != 0 || limit.pendingCount != 0 || promises.length != 0) {
+    while (limit.activeCount != 0 || limit.pendingCount != 0 || (promises.length != 0 && !aborted)) {
         await Promise.all(promises);
     }
 
@@ -45,20 +45,28 @@ export async function UploadFilesLimited(files: Uri[], userConfig: UserConfig, s
 
         if (!await ValidatePath(file, userConfig)) return;
         if (aborted) return;
-        const promise = readFile(file)
-            .then((content) => {
-                if (aborted) return;
-                return nlimit(() => {
-                    if (aborted) return;
-                    return saveFile(file, content);
-                })
-            })
-            .then(updateProgress)
-            .finally(() => {
-                const index = promises.findIndex((fProm) => fProm == promise);
-                promises.splice(index, 1);
-            })
+        const promise =
+            createPromise(file)
+                .catch((error) => {
+                    logger.error(file + ' : ' + error.toString());
+                }).finally(() => {
+                    const index = promises.findIndex((fProm) => fProm == promise);
+                    promises.splice(index, 1);
+                });
+
         promises.push(promise);
+    }
+
+    async function createPromise(file: string) {
+        const fileExists = await exists(file);
+        if (!fileExists || aborted) return;
+        const content = await readFile(file);
+        if (aborted) return;
+        await nlimit(() => {
+            if (aborted) return;
+            return saveFile(file, content);
+        })
+        updateProgress();
     }
 
     async function saveFile(file: string, content: Buffer) {

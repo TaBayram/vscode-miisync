@@ -111,7 +111,7 @@ async function TryLoadConfigs(workspace: string): Promise<UserConfig[]> {
     if(exists){
         const configs = await ReadConfigsFromFile(configPath);
         for (const config of configs) {
-            config.systems = config.systems.map((sys) => System.fromConfig(sys));
+            config.systems = config.systems?.map((sys) => System.fromConfig(sys));
         }
         return configs;
     }

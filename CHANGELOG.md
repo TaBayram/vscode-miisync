@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.11.3] - 10/07/2023
+
+### Fixed
+
+- Crash related to root config usage.
+
 ## [0.11.2] - 10/07/2023
 
 ### Changed

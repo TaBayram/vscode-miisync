@@ -1,5 +1,5 @@
 import { extensions } from "vscode";
-import { GitExtension } from "../../out/types/git.js";
+import { GitExtension, Status } from "../../out/types/git.js";
 import { configManager } from "../modules/config.js";
 import { UploadFilesLimited } from "../transfer/limited/uploadfiles.js";
 import logger from "../ui/logger.js";
@@ -21,7 +21,7 @@ export async function OnCommandUploadGitChanges() {
 
     //const commit = await repos[0].getCommit('HEAD');
 
-    const files = changes.map((change) => change?.uri ? change.uri : null);
+    const files = changes.filter((change) => (change.status != Status.DELETED && change?.uri)).map(change => change.uri);
 
     statusBar.updateBar('Uploading', Icon.spinLoading, { duration: -1 });
     logger.infos("Upload Git Changes", "Changes:" + files.length + " Started");
