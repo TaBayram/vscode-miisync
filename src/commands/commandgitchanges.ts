@@ -1,7 +1,7 @@
 import { extensions } from "vscode";
-import { GitExtension, Status } from "../../out/types/git.js";
 import { configManager } from "../modules/config.js";
 import { UploadFilesLimited } from "../transfer/limited/uploadfiles.js";
+import { GitExtension, Status } from "../types/git.js";
 import logger from "../ui/logger.js";
 import statusBar, { Icon } from "../ui/statusbar.js";
 import path = require("path");

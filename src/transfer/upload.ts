@@ -32,30 +32,36 @@ export async function UploadFile(uri: Uri, content: string, userConfig: UserConf
 }
 
 
-export async function UploadFolder(folderUri: Uri | string, userConfig: UserConfig, system: System) {
+export async function UploadFolder(folderUri: Uri | string, userConfig: UserConfig, system: System, showConfirmation: boolean = false) {
     const folderPath = typeof (folderUri) === "string" ? folderUri : folderUri.fsPath;
+    const folderName = path.basename(folderPath);
     if (!await Validate(userConfig, system, folderPath)) {
         return false;
     }
     const sourcePath = GetRemotePath(folderPath, userConfig);
-    if (!await DoesFolderExist(sourcePath, system) &&
+    const folderExists = await DoesFolderExist(sourcePath, system);
+    if (showConfirmation) {
+        const message = folderExists ? 'Are you sure you want to upload ' + folderName + ' ?' : folderName + ' does not exists. Do you want to create it?';
+        if(!await ShowConfirmMessage(message)) return;
+    }
+    else if (!folderExists && 
         !await ShowConfirmMessage("Folder does not exists. Do you want to create it?")) {
         return;
     }
     statusBar.updateBar('Uploading', Icon.spinLoading, { duration: -1 });
-    logger.infos("Upload Folder", path.basename(folderPath) + ": Started");
+    logger.infos("Upload Folder", folderName + ": Started");
 
     const response = await UploadFolderLimited(folderPath, userConfig, system);
 
-    if(response.aborted){
+    if (response.aborted) {
         statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
-        logger.infos("Upload Folder", path.basename(folderPath) + ": Cancelled");
+        logger.infos("Upload Folder", folderName + ": Cancelled");
     }
-    else{
+    else {
         statusBar.updateBar('Uploaded', Icon.success, { duration: 1 });
-        logger.infos("Upload Folder", path.basename(folderPath) + ": Completed");
+        logger.infos("Upload Folder", folderName + ": Completed");
     }
 
-    
+
 }
 
