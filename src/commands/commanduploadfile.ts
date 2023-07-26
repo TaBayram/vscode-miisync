@@ -30,7 +30,7 @@ export async function OnCommandUploadFile(...uris: any[]) {
         const uri = textEditor.document.uri;
         await pathExists(uri.fsPath).then((exists) => {
             if (exists) {
-                UploadFile(textEditor.document.uri, textEditor.document.getText(), userConfig, configManager.CurrentSystem);
+                UploadFile(uri, textEditor.document.getText(), userConfig, configManager.CurrentSystem);
 
             }
         }).catch((error: Error) => {

@@ -1,11 +1,12 @@
 import { mkdir, outputFile, writeFile } from "fs-extra";
 import { Uri } from "vscode";
+import { System } from "../extension/system";
 import { Directory, File, Folder } from "../miiservice/abstract/responsetypes";
 import { listFilesService } from "../miiservice/listfilesservice";
 import { listFoldersService } from "../miiservice/listfoldersservice";
 import { loadFilesInsideService } from "../miiservice/loadfilesinsideservice";
 import { readFileService } from "../miiservice/readfileservice";
-import { SystemConfig, UserConfig } from "../modules/config";
+import { UserConfig } from "../modules/config";
 import { GetRemotePath } from "../modules/file";
 import { GetCurrentWorkspaceFolder, ShowQuickPick } from "../modules/vscode";
 import { remoteDirectoryTree } from "../ui/explorer/remotedirectorytree";
@@ -16,7 +17,7 @@ import { DownloadFolderLimited } from "./limited/download";
 import path = require("path");
 
 
-export async function DownloadFile(uri: Uri, userConfig: UserConfig, system: SystemConfig) {
+export async function DownloadFile(uri: Uri, userConfig: UserConfig, system: System) {
     const filePath = uri.fsPath;
     if (!await Validate(userConfig, system, filePath)) {
         return false;
@@ -39,7 +40,7 @@ export async function DownloadFile(uri: Uri, userConfig: UserConfig, system: Sys
 }
 
 
-export async function DownloadFolder(folderUri: Uri | string, userConfig: UserConfig, system: SystemConfig) {
+export async function DownloadFolder(folderUri: Uri | string, userConfig: UserConfig, system: System) {
     const folderPath = typeof (folderUri) === "string" ? folderUri : folderUri.fsPath;
     if (!await Validate(userConfig, system, folderPath)) {
         return false;
@@ -85,7 +86,7 @@ async function AskRemoteDownloadPathOptions(remoteObjectPath: string, { remotePa
     return result != null ? result + path.sep : null;
 }
 
-export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig: UserConfig, system: SystemConfig) {
+export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig: UserConfig, system: System) {
     if (!await Validate(userConfig, system)) {
         return false;
     }
@@ -123,7 +124,7 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
 
 }
 
-export async function DownloadRemoteFile({ filePath, name }: { filePath: string, name: string }, userConfig: UserConfig, system: SystemConfig) {
+export async function DownloadRemoteFile({ filePath, name }: { filePath: string, name: string }, userConfig: UserConfig, system: System) {
     if (!await Validate(userConfig, system)) {
         return false;
     }
@@ -145,7 +146,7 @@ export async function DownloadRemoteFile({ filePath, name }: { filePath: string,
     logger.infos('Download Remote File', name + ": Finished.");
 }
 
-export async function DownloadContextDirectory(userConfig: UserConfig, system: SystemConfig) {
+export async function DownloadContextDirectory(userConfig: UserConfig, system: System) {
     if (!await Validate(userConfig, system)) {
         return false;
     }
@@ -162,7 +163,7 @@ export async function DownloadContextDirectory(userConfig: UserConfig, system: S
 }
 
 //---------------------------------------------------------------
-async function DownloadDirDepth(mainFolder: Folder, system: SystemConfig) {
+async function DownloadDirDepth(mainFolder: Folder, system: System) {
     mainFolder.children = [];
 
     const folders = await listFoldersService.call({ host: system.host, port: system.port }, mainFolder.Path);
@@ -182,7 +183,7 @@ async function DownloadDirDepth(mainFolder: Folder, system: SystemConfig) {
     return;
 }
 
-async function DownloadFiles({ host, port }: SystemConfig, sourcePath: string, getPath: (item: File | Folder) => string) {
+async function DownloadFiles({ host, port }: System, sourcePath: string, getPath: (item: File | Folder) => string) {
     const directory: Directory = [];
     const parentPath = path.dirname(sourcePath) == "." ? "" : path.dirname(sourcePath);
     const rootFolders = await listFoldersService.call({ host, port }, parentPath);

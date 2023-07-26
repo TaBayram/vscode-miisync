@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { CONFIG_PATH, CONFIG_USER_PATH, EXTENSION_NAME } from '../constants.js';
 import { deepEqual } from '../extends/lib.js';
+import { System } from '../extension/system.js';
 import logger from '../ui/logger.js';
 import { GetWorkspaceFolders, SetContextValue, ShowTextDocument } from './vscode';
 
@@ -12,7 +13,7 @@ let joiSystem = Joi.object().keys({
     name: Joi.string().required(),
     isMain: Joi.boolean().default(false),
     host: Joi.string().required(),
-    port: Joi.number().required(),
+    port: Joi.number(),
     username: Joi.string().required(),
     password: Joi.string(),
 });
@@ -40,7 +41,7 @@ export interface SystemConfig {
 }
 
 export interface UserConfig {
-    systems?: SystemConfig[],
+    systems?: System[],
     removeFromLocalPath?: string[],
     remotePath?: string,
     uploadOnSave?: boolean,
@@ -54,7 +55,7 @@ export interface UserConfig {
 function GetWorkspaceConfig(): UserConfig {
     const conf = vscode.workspace.getConfiguration(EXTENSION_NAME);
     return {
-        systems: conf.get("systems", [defaultSystem]),
+        systems: conf.get("systems", [System.fromConfig(defaultSystem)]),
         removeFromLocalPath: conf.get("removeFromLocalPath", ['webapp']),
         remotePath: conf.get("remotePath", 'MES'),
         downloadOnOpen: false,
@@ -90,31 +91,30 @@ function GetConfigPath(basePath: string) {
     return path.join(basePath, CONFIG_PATH);
 }
 
-function GetUserConfig(basePath){
+function GetUserConfig(basePath) {
     return path.join(basePath, CONFIG_USER_PATH)
 }
 
-function ReadConfigsFromFile(configPath: string): Promise<any[]> {
+function ReadConfigsFromFile(configPath: string): Promise<UserConfig[]> {
     return fse.readJson(configPath).then(config => {
         const configs = Array.isArray(config) ? config : [config];
         return configs.map(MergedDefault);
-    }).catch(error=>{
-        logger.error("Config",error);
+    }).catch(error => {
+        logger.error("Config", error);
         return [];
     });
 }
 
-function TryLoadConfigs(workspace: string): Promise<any[]> {
+async function TryLoadConfigs(workspace: string): Promise<UserConfig[]> {
     const configPath = GetConfigPath(workspace);
-    return fse.pathExists(configPath).then(
-        exist => {
-            if (exist) {
-                return ReadConfigsFromFile(configPath);
-            }
-            return [];
-        },
-        _ => []
-    );
+    const exists = await fse.pathExists(configPath);
+    if(exists){
+        const configs = await ReadConfigsFromFile(configPath);
+        for (const config of configs) {
+            config.systems = config.systems?.map((sys) => System.fromConfig(sys));
+        }
+        return configs;
+    }
 }
 
 
@@ -147,10 +147,10 @@ class ConfigManager {
     private selffsPath: string;
     private selfConfig: UserConfig;
 
-    private currentSystem: SystemConfig;
+    private currentSystem: System;
 
     public onConfigChange: vscode.EventEmitter<UserConfig> = new vscode.EventEmitter();
-    public onSystemsChange: vscode.EventEmitter<SystemConfig[]> = new vscode.EventEmitter();
+    public onSystemsChange: vscode.EventEmitter<System[]> = new vscode.EventEmitter();
 
     private lastLoadedTime: number;
     private lastLoadThreshold = 500;
@@ -176,12 +176,12 @@ class ConfigManager {
         return this.useRoot ? this.rootfsPath : this.selffsPath;
     }
 
-    get CurrentSystem(): SystemConfig {
+    get CurrentSystem(): System {
         return this.currentSystem;
     }
 
-    get SelfConfig(){
-        return  { ...this.selfConfig };
+    get SelfConfig() {
+        return { ...this.selfConfig };
     }
 
 
@@ -224,7 +224,7 @@ class ConfigManager {
 
         this.selffsPath = GetWorkspaceFolders()[0].uri.fsPath;
         this.selfConfig = (await this.loadRoot(this.selffsPath, true))?.config;
-        if(!this.selfConfig){
+        if (!this.selfConfig) {
             logger.toastError("Config", "no miisync.json file found");
             return null;
         }
@@ -279,7 +279,7 @@ class ConfigManager {
 
     private setCurrentSystem() {
 
-        let candidate: SystemConfig = this.config.systems[0];
+        let candidate: System = this.config.systems[0];
         for (const system of this.config.systems) {
             if (system.isMain) {
                 candidate = system;
@@ -296,7 +296,7 @@ class ConfigManager {
         const configs = await TryLoadConfigs(fsPath);
         if (configs?.length) {
             const config: UserConfig = configs[0];
-            if(!config) return null;
+            if (!config) return null;
             if (!self && config.useRootConfig && path.relative(config.rootConfig, fsPath).trim() != '') {
                 const parentConfig = await this.loadRoot(path.resolve(fsPath, config.rootConfig), false);
                 if (parentConfig) {

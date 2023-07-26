@@ -8,7 +8,7 @@ export async function OnCommandUploadFolder(uri: Uri) {
     if (!userConfig) return;
 
     if (uri) {
-        UploadFolder(uri, userConfig, configManager.CurrentSystem);
+        UploadFolder(uri, userConfig, configManager.CurrentSystem, true);
         return;
     }
 }

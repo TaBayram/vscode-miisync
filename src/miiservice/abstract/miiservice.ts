@@ -14,7 +14,8 @@ export interface FetchSettings {
     body?: string,
     auth?: boolean,
     convertResponse?: 'text' | 'blob' | 'none',
-    redirect?: RequestRedirect
+    redirect?: RequestRedirect,
+    sessionCookies?: boolean
 }
 
 export interface MIIParams {
@@ -43,15 +44,18 @@ export abstract class Service {
             auth: false,
             body: null,
             convertResponse: 'text',
-            redirect: 'follow'
+            redirect: 'follow',
+            sessionCookies: true
         };
-        let { auth, body, convertResponse, redirect } = {...defaultSettings, ...settings };
+        let { auth, body, convertResponse, redirect, sessionCookies } = { ...defaultSettings, ...settings };
 
 
-        const session = GetSession(url.hostname, url.port);
-        const headers: HeadersInit = {
-            "Cookie": session?.Cookies || '',
-        };
+        const session = GetSession(url.host);
+        const headers: HeadersInit = {};
+
+        if (sessionCookies) {
+            headers["Cookie"] = session?.Cookies || '';
+        }
         if (auth && session?.auth) {
             headers["Authorization"] = 'Basic ' + session.auth;
         }
@@ -68,7 +72,7 @@ export abstract class Service {
                 logger.error(this.name + ": " + response.status + "-" + response.statusText);
             }
             if (session.haveCookies(response) == -1) {
-                throw Error("Not logged in");
+                //throw Error("Not logged in");
             }
             if (convertResponse == 'none') {
                 return response;

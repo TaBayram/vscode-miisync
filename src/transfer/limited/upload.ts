@@ -1,8 +1,9 @@
 import { readFile } from "fs-extra";
 import { settingsManager } from "../../extension/settings";
+import { System } from "../../extension/system";
 import { deleteBatchService } from "../../miiservice/deletebatchservice";
 import { saveFileService } from "../../miiservice/savefileservice";
-import { SystemConfig, UserConfig } from "../../modules/config";
+import { UserConfig } from "../../modules/config";
 import { GetAllFilesInDirTree, GetRemotePath, SimpleFolder, ValidatePath } from "../../modules/file";
 import logger from "../../ui/logger";
 import { CreateProgressWindow } from "../../ui/progresswindow";
@@ -11,7 +12,7 @@ import pLimit = require("p-limit");
 import path = require("path");
 
 
-export async function UploadFolderLimited(folderPath: string, userConfig: UserConfig, system: SystemConfig): Promise<LimitedReturn<null>> {
+export async function UploadFolderLimited(folderPath: string, userConfig: UserConfig, system: System): Promise<LimitedReturn<null>> {
     if(IsProgressActive()){
         logger.error("There is an already existing transfer ongoing.")
         return {

@@ -1,17 +1,17 @@
 import { mkdir, outputFile } from "fs-extra";
 import { settingsManager } from "../../extension/settings";
+import { System } from "../../extension/system";
 import { Directory, File, Folder } from "../../miiservice/abstract/responsetypes";
 import { listFilesService } from "../../miiservice/listfilesservice";
 import { listFoldersService } from "../../miiservice/listfoldersservice";
 import { readFileService } from "../../miiservice/readfileservice";
-import { SystemConfig } from "../../modules/config";
 import logger from "../../ui/logger";
 import { CreateProgressWindow } from "../../ui/progresswindow";
 import { IsProgressActive, LimitedReturn, SetProgressActive } from "./limited";
 import pLimit = require("p-limit");
 import path = require("path");
 
-export async function DownloadFolderLimited({ host, port }: SystemConfig, sourcePath: string, getPath: (item: File | Folder) => string): Promise<LimitedReturn<Directory>> {
+export async function DownloadFolderLimited({ host, port }: System, sourcePath: string, getPath: (item: File | Folder) => string): Promise<LimitedReturn<Directory>> {
     if(IsProgressActive()){
         logger.error("There is an already existing transfer ongoing.")
         return {

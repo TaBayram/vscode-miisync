@@ -1,5 +1,32 @@
 # Change Log
 
+## [0.11.4] - 26/07/2023
+
+### Added
+
+- Prompt when uploading folder.
+
+### Fixed
+
+- Upload git changes crashing when there are deleted files.
+
+## [0.11.3] - 10/07/2023
+
+### Fixed
+
+- Crash related to root config usage.
+
+## [0.11.2] - 10/07/2023
+
+### Changed
+
+- Upload git changes now is limited.
+
+### Fixed
+
+- Where two different systems with the same name's cookies would conflict with eachother.
+- Where changing only the system's name would not log in.
+
 ## [0.11.0] - 04/07/2023
 
 ### Added
@@ -31,9 +58,6 @@
 
 - Upload folder logging "Download Folder" text.
 - Upload folder not creating empty folders.
-
-### Fixed
-
 - Where pressing on upload/download file on fileproperties view wouldn't work.
 
 

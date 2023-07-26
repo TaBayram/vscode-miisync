@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.11.0",
+  "version": "0.11.4",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -248,49 +248,49 @@
       ],
       "explorer/context": [
         {
+          "command": "miisync.openrootconfig",
+          "group": "miisync.file@0",
+          "when": "miisync.enabled && resourceFilename == miisync.json && miisync.userootconfig"
+        },
+        {
           "command": "miisync.openscreen",
-          "group": "miisync@1",
+          "group": "miisync.file@1",
           "when": "miisync.enabled && resourceFilename == index.html"
         },
         {
           "command": "miisync.downloadfile",
-          "group": "miisync@2",
+          "group": "miisync.file@2",
           "when": "miisync.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
         },
         {
           "command": "miisync.uploadfile",
-          "group": "miisync@3",
+          "group": "miisync.file@3",
           "when": "miisync.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
         },
         {
           "command": "miisync.deletefile",
-          "group": "miisync@5",
+          "group": "miisync.file@5",
           "when": "miisync.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
         },
         {
           "command": "miisync.downloadfolder",
-          "group": "miisync@2",
+          "group": "miisync.folder@2",
           "when": "miisync.enabled && !explorerResourceIsRoot && explorerResourceIsFolder"
         },
         {
           "command": "miisync.uploadfolder",
-          "group": "miisync@3",
+          "group": "miisync.folder@3",
           "when": "miisync.enabled && !explorerResourceIsRoot && explorerResourceIsFolder"
         },
         {
           "command": "miisync.transferfolder",
-          "group": "miisync@4",
+          "group": "miisync.folder@4",
           "when": "miisync.enabled && explorerResourceIsFolder"
         },
         {
           "command": "miisync.deletefolder",
-          "group": "miisync@5",
+          "group": "miisync.folder@5",
           "when": "miisync.enabled && !explorerResourceIsRoot && explorerResourceIsFolder"
-        },
-        {
-          "command": "miisync.openrootconfig",
-          "group": "miisync@0",
-          "when": "miisync.enabled && resourceFilename == miisync.json && miisync.userootconfig"
         }
       ],
       "view/title": [

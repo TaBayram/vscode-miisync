@@ -1,8 +1,10 @@
-import { readFile } from "fs-extra";
 import { extensions } from "vscode";
-import { GitExtension } from "../../out/types/git.js";
 import { configManager } from "../modules/config.js";
-import { UploadFile } from "../transfer/upload.js";
+import { UploadFilesLimited } from "../transfer/limited/uploadfiles.js";
+import { GitExtension, Status } from "../types/git.js";
+import logger from "../ui/logger.js";
+import statusBar, { Icon } from "../ui/statusbar.js";
+import path = require("path");
 
 
 
@@ -19,13 +21,20 @@ export async function OnCommandUploadGitChanges() {
 
     //const commit = await repos[0].getCommit('HEAD');
 
+    const files = changes.filter((change) => (change.status != Status.DELETED && change?.uri)).map(change => change.uri);
+
+    statusBar.updateBar('Uploading', Icon.spinLoading, { duration: -1 });
+    logger.infos("Upload Git Changes", "Changes:" + files.length + " Started");
+
     //todo: try to prevent possible duplicate bug
-    for (const change of changes) {
-        if (change.uri) {
-            const uri = change.uri;
-            readFile(uri.fsPath).then((value) => {
-                UploadFile(uri, value.toString(), userConfig, configManager.CurrentSystem);
-            });
-        }
+    const response = await UploadFilesLimited(files, userConfig, configManager.CurrentSystem);
+
+    if(response.aborted){
+        statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
+        logger.infos("Upload Git Changes", "Cancelled");
+    }
+    else{
+        statusBar.updateBar('Uploaded', Icon.success, { duration: 1 });
+        logger.infos("Upload Git Changes", "Completed");
     }
 }

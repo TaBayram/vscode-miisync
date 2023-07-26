@@ -1,10 +1,10 @@
 import { Response } from "node-fetch";
 import * as vscode from "vscode";
 import { settingsManager } from "../extension/settings";
-import { SystemConfig } from "../modules/config";
+import { System } from "../extension/system";
 
 export class Session {
-    private static readonly authNeededCookieID: "com.sap.engine.security.authentication.original_application_url";
+    private static readonly authNeededCookieID =  "com.sap.engine.security.authentication.original_application_url";
 
     private static context: vscode.ExtensionContext;
     public static onLogStateChange: vscode.EventEmitter<Session> = new vscode.EventEmitter();
@@ -36,7 +36,7 @@ export class Session {
         return this.cookies.join("; ");
     }
 
-    public constructor(readonly system: SystemConfig) {
+    public constructor(readonly system: System) {
         sessions.push(this);
         this.loadCookies();
     }
@@ -150,12 +150,13 @@ export class Session {
         this.putToStore("cookies", cookies);
     }
 
+    //todo: use tough-cookie or other module to handle cookie management
     private getFromStore(id: string, defaultValue?: any) {
-        return Session.context.globalState.get(this.system.name + id, defaultValue);
+        return Session.context.globalState.get(this.system.toBase64() + id, defaultValue);
     }
 
     private putToStore(id: string, value: any) {
-        return Session.context.globalState.update(this.system.name + id, value);
+        return Session.context.globalState.update(this.system.toBase64() + id, value);
     }
 
 
@@ -166,9 +167,9 @@ export class Session {
 
 const sessions: Session[] = [];
 
-export function GetSession(host: string, port: string) {
+export function GetSession(host: string) {
     for (const session of sessions) {
-        if (session.system.host == host && session.system.port?.toString() == port) {
+        if (session.system.toHost() == host) {
             return session;
         }
     }
@@ -177,4 +178,8 @@ export function GetSession(host: string, port: string) {
 
 export function GetMainSession() {
     return sessions.find((session) => session.system.isMain);
+}
+
+export function RemoveSession(session: Session){
+    sessions.splice(sessions.findIndex((sess)=> sess == session));
 }

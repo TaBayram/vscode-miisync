@@ -1,12 +1,13 @@
 import { ExtensionContext } from "vscode";
 import { GetDifferentValuedKeys } from "../extends/lib";
 import { settingsManager } from "../extension/settings";
+import { System } from "../extension/system";
 import { logInService } from "../miiservice/loginservice";
 import { logOutService } from "../miiservice/logoutservice";
-import { SystemConfig, configManager } from "../modules/config";
+import { configManager } from "../modules/config";
 import { SetContextValue, ShowInputBox } from "../modules/vscode";
 import logger from "../ui/logger";
-import { Session } from "./session";
+import { RemoveSession, Session } from "./session";
 
 
 // Find a better name
@@ -31,7 +32,7 @@ class UserManager {
     }
 
 
-    constructor(readonly system: SystemConfig) {
+    constructor(readonly system: System) {
         this.session = new Session(system);
         this.session.onLogStateChange.event(this.onLogStateChange, this);
         settingsManager.onSettingsChange.event(this.onSettingsChange, this);
@@ -58,8 +59,7 @@ class UserManager {
                 this.refreshTimer = setInterval(() => {
                     this.refreshLogin();
                 }, settings.sessionDuration / 3 * 60 * 1000);
-                if (restart)
-                    {this.refreshLogin();}
+                if (restart) { this.refreshLogin(); }
             }
         }
         else {
@@ -68,10 +68,10 @@ class UserManager {
     }
 
 
-    public async onSystemUpdate(system: SystemConfig) {
+    public async onSystemUpdate(system: System) {
         let diff = GetDifferentValuedKeys(system, this.system);
         if (diff.length != 0) {
-            if(diff.length == 1 && diff[0] == "isMain"){
+            if (diff.length == 1 && diff[0] == "isMain") {
                 this.system.isMain = system.isMain;
                 return true;
             }
@@ -93,8 +93,8 @@ class UserManager {
     }
 
     async login() {
-        if (this.awaitsLogin) {return false;}
-        if (this.IsLoggedin && !this.session.didCookiesExpire()) {return true;}
+        if (this.awaitsLogin) { return false; }
+        if (this.IsLoggedin && !this.session.didCookiesExpire()) { return true; }
         this.awaitsLogin = true;
 
         if (await this.refreshLogin(false)) {
@@ -121,7 +121,7 @@ class UserManager {
 
 
     async refreshLogin(useCookies = true) {
-        if (useCookies && this.session.loadCookiesIfCookedIn(10)) {return true;}
+        if (useCookies && this.session.loadCookiesIfCookedIn(10)) { return true; }
         const response = await logInService.call({ host: this.system.host, port: this.system.port }, false, { Session: true });
         if (response) {
             this.session.haveCookies(response);
@@ -164,7 +164,7 @@ class UserManager {
 const userManagers: UserManager[] = [];
 
 
-export function GetUserManager(system: SystemConfig, create: boolean = false) {
+export function GetUserManager(system: System, create: boolean = false) {
     for (const manager of userManagers) {
         if (manager.system.name == system.name && manager.system.host == system.host && manager.system.port == system.port) {
             return manager;
@@ -189,8 +189,8 @@ export async function InitiliazeMainUserManager({ subscriptions }: ExtensionCont
 }
 
 //todo
-export async function OnSystemsChange(system: SystemConfig[]) {
-    let newSystems: SystemConfig[] = [...(system || [])];
+export async function OnSystemsChange(system: System[]) {
+    let newSystems: System[] = [...(system || [])];
     let oldManagers: UserManager[] = [];
 
     let wasMainLoggedIn = userManagers.length == 0 || userManagers.find((manager) => manager.system.isMain && manager.IsLoggedin) != null;
@@ -210,9 +210,12 @@ export async function OnSystemsChange(system: SystemConfig[]) {
         }
     }
 
+    const promises = [];
     for (const oldManager of oldManagers) {
-        oldManager.logout();
+        promises.push(oldManager.logout().then(() => RemoveSession(oldManager.Session)));
     }
+    await Promise.all(promises);
+
     for (const system of newSystems) {
         GetUserManager(system, true);
     }

@@ -1,5 +1,6 @@
 import { Uri } from "vscode";
-import { SystemConfig, UserConfig, configManager } from "../modules/config";
+import { System } from "../extension/system";
+import { UserConfig, configManager } from "../modules/config";
 import { ShowQuickPick } from "../modules/vscode";
 import logger from "../ui/logger";
 import { QuickPickItem } from "../ui/quickpick";
@@ -10,14 +11,14 @@ import path = require("path");
 
 
 export async function TransferFolder(uri: Uri, userConfig: UserConfig) {
-    let picks: QuickPickItem<SystemConfig>[] = [];
+    let picks: QuickPickItem<System>[] = [];
     for (const system of userConfig.systems) {
         if (configManager.CurrentSystem != system) {
             picks.push({ label: system.name, description: system.host + ':' + system.port, object: system })
         }
     }
 
-    const quickResponse: QuickPickItem<SystemConfig> = await ShowQuickPick(picks, { title: 'Pick System' });
+    const quickResponse: QuickPickItem<System> = await ShowQuickPick(picks, { title: 'Pick System' });
     if (quickResponse) {
         const system = quickResponse.object;
         const user = GetUserManager(system, true);
