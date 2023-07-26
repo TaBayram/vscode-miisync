@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.11.4] - 26/07/2023
+
+### Added
+
+- Prompt when uploading folder.
+
+### Fixed
+
+- Upload git changes crashing when there are deleted files.
+
 ## [0.11.3] - 10/07/2023
 
 ### Fixed
