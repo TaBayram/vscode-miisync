@@ -1,5 +1,16 @@
 # Change Log
 
+## [0.11.5] - 28/07/2023
+
+### Changed
+
+- Refresh login doesn't try after 3 failed attempts.
+
+### Fixed
+
+- Where upload folder would create normally ignored folder.
+- Where the root folder upload folder path was wrong
+
 ## [0.11.4] - 26/07/2023
 
 ### Added

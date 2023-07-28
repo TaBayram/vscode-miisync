@@ -51,15 +51,29 @@ class UserManager {
         }
     }
 
+    failCount = 0;
     private onIntervalRefresh(restart: boolean) {
         const settings = settingsManager.Settings;
         if (this.IsLoggedin && settings.refreshSession) {
             if (!this.refreshTimer || restart) {
+                this.failCount = 0;
                 clearInterval(this.refreshTimer);
-                this.refreshTimer = setInterval(() => {
+
+                this.refreshTimer =
+                    setInterval(async () => {
+                        const isSuccess = await this.refreshLogin();
+                        this.failCount++;
+                        if (isSuccess) {
+                            this.failCount = 0;
+                        }
+                        else if (this.failCount >= 3) {
+                            this.IsLoggedin = false;
+                            clearInterval(this.refreshTimer);
+                        }
+                    }, settings.sessionDuration / 3 * 60 * 1000);
+                if (restart) {
                     this.refreshLogin();
-                }, settings.sessionDuration / 3 * 60 * 1000);
-                if (restart) { this.refreshLogin(); }
+                }
             }
         }
         else {

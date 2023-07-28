@@ -50,6 +50,8 @@ export async function UploadFolderLimited(folderPath: string, userConfig: UserCo
     async function deep(folder: SimpleFolder) {
         if (aborted) return;
         //todo: find a way to create a folder in the system instead of this.
+        if (!await ValidatePath(folder.path, userConfig)) return;
+
         const totalSubItems = folder.files.length + folder.folders.length;
         if (totalSubItems != 1) {
             const deletePath = path.join(folder.path, '.delete');
