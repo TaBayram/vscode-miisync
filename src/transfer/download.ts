@@ -77,10 +77,12 @@ async function AskRemoteDownloadPathOptions(remoteObjectPath: string, { remotePa
     const absolutePath = remoteObjectPath.trim();
     const basename = path.basename(remoteObjectPath).trim();
     const realPath = (path.relative(remotePath, remoteObjectPath.replace("/WEB", "")) || "").trim().replaceAll(path.sep, '/');
+    const realWebPath = (path.relative(remotePath, remoteObjectPath) || "").trim().replaceAll(path.sep, '/');
 
     let options = [basename];
     if (!options.find((value) => value === realPath) && realPath != "") options.push(realPath);
-    if (!options.find((value) => value === absolutePath) && realPath != "") options.push(absolutePath);
+    if (!options.find((value) => value === realWebPath) && realWebPath != "") options.push(realWebPath);
+    if (!options.find((value) => value === absolutePath) && absolutePath != "") options.push(absolutePath);
 
     const result = options.length > 1 ? await ShowQuickPick(options, { title: "Download Where?" }) : options[0];
     return result != null ? result + path.sep : null;

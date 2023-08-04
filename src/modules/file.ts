@@ -29,8 +29,9 @@ export function GetRemotePath(filePath: string, { remotePath, removeFromLocalPat
 
     let sourcePath = filePath != "" ? path.relative(configPath, filePath) : "";
     for (const remove of removeFromLocalPath || []) {
-        sourcePath = sourcePath.replace(path.sep + remove, '');
-        sourcePath = sourcePath.replace(remove + path.sep, '');
+        sourcePath = sourcePath.replaceAll(path.sep + remove, '');
+        sourcePath = sourcePath.replaceAll(remove + path.sep, '');
+        sourcePath = sourcePath.replaceAll(remove, '');
     }
     sourcePath = sourcePath.length != 0 ? path.sep + sourcePath : sourcePath;
     const startPath = addWeb ? InsertWeb(remotePath) : remotePath;
