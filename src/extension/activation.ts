@@ -13,6 +13,7 @@ import { OnCommandOpenRootConfig } from '../commands/commandopenrootconfig';
 import { OnCommandOpenScreen } from '../commands/commandopenscreen';
 import { OnCommandLogin, OnCommandLogout, OnCommandSwitchSystem } from '../commands/commandsession';
 import { OnCommandDisableDownloadOnOpen, OnCommandDisableSyncSave, OnCommandEnableDownloadOnOpen, OnCommandEnableSyncSave } from '../commands/commandtogglesync';
+import { OnCommandTransferFile } from '../commands/commandtransferfile';
 import { OnCommandTransferFolder } from '../commands/commandtransferfolder';
 import { OnCommandUploadFile } from '../commands/commanduploadfile';
 import { OnCommandUploadFolder } from '../commands/commanduploadfolder';
@@ -50,6 +51,7 @@ export function RegisterCommands(context: vscode.ExtensionContext) {
 	RegisterCommand('miisync.downloadfileproperties', OnCommandDownloadFileProperties, context);
 	RegisterCommand('miisync.uploadfolder', OnCommandUploadFolder, context);
 	RegisterCommand('miisync.transferfolder', OnCommandTransferFolder, context);
+	RegisterCommand('miisync.transferfile', OnCommandTransferFile, context);
 	RegisterCommand('miisync.disabledownloadonopen', OnCommandDisableDownloadOnOpen, context);
 	RegisterCommand('miisync.enabledownloadonopen', OnCommandEnableDownloadOnOpen, context);
 	RegisterCommand('miisync.deletefile', OnCommandDeleteFile, context);

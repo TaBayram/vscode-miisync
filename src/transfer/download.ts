@@ -36,7 +36,7 @@ export async function DownloadFile(uri: Uri, userConfig: UserConfig, system: Sys
     await writeFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" })
 
     statusBar.updateBar("Downloaded " + fileName, Icon.success, { duration: 3 });
-    logger.infos('Download File', fileName + ": Finished.");
+    logger.infoplus(system.name,'Download File', fileName + ": Finished.");
 }
 
 
@@ -46,7 +46,7 @@ export async function DownloadFolder(folderUri: Uri | string, userConfig: UserCo
         return false;
     }
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
-    logger.infos("Download Folder", path.basename(folderPath) + ": Started");
+    logger.infoplus(system.name,"Download Folder", path.basename(folderPath) + ": Started");
 
     function getPath(item: File | Folder) {
         if ('FolderName' in item) {
@@ -65,11 +65,11 @@ export async function DownloadFolder(folderUri: Uri | string, userConfig: UserCo
     
     if(response.aborted){
         statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
-        logger.infos("Download Folder", path.basename(folderPath) + ": Cancelled");
+        logger.infoplus(system.name,"Download Folder", path.basename(folderPath) + ": Cancelled");
     }
     else{
         statusBar.updateBar('Downloaded', Icon.success, { duration: 1 });
-        logger.infos("Download Folder", path.basename(folderPath) + ": Completed");
+        logger.infoplus(system.name,"Download Folder", path.basename(folderPath) + ": Completed");
     }
 }
 
@@ -97,7 +97,7 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
 
     const folderName = path.basename(remoteFolderPath);
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
-    logger.infos("Download Remote Folder", folderName + ": Started");
+    logger.infoplus(system.name,"Download Remote Folder", folderName + ": Started");
     const workspaceFolder = GetCurrentWorkspaceFolder().fsPath;
 
     function getPath(item: File | Folder) {
@@ -116,11 +116,11 @@ export async function DownloadRemoteFolder(remoteFolderPath: string, userConfig:
 
     if(response.aborted){
         statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
-        logger.infos("Download Remote Folder", folderName + ": Cancelled");
+        logger.infoplus(system.name,"Download Remote Folder", folderName + ": Cancelled");
     }
     else{
         statusBar.updateBar('Downloaded', Icon.success, { duration: 1 });
-        logger.infos("Download Remote Folder", folderName + ": Completed");
+        logger.infoplus(system.name,"Download Remote Folder", folderName + ": Completed");
     }
     
 
@@ -145,7 +145,7 @@ export async function DownloadRemoteFile({ filePath, name }: { filePath: string,
     }
 
     statusBar.updateBar('Downloaded', Icon.success, { duration: 1 });
-    logger.infos('Download Remote File', name + ": Finished.");
+    logger.infoplus(system.name,'Download Remote File', name + ": Finished.");
 }
 
 export async function DownloadContextDirectory(userConfig: UserConfig, system: System) {
@@ -156,12 +156,12 @@ export async function DownloadContextDirectory(userConfig: UserConfig, system: S
     const parentPath = path.dirname(sourcePath).replaceAll(path.sep, "/");
 
     statusBar.updateBar('Downloading', Icon.spinLoading, { duration: -1 });
-    logger.infos("Download Context Directory", sourcePath + ": Started");
+    logger.infoplus(system.name,"Download Context Directory", sourcePath + ": Started");
 
     const files = await loadFilesInsideService.call({ host: system.host, port: system.port }, sourcePath);
     remoteDirectoryTree.generateItemsByFiles(files?.Rowsets?.Rowset?.Row);
     statusBar.updateBar('Downloaded', Icon.success, { duration: 2 });
-    logger.infos("Download Context Directory", sourcePath + ": Completed");
+    logger.infoplus(system.name,"Download Context Directory", sourcePath + ": Completed");
 }
 
 //---------------------------------------------------------------

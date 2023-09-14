@@ -56,7 +56,7 @@ async function CheckFileDifference(document: vscode.TextDocument, fileProp: File
             if (response === 1) {
                 await writeFile(document.fileName, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" });
                 statusBar.updateBar("Downloaded " + path.basename(document.fileName), Icon.success, { duration: 3 });
-                logger.infos('Download File', path.basename(document.fileName) + ": Finished.");
+                logger.infoplus(system.name,'Download File', path.basename(document.fileName) + ": Finished.");
             }
             else if (response === 2) {
                 const extension = path.extname(document.fileName).substring(1);
