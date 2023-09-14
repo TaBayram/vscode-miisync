@@ -60,7 +60,7 @@ function GetWorkspaceConfig(): UserConfig {
         remotePath: conf.get("remotePath", 'MES'),
         downloadOnOpen: false,
         uploadOnSave: false,
-        ignore: conf.get('ignore', ['package.json']),
+        ignore: conf.get('ignore', ['package.json', '.*']),
         include: conf.get('include', []),
         useRootConfig: conf.get('useRootConfig', false),
         rootConfig: conf.get('rootConfig', '')

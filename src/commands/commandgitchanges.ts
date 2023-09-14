@@ -24,17 +24,17 @@ export async function OnCommandUploadGitChanges() {
     const files = changes.filter((change) => (change.status != Status.DELETED && change?.uri)).map(change => change.uri);
 
     statusBar.updateBar('Uploading', Icon.spinLoading, { duration: -1 });
-    logger.infos("Upload Git Changes", "Changes:" + files.length + " Started");
+    logger.infoplus(configManager.CurrentSystem.name,"Upload Git Changes", "Changes:" + files.length + " Started");
 
     //todo: try to prevent possible duplicate bug
     const response = await UploadFilesLimited(files, userConfig, configManager.CurrentSystem);
 
     if(response.aborted){
         statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
-        logger.infos("Upload Git Changes", "Cancelled");
+        logger.infoplus(configManager.CurrentSystem.name,"Upload Git Changes", "Cancelled");
     }
     else{
         statusBar.updateBar('Uploaded', Icon.success, { duration: 1 });
-        logger.infos("Upload Git Changes", "Completed");
+        logger.infoplus(configManager.CurrentSystem.name,"Upload Git Changes", "Completed");
     }
 }

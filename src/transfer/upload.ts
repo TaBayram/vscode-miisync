@@ -26,7 +26,7 @@ export async function UploadFile(uri: Uri, content: string, userConfig: UserConf
     statusBar.updateBar('Uploading', Icon.spinLoading, { duration: -1 });
     const response = await saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
     if (response) {
-        logger.infos("Upload File", fileName + ": " + response?.Rowsets?.Messages?.Message);
+        logger.infoplus(system.name,"Upload File", fileName + ": " + response?.Rowsets?.Messages?.Message);
     }
     statusBar.updateBar("Uploaded " + fileName, Icon.success, { duration: 3 });
 }
@@ -49,17 +49,17 @@ export async function UploadFolder(folderUri: Uri | string, userConfig: UserConf
         return;
     }
     statusBar.updateBar('Uploading', Icon.spinLoading, { duration: -1 });
-    logger.infos("Upload Folder", folderName + ": Started");
+    logger.infoplus(system.name,"Upload Folder", folderName + ": Started");
 
     const response = await UploadFolderLimited(folderPath, userConfig, system);
 
     if (response.aborted) {
         statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
-        logger.infos("Upload Folder", folderName + ": Cancelled");
+        logger.infoplus(system.name,"Upload Folder", folderName + ": Cancelled");
     }
     else {
         statusBar.updateBar('Uploaded', Icon.success, { duration: 1 });
-        logger.infos("Upload Folder", folderName + ": Completed");
+        logger.infoplus(system.name,"Upload Folder", folderName + ": Completed");
     }
 
 

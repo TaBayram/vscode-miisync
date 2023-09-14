@@ -1,5 +1,18 @@
 # Change Log
 
+## [0.11.6] - 13/09/2023
+
+### Added
+
+- `Transfer File` explorer command.
+- Default '*.' ignore case.
+- System name to most logs.
+
+### Fixed
+
+- Deleting files wouldn't clear the cache.
+
+
 ## [0.11.5] - 28/07/2023
 
 ### Changed

@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.11.5",
+  "version": "0.11.6",
   "license": "MIT",
   "engines": {
     "vscode": "^1.77.0"
@@ -82,6 +82,12 @@
         "title": "Download Current File",
         "icon": "$(arrow-down)",
         "category": "mii",
+        "enablement": "miisync.enabled  && miisync.loggedin"
+      },
+      {
+        "command": "miisync.transferfile",
+        "title": "Transfer File",
+        "category": "zmii",
         "enablement": "miisync.enabled  && miisync.loggedin"
       },
       {
@@ -265,6 +271,11 @@
         {
           "command": "miisync.uploadfile",
           "group": "miisync.file@3",
+          "when": "miisync.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
+        },
+        {
+          "command": "miisync.transferfile",
+          "group": "miisync.file@4",
           "when": "miisync.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
         },
         {

@@ -2,6 +2,7 @@
 
 import { Uri } from "vscode";
 import { System } from "../extension/system";
+import { blowoutService } from "../miiservice/blowoutservice";
 import { deleteBatchService } from "../miiservice/deletebatchservice";
 import { readFilePropertiesService } from "../miiservice/readfilepropertiesservice";
 import { UserConfig } from "../modules/config";
@@ -33,7 +34,8 @@ export async function DeleteFile(uri: Uri, userConfig: UserConfig, system: Syste
     const response = await deleteBatchService.call({ host: system.host, port: system.port }, sourcePath);
     if (response) {
         const fileName = path.basename(sourcePath);
-        logger.infos("Delete File", fileName + ": " + response?.Rowsets?.Messages?.Message);
+        logger.infoplus(system.name,"Delete File", fileName + ": " + response?.Rowsets?.Messages?.Message);
+        await blowoutService.call({host: system.host, port: system.port}, sourcePath);
     }
     statusBar.updateBar('Deleted', Icon.success, { duration: 1 })
 
@@ -56,7 +58,8 @@ export async function DeleteFolder(uri: Uri, userConfig: UserConfig, system: Sys
     const response = await deleteBatchService.call({ host: system.host, port: system.port }, sourcePath);
     if (response) {
         const folderName = path.basename(sourcePath);
-        logger.infos("Delete Folder", folderName + ": " + response?.Rowsets?.Messages?.Message);
+        logger.infoplus(system.name,"Delete Folder", folderName + ": " + response?.Rowsets?.Messages?.Message);
+        await blowoutService.call({host: system.host, port: system.port}, sourcePath);
     }
     statusBar.updateBar('Deleted', Icon.success, { duration: 1 })
 
