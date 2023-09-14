@@ -1,6 +1,6 @@
 # Change Log
 
-## [0.11.6] - 13/09/2023
+## [0.11.6] - 14/09/2023
 
 ### Added
 
@@ -12,8 +12,8 @@
 
 - Deleting files wouldn't clear the cache.
 
+## [0.11.5] - 04/08/2023
 
-## [0.11.5] - 28/07/2023
 
 ### Changed
 
