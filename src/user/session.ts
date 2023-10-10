@@ -4,7 +4,7 @@ import { settingsManager } from "../extension/settings";
 import { System } from "../extension/system";
 
 export class Session {
-    private static readonly authNeededCookieID =  "com.sap.engine.security.authentication.original_application_url";
+    private static readonly authNeededCookieID = "com.sap.engine.security.authentication.original_application_url";
 
     private static context: vscode.ExtensionContext;
     public static onLogStateChange: vscode.EventEmitter<Session> = new vscode.EventEmitter();
@@ -23,6 +23,7 @@ export class Session {
         this.isLoggedin = value;
         Session.onLogStateChange.fire(this);
         this.onLogStateChange.fire(this);
+        this.saveCookies();
     }
 
     public get IsLoggedin() {
@@ -81,7 +82,7 @@ export class Session {
             return cookiePart;
         });
         for (const cookie of cookies) {
-            if (cookie.startsWith(Session.authNeededCookieID)) {
+            if (cookie.startsWith(Session.authNeededCookieID) && this.isLoggedin) {
                 return -1;
             }
         }
@@ -115,8 +116,10 @@ export class Session {
     }
 
     private saveCookies() {
-        this.StoredLastUpdated = this.lastUpdated;
-        this.StoredCookies = this.cookies;
+        if(this.isLoggedin){
+            this.StoredLastUpdated = this.lastUpdated;
+            this.StoredCookies = this.cookies;
+        }
     }
 
 
@@ -180,6 +183,6 @@ export function GetMainSession() {
     return sessions.find((session) => session.system.isMain);
 }
 
-export function RemoveSession(session: Session){
-    sessions.splice(sessions.findIndex((sess)=> sess == session));
+export function RemoveSession(session: Session) {
+    sessions.splice(sessions.findIndex((sess) => sess == session));
 }

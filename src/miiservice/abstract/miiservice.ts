@@ -1,4 +1,4 @@
-import { XMLParser } from 'fast-xml-parser';
+import { X2jOptions, XMLParser } from 'fast-xml-parser';
 import fetch, { HeadersInit, RequestRedirect, Response } from "node-fetch";
 import logger from '../../ui/logger.js';
 import { GetSession } from '../../user/session.js';
@@ -11,7 +11,8 @@ export interface Request {
 }
 
 export interface FetchSettings {
-    body?: string,
+    method?: 'GET' | 'POST'
+    body?: any,
     auth?: boolean,
     convertResponse?: 'text' | 'blob' | 'none',
     redirect?: RequestRedirect,
@@ -42,16 +43,21 @@ export abstract class Service {
     protected async fetch(url: URL, settings?: FetchSettings): Promise<{ value: any, error: Error, isError: boolean, data?: any }> {
         const defaultSettings: FetchSettings = {
             auth: false,
+            method: 'GET',
             body: null,
             convertResponse: 'text',
             redirect: 'follow',
             sessionCookies: true
         };
-        let { auth, body, convertResponse, redirect, sessionCookies } = { ...defaultSettings, ...settings };
+        let { method, auth, body, convertResponse, redirect, sessionCookies } = { ...defaultSettings, ...settings };
 
 
         const session = GetSession(url.host);
         const headers: HeadersInit = {};
+        headers['Content-Type'] = 'application/x-www-form-urlencoded';
+        headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36';
+        headers['Accept'] = 'text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2';
+        headers['Connection'] = 'keep-alive';
 
         if (sessionCookies) {
             headers["Cookie"] = session?.Cookies || '';
@@ -59,11 +65,10 @@ export abstract class Service {
         if (auth && session?.auth) {
             headers["Authorization"] = 'Basic ' + session.auth;
         }
-        if (body) {
-            headers['Content-Type'] = 'application/x-www-form-urlencoded';
-        }
+       
+
         return fetch(url.toString(), {
-            method: body ? "POST" : "GET",
+            method: body ? "POST" : method,
             body,
             headers,
             redirect,
@@ -88,12 +93,13 @@ export abstract class Service {
         });
     }
 
-    protected parseXML(data: string) {
-        const parser = new XMLParser({
+    protected parseXML(data: string, options?: Partial<X2jOptions>) {
+        options = options ? options : {
             ignoreAttributes: false, isArray(tagName, jPath, isLeafNode, isAttribute) {
                 return tagName == "Row";
             },
-        });
+        };
+        const parser = new XMLParser(options);
         return parser.parse(data);
     }
 

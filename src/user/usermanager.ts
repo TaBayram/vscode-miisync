@@ -17,7 +17,7 @@ class UserManager {
     private password: string;
     private awaitsLogin: boolean = false;
 
-    private refreshTimer: NodeJS.Timer;
+    private refreshTimer: NodeJS.Timeout;
 
     public set IsLoggedin(value: boolean) {
         this.session.IsLoggedin = value;
@@ -118,7 +118,7 @@ class UserManager {
             return true;
         }
         await this.setAuth();
-        const response = await logInService.call({ host: this.system.host, port: this.system.port }, true, { Session: false });
+        const response = await logInService.call({ host: this.system.host, port: this.system.port }, false, { name: this.system.username, password: (this.system.password || this.password) });
         this.awaitsLogin = false;
 
         if (response) {
@@ -136,7 +136,7 @@ class UserManager {
 
     async refreshLogin(useCookies = true) {
         if (useCookies && this.session.loadCookiesIfCookedIn(10)) { return true; }
-        const response = await logInService.call({ host: this.system.host, port: this.system.port }, false, { Session: true });
+        const response = await logInService.call({ host: this.system.host, port: this.system.port }, true);
         if (response) {
             this.session.haveCookies(response);
             return true;
