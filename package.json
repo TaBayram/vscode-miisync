@@ -13,10 +13,10 @@
   },
   "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.11.6",
+  "version": "0.12.0",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.77.0"
+    "vscode": "^1.82.3"
   },
   "categories": [
     "Other"
@@ -112,7 +112,7 @@
         "command": "miisync.switchsystem",
         "title": "Switch System",
         "category": "mii",
-        "enablement": "miisync.enabled && miisync.loggedin"
+        "enablement": "miisync.enabled"
       },
       {
         "command": "miisync.downloadworkspace",
@@ -140,6 +140,12 @@
         "title": "Export Project",
         "category": "mii",
         "enablement": "miisync.enabled"
+      },
+      {
+        "command": "miisync.downloadtransactionproperties",
+        "title": "Download Transaction Properties",
+        "category": "mii",
+        "enablement": "miisync.enabled && miisync.loggedin"
       },
       {
         "command": "miisync.downloadfolder",
@@ -240,7 +246,15 @@
           "when": "false"
         },
         {
+          "command": "miisync.downloadtransactionproperties",
+          "when": "false"
+        },
+        {
           "command": "miisync.transferfolder",
+          "when": "false"
+        },
+        {
+          "command": "miisync.transferfile",
           "when": "false"
         },
         {
@@ -302,6 +316,13 @@
           "command": "miisync.deletefolder",
           "group": "miisync.folder@5",
           "when": "miisync.enabled && !explorerResourceIsRoot && explorerResourceIsFolder"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "miisync.downloadtransactionproperties",
+          "group": "mii",
+          "when": "editorLangId == 'javascript'"
         }
       ],
       "view/title": [
@@ -531,7 +552,7 @@
     "@types/fs-extra": "^11.0.1",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^18.15.11",
+    "@types/node": "^18.18.4",
     "@types/vscode": "^1.77.0",
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",

@@ -4,13 +4,15 @@ import { Uri } from "vscode";
 import { System } from "../extension/system";
 import { blowoutService } from "../miiservice/blowoutservice";
 import { deleteBatchService } from "../miiservice/deletebatchservice";
+import { loadFileService } from "../miiservice/loadfileservice";
 import { readFilePropertiesService } from "../miiservice/readfilepropertiesservice";
 import { UserConfig } from "../modules/config";
 import { GetRemotePath, ValidatePath } from "../modules/file";
 import { ShowConfirmMessage } from "../modules/vscode";
-import { filePropertiesTree } from "../ui/explorer/filepropertiestree";
 import logger from "../ui/logger";
+import { CreateTransactionMarkdown } from "../ui/markdown/transactionproperties";
 import statusBar, { Icon } from "../ui/statusbar";
+import { filePropertiesTree } from "../ui/treeview/filepropertiestree";
 import { DoesFileExist, DoesFolderExist, Validate } from "./gate";
 import path = require("path");
 
@@ -34,8 +36,8 @@ export async function DeleteFile(uri: Uri, userConfig: UserConfig, system: Syste
     const response = await deleteBatchService.call({ host: system.host, port: system.port }, sourcePath);
     if (response) {
         const fileName = path.basename(sourcePath);
-        logger.infoplus(system.name,"Delete File", fileName + ": " + response?.Rowsets?.Messages?.Message);
-        await blowoutService.call({host: system.host, port: system.port}, sourcePath);
+        logger.infoplus(system.name, "Delete File", fileName + ": " + response?.Rowsets?.Messages?.Message);
+        await blowoutService.call({ host: system.host, port: system.port }, sourcePath);
     }
     statusBar.updateBar('Deleted', Icon.success, { duration: 1 })
 
@@ -58,8 +60,8 @@ export async function DeleteFolder(uri: Uri, userConfig: UserConfig, system: Sys
     const response = await deleteBatchService.call({ host: system.host, port: system.port }, sourcePath);
     if (response) {
         const folderName = path.basename(sourcePath);
-        logger.infoplus(system.name,"Delete Folder", folderName + ": " + response?.Rowsets?.Messages?.Message);
-        await blowoutService.call({host: system.host, port: system.port}, sourcePath);
+        logger.infoplus(system.name, "Delete Folder", folderName + ": " + response?.Rowsets?.Messages?.Message);
+        await blowoutService.call({ host: system.host, port: system.port }, sourcePath);
     }
     statusBar.updateBar('Deleted', Icon.success, { duration: 1 })
 
@@ -73,5 +75,18 @@ export async function GetFileProperties(uri: Uri, userConfig: UserConfig, system
         filePropertiesTree.generateItems(file.Rowsets.Rowset.Row[0]);
         return file;
     }
+    return null;
+}
+
+export async function GetTransactionProperties(path: string, system: System) {
+
+    const response = await loadFileService.call({ host: system.host, port: system.port }, path);
+    if ('Transaction' in response && response?.Transaction) {
+        CreateTransactionMarkdown(response.Transaction);
+    }
+    else if ('Rowsets' in response) {
+        logger.errorPlus(system.name, 'Transaction Properties', response.Rowsets.FatalError);
+    }
+
     return null;
 }

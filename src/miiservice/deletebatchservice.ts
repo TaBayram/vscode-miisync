@@ -4,7 +4,7 @@ import { MII, RowsetsMessage } from './abstract/responsetypes.js';
 class DeleteBatchService extends Service {
     name: string = "Delete Batch";
     mode: string = "XMII/Catalog?Mode=BatchDelete&Class=Content&Content-Type=text/xml";
-    optionals: string = "&TemporaryFile=false&Notify=true&Session=true"
+    optionals: string = "&TemporaryFile=false&Notify=true"
 
     async call({ host, port }: Request, sourcePath: string) {
         const url = this.get(host, port, sourcePath);

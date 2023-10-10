@@ -9,9 +9,9 @@ import { GetRemotePath } from "../modules/file.js";
 import { CompareDocuments, OpenTextDocument, ShowConfirmPreviewMessage } from "../modules/vscode.js";
 import { DownloadFile } from "../transfer/download.js";
 import { GetFileProperties } from "../transfer/request.js";
-import { filePropertiesTree } from "../ui/explorer/filepropertiestree.js";
 import logger from "../ui/logger.js";
 import statusBar, { Icon } from "../ui/statusbar.js";
+import { filePropertiesTree } from "../ui/treeview/filepropertiestree.js";
 import { GetMainUserManager } from "../user/usermanager.js";
 import path = require("path");
 

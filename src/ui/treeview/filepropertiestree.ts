@@ -24,4 +24,4 @@ class FilePropertiesTree extends TreeDataProvider {
     }
 }
 
-export let filePropertiesTree: FilePropertiesTree = new FilePropertiesTree();
+export const filePropertiesTree: FilePropertiesTree = new FilePropertiesTree();

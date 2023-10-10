@@ -110,4 +110,4 @@ class RemoteDirectoryTree extends TreeDataProvider {
 
 
 
-export let remoteDirectoryTree: RemoteDirectoryTree = new RemoteDirectoryTree();
+export const remoteDirectoryTree: RemoteDirectoryTree = new RemoteDirectoryTree();
