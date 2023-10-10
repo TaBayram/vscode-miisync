@@ -96,7 +96,12 @@ localPath is the folder that contains used .vscode/miisync.json. (if rootconfig 
 * `Download Folder`: Downloads the selected folder.
 * `Upload Folder`: Uploads the selected folder.
 * `Transfer Folder`: Transfers the selected folder to selected system.
+* `Transfer File`: Transfers the selected folder to selected system.
 * `Open Root Config`: Opens the root miisync.json file if useRootConfig is set to true and rootConfig has valid path.
+
+##### Editor Context:
+* `Download Transaction Properties`: Previews transaction's properties. You must select the transaction path first.
+
 
 ##### View:
 * `Download Remote Directory`: Lists all the files in the current project like a directory. (Does not list empty folders)
