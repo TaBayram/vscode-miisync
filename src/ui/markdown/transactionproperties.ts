@@ -1,8 +1,9 @@
-import { ViewColumn } from "vscode";
+import * as vscode from 'vscode';
 import { Action, ContextItem, Steps, Transaction, TransactionAttributes } from "../../miiservice/abstract/responsetypes";
-import { OpenTextDocument, ShowMarkdownPreview } from "../../modules/vscode";
+import { ShowMarkdownPreview, closeFileIfOpen } from "../../modules/vscode";
+import transactionPropertiesVirtualDoc from '../virtualdocument/transactionproperties';
 
-export function CreateTransactionMarkdown(transaction: Transaction) {
+export async function CreateTransactionMarkdown(transaction: Transaction) {
     const inputs: { item: ContextItem, usages: Action[] }[] = [];
     for (const item of transaction?.Context?.ContextItem || []) {
         if (!item.ReadOnly) {
@@ -10,8 +11,17 @@ export function CreateTransactionMarkdown(transaction: Transaction) {
         }
     }
 
+
     findUsageInSteps(transaction.Steps, inputs);
-    createContent(inputs, transaction)
+    const content = await createContent(inputs, transaction)
+
+    transactionPropertiesVirtualDoc.content = content;
+    const uri = vscode.Uri.parse('transactionproperties:' + transaction.Name.substring(transaction.Name.lastIndexOf('/')));
+    const document = await vscode.workspace.openTextDocument(uri); // calls back into the provider
+    vscode.languages.setTextDocumentLanguage(document, "markdown");
+    await vscode.window.showTextDocument(document, { preview: false, viewColumn: vscode.ViewColumn.Beside });
+    await ShowMarkdownPreview(document.uri);
+    closeFileIfOpen(document.uri);
 }
 
 
@@ -36,10 +46,10 @@ async function createContent(inputs: { item: ContextItem, usages: Action[] }[], 
     let isDifferent = false;
     for (const input of inputs) {
         mInputs[input.item.Name] = 'remove';
-        if(input.usages.length != 0){
+        if (input.usages.length != 0) {
             usedInputs[input.item.Name] = 'remove';
         }
-        else{
+        else {
             isDifferent = true;
         }
     }
@@ -53,7 +63,7 @@ async function createContent(inputs: { item: ContextItem, usages: Action[] }[], 
     let usages: string[] = [];
 
     for (const input of inputs) {
-        let usage: string = '#### Input: ' + input.item.Name + ' *[' + input.item.Value["@_xsi:type"] + ']*' +
+        let usage: string = '#### Input: ` ' + input.item.Name + ' ` *[' + input.item.Value["@_xsi:type"] + ']*' +
             '\n - *Description:*  ' + (input.item.Description || '') +
             '\n - *Default Value:*  ' + (input.item.Value["#text"] || '');
 
@@ -76,8 +86,9 @@ async function createContent(inputs: { item: ContextItem, usages: Action[] }[], 
             '\n### Usages',
             usages.join('\n')
         ].join('\n');
-    const document = await OpenTextDocument(mainText, 'markdown', true, ViewColumn.Beside);
-    await ShowMarkdownPreview(document.uri);
+   /*  const document = await OpenTextDocument(mainText, 'markdown', true, vscode.ViewColumn.Beside);
+    await ShowMarkdownPreview(document.uri); */
+    return mainText;
 
 
 

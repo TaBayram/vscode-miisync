@@ -25,6 +25,7 @@ import { OnDidOpenTextDocument } from '../events/opentextdocument';
 import { OnDidSaveTextDocument } from '../events/savetextdocument';
 import { filePropertiesTree } from '../ui/treeview/filepropertiestree';
 import { remoteDirectoryTree } from '../ui/treeview/remotedirectorytree';
+import transactionPropertiesVirtualDoc from '../ui/virtualdocument/transactionproperties';
 
 
 export function RegisterEvents({ subscriptions }: vscode.ExtensionContext) {
@@ -69,6 +70,7 @@ export function RegisterCommands(context: vscode.ExtensionContext) {
 export function activateTree({ subscriptions }: vscode.ExtensionContext) {
 	subscriptions.push(vscode.window.registerTreeDataProvider('fileproperties', filePropertiesTree));
 	subscriptions.push(vscode.window.registerTreeDataProvider('remotedirectory', remoteDirectoryTree));
+	subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('transactionproperties', transactionPropertiesVirtualDoc));
 }
 
 
