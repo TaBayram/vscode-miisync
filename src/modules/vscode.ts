@@ -72,6 +72,16 @@ export async function ShowConfirmPreviewMessage(
 
 }
 
+export async function ShowWarningMessage(
+    message: string
+) {
+    const result = await vscode.window.showWarningMessage(
+        message
+    );
+
+    return result;
+}
+
 export async function ShowQuickPick(items: any[], options?: vscode.QuickPickOptions, token?: vscode.CancellationToken) {
     return await vscode.window.showQuickPick(items, options, token);
 }
@@ -92,13 +102,30 @@ export function SetContextValue(key: string, value: any) {
     ExecuteCommand('setContext', EXTENSION_NAME + '.' + key, value);
 }
 
-export async function OpenTextDocument(content: string, language: string, focus: boolean) {
+export async function OpenTextDocument(content: string, language: string, focus: boolean, column?: vscode.ViewColumn) {
     const document = await vscode.workspace.openTextDocument({ content, language });
     if (focus)
-        vscode.window.showTextDocument(document);
+        await vscode.window.showTextDocument(document,column );
     return document;
 }
 
-export function CompareDocuments(uri1: vscode.Uri, uri2: vscode.Uri){
-    vscode.commands.executeCommand("vscode.diff", uri1, uri2)
+export async function CompareDocuments(uri1: vscode.Uri, uri2: vscode.Uri) {
+    await vscode.commands.executeCommand("vscode.diff", uri1, uri2)
+}
+
+export async function ShowMarkdownPreview(uri: vscode.Uri, side: boolean = false) {
+    if (side)
+        await vscode.commands.executeCommand("markdown.showLockedPreviewToSide", uri);
+    else
+        await vscode.commands.executeCommand("markdown.showPreview", uri);
+}
+
+
+//https://stackoverflow.com/questions/44733028/how-to-close-textdocument-in-vs-code
+export async function closeFileIfOpen(file:vscode.Uri) : Promise<void> {
+    const tabs: vscode.Tab[] = vscode.window.tabGroups.all.map(tg => tg.tabs).flat();
+    const index = tabs.findIndex(tab => tab.input instanceof vscode.TabInputText && tab.input.uri.path === file.path);
+    if (index !== -1) {
+        await vscode.window.tabGroups.close(tabs[index]);
+    }
 }

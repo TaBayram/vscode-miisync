@@ -4,7 +4,7 @@ import { File, GeneralColumn2, MII } from './abstract/responsetypes.js';
 
 class LoadFilesInsideService extends Service {
     name: string = "Load Files Inside";
-    mode: string = "XMII/Catalog?Mode=LoadFilesInsideFolderAndSubfolders&Session=true&DoStateCheck=true&Content-Type=text/xml";
+    mode: string = "XMII/Catalog?Mode=LoadFilesInsideFolderAndSubfolders&DoStateCheck=true&Content-Type=text/xml";
     async call({ host, port}: Request, folderPath: string) {
         const url = this.get(host, port, folderPath);
         const { value, error, isError } = await this.fetch(new URL(url));

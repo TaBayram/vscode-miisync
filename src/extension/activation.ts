@@ -7,6 +7,7 @@ import { OnCommandDownloadRemoteDirectory, OnCommandDownloadRemoteFile, OnComman
 import { OnCommandDownloadFile, OnCommandDownloadFileProperties } from '../commands/commanddownloadfile';
 import { OnCommandDownloadFolder } from '../commands/commanddownloadfolder';
 import { OnCommandDownloadProject } from '../commands/commanddownloadproject';
+import { OnCommandDownloadTransactionProperties } from '../commands/commanddownloadtransaction';
 import { OnCommandDownloadWorkspaceFolder } from '../commands/commanddownloadworkspace';
 import { OnCommandUploadGitChanges } from '../commands/commandgitchanges';
 import { OnCommandOpenRootConfig } from '../commands/commandopenrootconfig';
@@ -22,8 +23,8 @@ import { OnDidChangeActiveTextEditor } from '../events/changeactivettexteditor';
 import { onDidChangeConfiguration } from '../events/changeconfiguration';
 import { OnDidOpenTextDocument } from '../events/opentextdocument';
 import { OnDidSaveTextDocument } from '../events/savetextdocument';
-import { filePropertiesTree } from '../ui/explorer/filepropertiestree';
-import { remoteDirectoryTree } from '../ui/explorer/remotedirectorytree';
+import { filePropertiesTree } from '../ui/treeview/filepropertiestree';
+import { remoteDirectoryTree } from '../ui/treeview/remotedirectorytree';
 
 
 export function RegisterEvents({ subscriptions }: vscode.ExtensionContext) {
@@ -60,6 +61,7 @@ export function RegisterCommands(context: vscode.ExtensionContext) {
 	RegisterCommand('miisync.uploadworkspace', OnCommandUploadWorkspaceFolder, context);
 	RegisterCommand('miisync.downloadworkspace', OnCommandDownloadWorkspaceFolder, context);
 	RegisterCommand('miisync.uploadgitchanges', OnCommandUploadGitChanges, context);
+	RegisterCommand('miisync.downloadtransactionproperties', OnCommandDownloadTransactionProperties, context);
 
 }
 

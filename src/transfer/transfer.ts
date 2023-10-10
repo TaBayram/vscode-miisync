@@ -20,24 +20,27 @@ export async function TransferFolder(uri: Uri, userConfig: UserConfig) {
         }
     }
 
-    const quickResponse: QuickPickItem<System> = await ShowQuickPick(picks, { title: 'Pick System' });
-    if (quickResponse) {
-        const system = quickResponse.object;
-        const user = GetUserManager(system, true);
-        if (!await user.login()) return;
+    const quickResponses: QuickPickItem<System>[] = await ShowQuickPick(picks, { title: 'Pick System', canPickMany: true });
+    if (quickResponses?.length > 0) {
+        for (const pickItem of quickResponses) {
+            const system = pickItem.object;
+            const user = GetUserManager(system, true);
+            if (!await user.login()) return;
 
-        statusBar.updateBar('Transfering', Icon.spinLoading, { duration: -1 });
-        logger.infoplus(configManager.CurrentSystem.name, "Transfer Folder", "->" + system.name + ', ' + path.basename(uri.fsPath) + ": Started");
+            statusBar.updateBar('Transfering', Icon.spinLoading, { duration: -1 });
+            logger.infoplus(configManager.CurrentSystem.name, "Transfer Folder", "->" + system.name + ', ' + path.basename(uri.fsPath) + ": Started");
 
-        const response = await UploadFolderLimited(uri.fsPath, userConfig, system);
+            const response = await UploadFolderLimited(uri.fsPath, userConfig, system);
 
-        if (response.aborted) {
-            statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
-            logger.infoplus(configManager.CurrentSystem.name, "Transfer Folder", "->" + system.name + ', ' + path.basename(uri.fsPath) + ": Cancelled");
-        }
-        else {
-            statusBar.updateBar('Transferred', Icon.success, { duration: 1 });
-            logger.infoplus(configManager.CurrentSystem.name, "Transfer Folder", "->" + system.name + ', ' + path.basename(uri.fsPath) + ": Completed");
+            if (response.aborted) {
+                statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
+                logger.infoplus(configManager.CurrentSystem.name, "Transfer Folder", "->" + system.name + ', ' + path.basename(uri.fsPath) + ": Cancelled");
+                break;
+            }
+            else {
+                statusBar.updateBar('Transferred', Icon.success, { duration: 1 });
+                logger.infoplus(configManager.CurrentSystem.name, "Transfer Folder", "->" + system.name + ', ' + path.basename(uri.fsPath) + ": Completed");
+            }
         }
     }
 
@@ -51,14 +54,16 @@ export async function TransferFile(uri: Uri, userConfig: UserConfig) {
         }
     }
 
-    const quickResponse: QuickPickItem<System> = await ShowQuickPick(picks, { title: 'Pick System' });
-    if (quickResponse) {
-        const system = quickResponse.object;
-        const user = GetUserManager(system, true);
-        if (!await user.login()) return;
+    const quickResponses: QuickPickItem<System>[] = await ShowQuickPick(picks, { title: 'Pick System', canPickMany: true });
+    if (quickResponses?.length > 0) {
+        for (const pickItem of quickResponses) {
+            const system = pickItem.object;
+            const user = GetUserManager(system, true);
+            if (!await user.login()) return;
 
-        const content = (await readFile(uri.fsPath)).toString('utf-8');
-        const response = await UploadFile(uri, content, userConfig, system);
+            const content = (await readFile(uri.fsPath)).toString('utf-8');
+            UploadFile(uri, content, userConfig, system);
+        }
     }
 
 }

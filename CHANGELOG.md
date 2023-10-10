@@ -1,5 +1,20 @@
 # Change Log
 
+## [0.12.0] - 10/10/2023
+
+### Added
+
+- `Download Transaction Properties` editor command. Must select a transaction path.
+
+### Changed
+
+- `Switch System` can be called without logging in.
+- `Transfer Files & Folder` commands now has multiple system selection option.
+
+### Fixed
+
+- A bug where you couldn't log in when your credentials had special characters.
+
 ## [0.11.6] - 14/09/2023
 
 ### Added
@@ -13,7 +28,6 @@
 - Deleting files wouldn't clear the cache.
 
 ## [0.11.5] - 04/08/2023
-
 
 ### Changed
 

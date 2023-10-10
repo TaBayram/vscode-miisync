@@ -5,7 +5,7 @@ import { File, GeneralColumn2, MII } from './abstract/responsetypes.js';
 
 class ListFilesService extends Service {
     name: string = "List Files";
-    mode: string = "XMII/Catalog?Mode=List&Session=true&DoStateCheck=true&Content-Type=text/xml";
+    mode: string = "XMII/Catalog?Mode=List&DoStateCheck=true&Content-Type=text/xml";
 
     async call({ host, port }: Request, folderPath: string) {
         const url = this.get(host, port, folderPath);

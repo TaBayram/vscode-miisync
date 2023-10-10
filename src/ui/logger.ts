@@ -33,7 +33,11 @@ export class Logger implements ILogger {
     }
 
     infoplus(systemName: string, source: string, message: string, ...args: any[]) {
-        this.log('[info]','<'+systemName+'>', "(" + source + ")", message, ...args);
+        this.log('[info]', '<' + systemName + '>', "(" + source + ")", message, ...args);
+    }
+
+    errorPlus(systemName: string, source: string, message: string | Error, ...args: any[]): void {
+        this.log('[error]', '<' + systemName + '>', "(" + source + ")", message, ...args);
     }
 
     toastError(message: string | Error, ...args: any[]) {
