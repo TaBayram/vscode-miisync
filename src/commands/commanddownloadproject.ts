@@ -1,9 +1,9 @@
+import * as path from 'path';
 import { exportProjectService } from "../miiservice/exportprojectservice.js";
 import { configManager } from "../modules/config.js";
 import { GetRemotePath } from "../modules/file.js";
 import { DoesRemotePathExist } from "../transfer/gate.js";
 import logger from "../ui/logger.js";
-import path = require("path");
 
 export async function OnCommandDownloadProject(){
     const userConfig = await configManager.load();

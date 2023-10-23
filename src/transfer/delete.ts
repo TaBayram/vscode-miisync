@@ -1,25 +1,20 @@
-/* For non file transfers */
-
+import * as path from 'path';
 import { Uri } from "vscode";
 import { System } from "../extension/system";
+import { IsFatalResponse } from '../miiservice/abstract/filters';
 import { blowoutService } from "../miiservice/blowoutservice";
 import { deleteBatchService } from "../miiservice/deletebatchservice";
-import { loadFileService } from "../miiservice/loadfileservice";
-import { readFilePropertiesService } from "../miiservice/readfilepropertiesservice";
 import { UserConfig } from "../modules/config";
-import { GetRemotePath, ValidatePath } from "../modules/file";
+import { GetRemotePath, PrepareUrisForService } from "../modules/file";
 import { ShowConfirmMessage } from "../modules/vscode";
 import logger from "../ui/logger";
-import { CreateTransactionMarkdown } from "../ui/markdown/transactionproperties";
 import statusBar, { Icon } from "../ui/statusbar";
-import { filePropertiesTree } from "../ui/treeview/filepropertiestree";
 import { DoesFileExist, DoesFolderExist, Validate } from "./gate";
-import path = require("path");
-
+import { DeleteComplexLimited } from './limited/deletecomplex';
 
 
 export async function DeleteFile(uri: Uri, userConfig: UserConfig, system: System) {
-    if (!await Validate(userConfig, system, uri.fsPath)) {
+    if (!await Validate(userConfig, { system, localPath: uri.fsPath })) {
         return false;
     }
     const sourcePath = GetRemotePath(uri.fsPath, userConfig);
@@ -34,7 +29,7 @@ export async function DeleteFile(uri: Uri, userConfig: UserConfig, system: Syste
 
     statusBar.updateBar('Deleting', Icon.spinLoading, { duration: -1 });
     const response = await deleteBatchService.call({ host: system.host, port: system.port }, sourcePath);
-    if (response) {
+    if (response && !IsFatalResponse(response)) {
         const fileName = path.basename(sourcePath);
         logger.infoplus(system.name, "Delete File", fileName + ": " + response?.Rowsets?.Messages?.Message);
         await blowoutService.call({ host: system.host, port: system.port }, sourcePath);
@@ -43,7 +38,7 @@ export async function DeleteFile(uri: Uri, userConfig: UserConfig, system: Syste
 
 }
 export async function DeleteFolder(uri: Uri, userConfig: UserConfig, system: System) {
-    if (!await Validate(userConfig, system, uri.fsPath)) {
+    if (!await Validate(userConfig, { system, localPath: uri.fsPath })) {
         return false;
     }
     const sourcePath = GetRemotePath(uri.fsPath, userConfig);
@@ -58,7 +53,7 @@ export async function DeleteFolder(uri: Uri, userConfig: UserConfig, system: Sys
 
     statusBar.updateBar('Deleting', Icon.spinLoading, { duration: -1 });
     const response = await deleteBatchService.call({ host: system.host, port: system.port }, sourcePath);
-    if (response) {
+    if (response && !IsFatalResponse(response)) {
         const folderName = path.basename(sourcePath);
         logger.infoplus(system.name, "Delete Folder", folderName + ": " + response?.Rowsets?.Messages?.Message);
         await blowoutService.call({ host: system.host, port: system.port }, sourcePath);
@@ -67,26 +62,22 @@ export async function DeleteFolder(uri: Uri, userConfig: UserConfig, system: Sys
 
 }
 
-export async function GetFileProperties(uri: Uri, userConfig: UserConfig, system: System) {
-    if (!await ValidatePath(uri.fsPath, userConfig)) return null;
-    const sourcePath = GetRemotePath(uri.fsPath, userConfig);
-    const file = await readFilePropertiesService.call({ host: system.host, port: system.port }, sourcePath);
-    if (file?.Rowsets?.Rowset?.Row) {
-        filePropertiesTree.generateItems(file.Rowsets.Rowset.Row[0]);
-        return file;
-    }
-    return null;
-}
+/**
+ * Uses Limited
+ */
+export async function DeleteUris(uris: Uri[], userConfig: UserConfig, system: System, processName: string) {
+    statusBar.updateBar('Deleting', Icon.spinLoading, { duration: -1 });
+    logger.infoplus(system.name, processName, "Started");
 
-export async function GetTransactionProperties(path: string, system: System) {
+    const folder = await PrepareUrisForService(uris);
+    const response = await DeleteComplexLimited(folder, userConfig, system);
 
-    const response = await loadFileService.call({ host: system.host, port: system.port }, path);
-    if ('Transaction' in response && response?.Transaction) {
-        CreateTransactionMarkdown(response.Transaction);
+    if (response.aborted) {
+        statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
+        logger.infoplus(system.name, processName, "Cancelled");
     }
-    else if ('Rowsets' in response) {
-        logger.errorPlus(system.name, 'Transaction Properties', response.Rowsets.FatalError);
+    else {
+        statusBar.updateBar('Deleted', Icon.success, { duration: 1 });
+        logger.infoplus(system.name, processName, "Completed");
     }
-
-    return null;
 }

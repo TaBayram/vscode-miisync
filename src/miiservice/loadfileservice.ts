@@ -1,6 +1,6 @@
 import { X2jOptions } from 'fast-xml-parser';
 import { Request, Service } from './abstract/miiservice';
-import { MII, RowsetsFatal, Transaction } from './abstract/responsetypes';
+import { MIISafe, Transaction } from './abstract/responsetypes';
 
 class LoadFileService extends Service {
     name: string = "Load File";
@@ -9,7 +9,7 @@ class LoadFileService extends Service {
     async call({ host, port }: Request, filePath: string) {
         const url = this.get(host, port, filePath);
         const { value, error, isError } = await this.fetch(new URL(url));
-        let data: MII<null, null, Transaction, 'Transaction'> | MII<null, null, RowsetsFatal> = null;
+        let data: MIISafe<null, null, Transaction, 'Transaction'> = null;
         if (!isError) {
             const options: Partial<X2jOptions> = {
                 ignoreAttributes: false,

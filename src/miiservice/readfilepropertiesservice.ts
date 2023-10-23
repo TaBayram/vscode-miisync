@@ -1,5 +1,5 @@
 import { Request, Service } from './abstract/miiservice';
-import { FileProperties, GeneralColumn2, MII } from './abstract/responsetypes';
+import { FileProperties, GeneralColumn2, MIISafe } from './abstract/responsetypes';
   
 
 class ReadFilePropertiesService extends Service {
@@ -9,7 +9,7 @@ class ReadFilePropertiesService extends Service {
     async call({ host, port }: Request, folderPath: string) {
         const url = this.get(host, port, folderPath);
         const { value, error, isError } = await this.fetch(new URL(url));
-        let data: MII<FileProperties, GeneralColumn2> = null
+        let data: MIISafe<FileProperties, GeneralColumn2> = null;
         if (!isError) {
             data = this.parseXML(value);
         }

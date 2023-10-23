@@ -1,5 +1,5 @@
 import { Request, Service } from './abstract/miiservice.js';
-import { MII, RowsetsMessage } from './abstract/responsetypes.js';
+import { MIISafe, RowsetsMessage } from './abstract/responsetypes.js';
 
 class DeleteBatchService extends Service {
     name: string = "Delete Batch";
@@ -9,7 +9,7 @@ class DeleteBatchService extends Service {
     async call({ host, port }: Request, sourcePath: string) {
         const url = this.get(host, port, sourcePath);
         const { value, error, isError } = await this.fetch(new URL(url));
-        let data: MII<null, null, RowsetsMessage> = null;
+        let data: MIISafe<null, null, RowsetsMessage> = null;
         if (!isError) {
             data = this.parseXML(value);
         }

@@ -4,9 +4,9 @@ import { UploadFile } from "../transfer/upload.js";
 
 
 export async function OnDidSaveTextDocument(document: vscode.TextDocument) {
-    const userConfig = await configManager.load();    
-    if (userConfig?.uploadOnSave) { 
-        UploadFile(document.uri, document.getText(), userConfig, configManager.CurrentSystem); 
+    const userConfig = await configManager.load();
+    if (userConfig?.uploadOnSave) {
+        UploadFile(document.uri, userConfig, configManager.CurrentSystem, document.getText());
     }
 
 }

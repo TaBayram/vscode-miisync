@@ -1,5 +1,5 @@
 import { Request, Service } from './abstract/miiservice';
-import { Folder, GeneralColumn2, MII } from './abstract/responsetypes';
+import { Folder, GeneralColumn2, MIISafe } from './abstract/responsetypes';
 
 
 class ListFoldersService extends Service {
@@ -8,7 +8,7 @@ class ListFoldersService extends Service {
     async call({ host, port }: Request, folderPath: string) {
         const url = this.get(host, port, folderPath);
         const { value, error, isError } = await this.fetch(new URL(url));
-        let data: MII<Folder, GeneralColumn2> = null;
+        let data: MIISafe<Folder, GeneralColumn2> = null;
         if (!isError) {
             data = this.parseXML(value);
         }

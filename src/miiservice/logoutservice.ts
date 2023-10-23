@@ -1,5 +1,4 @@
 import { Request, Service } from './abstract/miiservice.js';
-const http = require('node:http');
 
 
 class LogOutService extends Service {

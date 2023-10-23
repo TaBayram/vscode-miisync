@@ -1,8 +1,8 @@
+import * as path from 'path';
 import { Uri } from "vscode";
 import { CONFIG_PATH } from "../constants.js";
 import { configManager } from "../modules/config.js";
 import { GetCurrentWorkspaceFolder, ShowTextDocument } from "../modules/vscode.js";
-import path = require("path");
 
 
 export async function OnCommandOpenRootConfig(uri: Uri) {

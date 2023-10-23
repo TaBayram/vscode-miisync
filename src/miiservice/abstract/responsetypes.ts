@@ -3,6 +3,8 @@ export type MII<T extends Row, Y extends Column, R = Rowsets<T, Y>, DataName ext
 
 } & { "?xml": Xml }
 
+export type MIISafe<T extends Row = Row, Y extends Column = Column, R = Rowsets<T, Y>, DataName extends string = 'Rowsets'> =
+    MII<T, Y, R, DataName> | MII<null, null, RowsetsFatal> | null;
 
 export interface Xml {
     "@_version": string
@@ -30,7 +32,7 @@ export interface RowsetsFatal {
     "@_EndDate": string
     "@_StartDate": string
     "@_Version": string
-  }  
+}
 
 export interface Rowset<T extends Row, Y extends Column> {
     Columns: Columns<Y>
@@ -227,7 +229,7 @@ export interface Step {
     "@_xsi:type": string
 }
 
-export interface Actions{
+export interface Actions {
     Action: Action[]
 }
 

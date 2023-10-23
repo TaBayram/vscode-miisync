@@ -1,9 +1,7 @@
-import { writeFile } from 'fs-extra';
-import { GetCurrentWorkspaceFolder, OpenLink } from '../modules/vscode.js';
+import { OpenLink } from '../modules/vscode.js';
 import { Request, Service } from './abstract/miiservice.js';
-import path = require('path');
 
-class ExportProjectService extends Service {
+class ExportProjectService extends Service{
     name: string = "Log Out";
     mode: string = "XMII/Illuminator?service=Transport&mode=ExportProject";
 
@@ -11,13 +9,7 @@ class ExportProjectService extends Service {
         const url = this.get(host, port, projectName);
         OpenLink(this.get(host, port, projectName));
 
-        return
-        const { value, error, isError } = await this.fetch(new URL(url));
-        if (!isError) {
-            //const data = this.parseXML(value);
-            //logger.info(this.name + ": " + data?.Rowsets?.Messages?.Message);
-            writeFile(GetCurrentWorkspaceFolder().fsPath + path.sep + 'test.zip', Buffer.from(value));
-        }
+        return null;
     }
     get(host: string, port: number, projectName: string) {
         return this.generateURL(host, port, "http") + "&" + this.generateParams(projectName);

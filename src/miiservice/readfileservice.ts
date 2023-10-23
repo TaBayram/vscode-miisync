@@ -1,14 +1,14 @@
 import { Request, Service } from './abstract/miiservice';
-import { FileBinary, GeneralColumn, MII } from './abstract/responsetypes';
+import { FileBinary, GeneralColumn, MIISafe } from './abstract/responsetypes';
 
-class ReadFileService extends Service {
+class ReadFileService extends Service  {
     name: string = "Get File";
     mode: string = "XMII/Catalog?Mode=LoadBinary&Class=Content&TemporaryFile=false&Content-Type=text/xml";
 
     async call({ host, port }: Request , filePath: string) {
         const url = this.get(host, port, filePath);
         const { value, error, isError } = await this.fetch(new URL(url));
-        let data: MII<FileBinary, GeneralColumn> = null;
+        let data: MIISafe<FileBinary, GeneralColumn> = null;
         if (!isError) {
             data = this.parseXML(value.replaceAll("&#13;",""));
         }

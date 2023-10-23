@@ -1,19 +1,20 @@
 import { writeFile } from "fs-extra";
+import * as path from 'path';
 import * as vscode from "vscode";
 import { settingsManager } from "../extension/settings.js";
 import { System } from "../extension/system.js";
+import { IsFatalResponse } from "../miiservice/abstract/filters.js";
 import { FileProperties } from "../miiservice/abstract/responsetypes.js";
 import { readFileService } from "../miiservice/readfileservice.js";
 import { UserConfig, configManager } from "../modules/config.js";
 import { GetRemotePath } from "../modules/file.js";
 import { CompareDocuments, OpenTextDocument, ShowConfirmPreviewMessage } from "../modules/vscode.js";
 import { DownloadFile } from "../transfer/download.js";
-import { GetFileProperties } from "../transfer/request.js";
+import { GetFileProperties } from "../transfer/misc.js";
 import logger from "../ui/logger.js";
 import statusBar, { Icon } from "../ui/statusbar.js";
 import { filePropertiesTree } from "../ui/treeview/filepropertiestree.js";
 import { GetMainUserManager } from "../user/usermanager.js";
-import path = require("path");
 
 
 export async function OnDidChangeActiveTextEditor(textEditor: vscode.TextEditor) {
@@ -47,6 +48,7 @@ async function CheckFileDifference(document: vscode.TextDocument, fileProp: File
         if (saidNoToTheseDocuments.find((no) => no.fsPath === document.uri.fsPath && no.modifiedTime == fileProp.Modified && no.modifiedUser == fileProp.ModifiedBy)) return;
 
         const file = await readFileService.call({ host: system.host, port: system.port }, sourcePath);
+        if (IsFatalResponse(file)) return;
         const payload = file?.Rowsets?.Rowset?.Row?.find((row) => row.Name == "Payload");
         if (!payload) return;
 
