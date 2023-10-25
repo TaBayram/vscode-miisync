@@ -56,6 +56,7 @@ localPath is the folder that contains used .vscode/miisync.json. (if rootconfig 
 * `system`: Array of systems to connect to.
     * `name`: Name of the system. Your choice
     * `isMain`: Only one of the system must be true. Connects to this system.
+    * `severity`: Severity level of the system. The higher the more confirms asked for operations.
     * `host`: Address of the target system. google or 11.22.33
     * `port`: Port of the target system. 100, 50000.
     * `username`: Your username in the mii system to authenticate.
@@ -75,29 +76,33 @@ localPath is the folder that contains used .vscode/miisync.json. (if rootconfig 
 
 ###### mii
 * `Create Config`: Creates miisync.json file in the workspace thus activating the extension. Your first command.
-* `Open Current Screen`: Opens the screen in the browser. You can also right-click an index.html file to open.
 * `Log in`: Logs in your user. Normally extension should automatically log in when activated.
 * `Log out`: Logs out your user. 
 * `Disable/Enable Upload on Save`: Enables/Disables upload functionality when a file is saved. 
 * `Disable/Enable Download on Open`: Enables/Disables download functionality when a file is opened. 
-* `Upload Current File`: Uploads the active file to the remote system. Also is in explorer context menu.
-* `Download Current File`: Downloads the active file from the remote system. Also is in explorer context menu.
-* `Upload Current Workspace`: Uploads the first workspace to the remote system.
-* `Download Current Workspace`: Downloads the first workspace from the remote system.
 * `Upload Changes`: Uploads uncommitted changed files.
 * `Export Project`: Exports the project as a zip file. (Opens link)
 
 
 ##### Explorer Context:
-* `Upload Current File`: Uploads the selected file to the remote system.
-* `Download Current File`: Downloads the selected file from the remote system.
-* `Delete Current File`: Deletes the selected from the remote system only.
-* `Upload Current File`: Uploads the selected file. Also is in explorer context menu. 
-* `Download Folder`: Downloads the selected folder.
-* `Upload Folder`: Uploads the selected folder.
-* `Transfer Folder`: Transfers the selected folder to selected system.
-* `Transfer File`: Transfers the selected folder to selected system.
+* `Download`: Downloads the selection from the main system.
+* `Upload`: Uploads the selection to the main system.
+* `Transfer`: Transfers the selection to selected systems.
+* `Delete`: Deletes the selection from the main system only.
 * `Open Root Config`: Opens the root miisync.json file if useRootConfig is set to true and rootConfig has valid path.
+* `Open Current Screen`: Opens the screen in the browser. Is visible if you right-click an index.html.
+
+##### Explorer File View:
+* `Download`: Downloads the workspace from the main system.
+* `Upload`: Uploads the workspace to the main system.
+* `Transfer`: Transfers the workspace to selected systems.
+* `Delete`: Deletes the workspace from the main system only.
+
+##### Editor Title Context:
+* `Download`: Downloads the file from the main system.
+* `Upload`: Uploads the file to the main system.
+* `Transfer`: Transfers the file to selected systems.
+* `Delete`: Deletes the file from the main system only.
 
 ##### Editor Context:
 * `Download Transaction Properties`: Previews transaction's properties. You must select the transaction path first.
