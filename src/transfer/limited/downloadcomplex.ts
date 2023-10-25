@@ -1,12 +1,11 @@
 import { mkdir, outputFile } from "fs-extra";
 import * as path from 'path';
-import { System } from "../../extension/system";
+import { System, UserConfig } from "../../extension/system";
 import { IsFatalResponse } from "../../miiservice/abstract/filters";
 import { File, Folder } from "../../miiservice/abstract/responsetypes";
 import { listFilesService } from "../../miiservice/listfilesservice";
 import { listFoldersService } from "../../miiservice/listfoldersservice";
 import { readFileService } from "../../miiservice/readfileservice";
-import { UserConfig } from "../../modules/config";
 import { GetRemotePath } from "../../modules/file";
 import { ComplexFolder } from "../../types/miisync";
 import logger from "../../ui/logger";
@@ -51,6 +50,7 @@ export async function DownloadComplexLimited(folder: ComplexFolder, getPath: (it
     }
     limitManager.createWindow('Downloading', () => aborted = true)
     limitManager.MaxQueue = 0;
+    limitManager.Finished = 0;
     promises = [];
 
     await downloadFiles(folder);

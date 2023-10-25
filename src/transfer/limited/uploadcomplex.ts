@@ -1,10 +1,9 @@
 import { readFile } from "fs-extra";
-import { System } from "../../extension/system";
+import { System, UserConfig } from "../../extension/system";
 import { IsFatalResponse } from "../../miiservice/abstract/filters";
 import { createFolderService } from "../../miiservice/createfolderservice";
 import { existsService } from "../../miiservice/existsservice";
 import { saveFileService } from "../../miiservice/savefileservice";
-import { UserConfig } from "../../modules/config";
 import { GetAllFilesInDirTree, GetRemotePath, ValidatePath } from "../../modules/file";
 import { SimpleFolder } from "../../types/miisync";
 import logger from "../../ui/logger";

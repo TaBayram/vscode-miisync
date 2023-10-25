@@ -1,7 +1,6 @@
-import { System } from "../../extension/system";
+import { System, UserConfig } from "../../extension/system";
 import { blowoutService } from "../../miiservice/blowoutservice";
 import { deleteBatchService } from "../../miiservice/deletebatchservice";
-import { UserConfig } from "../../modules/config";
 import { GetRemotePath, ValidatePath } from "../../modules/file";
 import { SimpleFolder } from "../../types/miisync";
 import logger from "../../ui/logger";

@@ -1,11 +1,14 @@
 import * as vscode from 'vscode';
 import { EXTENSION_NAME } from '../constants.js';
-import { UserConfig, configManager } from '../modules/config.js';
+import { UserConfig } from '../extension/system.js';
+import { configManager } from '../modules/config.js';
 import { Session } from '../user/session.js';
 
 export enum Icon {
     loading = 'loading',
     success = 'notebook-state-success',
+    close = 'close',
+    error = 'error',
     syncDisabled = 'extensions-sync-ignored',
     syncEnabled = 'extensions-sync-enabled',
     testingUnset = 'testing-unset-icon',

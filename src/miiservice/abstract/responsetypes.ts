@@ -1,9 +1,9 @@
-export type MII<T extends Row, Y extends Column, R = Rowsets<T, Y>, DataName extends string = 'Rowsets'> = {
+export type MII<T extends Row | null = Row, Y extends Column | null = Column, R = Rowsets<T, Y>, DataName extends string = 'Rowsets'> = {
     [P in DataName]: R;
 
 } & { "?xml": Xml }
 
-export type MIISafe<T extends Row = Row, Y extends Column = Column, R = Rowsets<T, Y>, DataName extends string = 'Rowsets'> =
+export type MIISafe<T extends Row | null = Row, Y extends Column | null = Column, R = Rowsets<T, Y>, DataName extends string = 'Rowsets'> =
     MII<T, Y, R, DataName> | MII<null, null, RowsetsFatal> | null;
 
 export interface Xml {
@@ -11,7 +11,7 @@ export interface Xml {
     "@_encoding": string
 }
 
-export interface Rowsets<T extends Row, Y extends Column> {
+export interface Rowsets<T extends Row | null = Row, Y extends Column | null = Column> {
     Rowset: Rowset<T, Y>
     "@_DateCreated": string
     "@_EndDate": string
@@ -34,12 +34,12 @@ export interface RowsetsFatal {
     "@_Version": string
 }
 
-export interface Rowset<T extends Row, Y extends Column> {
+export interface Rowset<T extends Row | null, Y extends Column | null> {
     Columns: Columns<Y>
     Row: T[] | undefined
 }
 
-export interface Columns<Y extends Column> {
+export interface Columns<Y extends Column | null> {
     Column: Y[]
 }
 

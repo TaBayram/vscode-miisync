@@ -1,9 +1,8 @@
 import { Uri } from "vscode";
-import { System } from "../extension/system";
+import { System, UserConfig } from "../extension/system";
 import { IsFatalResponse } from "../miiservice/abstract/filters";
 import { loadFileService } from "../miiservice/loadfileservice";
 import { readFilePropertiesService } from "../miiservice/readfilepropertiesservice";
-import { UserConfig } from "../modules/config";
 import { GetRemotePath, ValidatePath } from "../modules/file";
 import logger from "../ui/logger";
 import { CreateTransactionMarkdown } from "../ui/markdown/transactionproperties";

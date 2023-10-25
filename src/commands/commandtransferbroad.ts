@@ -13,11 +13,11 @@ export async function OnCommandTransferBroad(mainUri: Uri, data: IEditorCommands
     if (!mainUri) {
         const textEditor = GetActiveTextEditor();
         if (textEditor?.document?.fileName) {
-            TransferFile(mainUri, userConfig);
+            TransferFile(textEditor.document.uri, userConfig);
         }
     }
     else if (Array.isArray(data) && data.length > 1) {
-        TransferUris(data, userConfig, "Transfer Files/Folders");
+        TransferUris(data, userConfig, "Transfer Selection");
     }
     else {
         const stat = await lstat(mainUri.fsPath);

@@ -13,16 +13,16 @@ export async function OnCommandUploadBroad(mainUri: Uri, data: IEditorCommandsCo
     if (!mainUri) {
         const textEditor = GetActiveTextEditor();
         if (textEditor?.document?.fileName) {
-            UploadFile(mainUri, userConfig, configManager.CurrentSystem, textEditor.document.getText());
+            UploadFile(textEditor.document.uri, userConfig, configManager.CurrentSystem, textEditor.document.getText());
         }
     }
     else if (Array.isArray(data) && data.length > 1) {
-        UploadUris(data, userConfig, configManager.CurrentSystem, "Upload Files/Folders");
+        UploadUris(data, userConfig, configManager.CurrentSystem, "Upload Selection");
     }
     else {
         const stat = await lstat(mainUri.fsPath);
         if(stat.isDirectory()){
-            UploadFolder(mainUri.fsPath, userConfig, configManager.CurrentSystem)
+            UploadFolder(mainUri, userConfig, configManager.CurrentSystem)
         }
         else{
             UploadFile(mainUri, userConfig, configManager.CurrentSystem);

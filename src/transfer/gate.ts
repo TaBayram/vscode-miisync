@@ -1,9 +1,9 @@
 import * as path from 'path';
+import { UserConfig } from "../extension/system";
 import { System } from "../extension/system.js";
 import { IsFatalResponse } from '../miiservice/abstract/filters.js';
 import { existsService } from '../miiservice/existsservice.js';
 import { listFoldersService } from "../miiservice/listfoldersservice.js";
-import { UserConfig } from "../modules/config.js";
 import { GetRemotePath, ValidatePath } from "../modules/file.js";
 import logger from "../ui/logger.js";
 import { GetUserManager } from "../user/usermanager.js";
@@ -16,12 +16,12 @@ export async function DoesRemotePathExist(userConfig: UserConfig, { host, port }
 
 export async function DoesFileExist(remoteFilePath: string, { host, port }: System) {
     const response = await existsService.call({ host, port }, remoteFilePath);
-    return!IsFatalResponse(response) ?  response?.Rowsets?.Messages?.Message == "1" : "0";
+    return!IsFatalResponse(response) ?  response?.Rowsets?.Messages?.Message == "1" : false;
 }
 
 export async function DoesFolderExist(remoteFilePath: string, { host, port }: System) {
     const response = await existsService.call({ host, port }, remoteFilePath);
-    return !IsFatalResponse(response) ? response?.Rowsets?.Messages?.Message == "2": "0";
+    return !IsFatalResponse(response) ? response?.Rowsets?.Messages?.Message == "2": false;
 }
 
 export async function DoesProjectExist({ remotePath }: UserConfig, { host, port }: System) {

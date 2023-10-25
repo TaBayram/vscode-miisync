@@ -13,11 +13,11 @@ export async function OnCommandDeleteBroad(mainUri: Uri, data: IEditorCommandsCo
     if (!mainUri) {
         const textEditor = GetActiveTextEditor();
         if (textEditor?.document?.fileName) {
-            DeleteFile(mainUri, userConfig, configManager.CurrentSystem);
+            DeleteFile(textEditor.document.uri, userConfig, configManager.CurrentSystem);
         }
     }
     else if (Array.isArray(data) && data.length > 1) {
-        DeleteUris(data, userConfig, configManager.CurrentSystem, "Delete Files/Folders");
+        DeleteUris(data, userConfig, configManager.CurrentSystem, "Delete Selection");
     }
     else {
         const stat = await lstat(mainUri.fsPath);

@@ -13,16 +13,16 @@ export async function OnCommandDownloadBroad(mainUri: Uri, data: IEditorCommands
     if (!mainUri) {
         const textEditor = GetActiveTextEditor();
         if (textEditor?.document?.fileName) {
-            DownloadFile(mainUri, userConfig, configManager.CurrentSystem);
+            DownloadFile(textEditor.document.uri, userConfig, configManager.CurrentSystem);
         }
     }
     else if (Array.isArray(data) && data.length > 1) {
-        DownloadUris(data, userConfig, configManager.CurrentSystem, "Download Files/Folders");
+        DownloadUris(data, userConfig, configManager.CurrentSystem, "Download Selection");
     }
     else {
         const stat = await lstat(mainUri.fsPath);
         if(stat.isDirectory()){
-            DownloadFolder(mainUri.fsPath, userConfig, configManager.CurrentSystem)
+            DownloadFolder(mainUri, userConfig, configManager.CurrentSystem)
         }
         else{
             DownloadFile(mainUri, userConfig, configManager.CurrentSystem);

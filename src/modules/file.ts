@@ -4,8 +4,9 @@ import ignore from "ignore";
 import * as path from 'path';
 import { Uri } from "vscode";
 import '../extends/string.js';
+import { UserConfig } from "../extension/system.js";
 import { SimpleFolder, SimplePreFolder } from "../types/miisync.js";
-import { UserConfig, configManager } from "./config.js";
+import { configManager } from "./config.js";
 
 export function InsertWeb(path: string) {
     const web = "/WEB";

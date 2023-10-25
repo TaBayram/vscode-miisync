@@ -12,11 +12,11 @@
     "type": "github"
   },
   "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
-  "icon": "resources/icon.png",
-  "version": "0.12.0",
+  "icon": "resources/icon_2.png",
+  "version": "0.13.0",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.82.3"
+    "vscode": "^1.83.1"
   },
   "categories": [
     "Other"
@@ -398,8 +398,8 @@
       "activitybar": [
         {
           "id": "miisyncbar",
-          "title": "Mii Sync",
-          "icon": "resources/icon.svg"
+          "title": "MII Sync",
+          "icon": "resources/icon_view.svg"
         }
       ]
     },
@@ -408,12 +408,14 @@
         {
           "id": "remotedirectory",
           "name": "Remote Directory",
-          "when": "miisync.enabled"
+          "when": "miisync.enabled",
+          "icon": "resources/cloud.svg"
         },
         {
           "id": "fileproperties",
           "name": "File Properties",
-          "when": "miisync.enabled"
+          "when": "miisync.enabled",
+          "icon": "resources/file.svg"
         }
       ]
     },
@@ -473,6 +475,12 @@
                   "type": "string",
                   "default": "dev",
                   "description": "name of the system"
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": ["0-low","1-medium","2-high","3-critical"],
+                  "default": "1-medium",
+                  "description": "Severity level of the system. The higher the more confirms asked for operations"
                 },
                 "isMain": {
                   "type": "boolean",
@@ -569,7 +577,7 @@
         "description": "MII Sync Details",
         "default": {
           "fontPath": "resources/miisync.woff",
-          "fontCharacter": "\\e901"
+          "fontCharacter": "\\e905"
         }
       }
     }

@@ -1,4 +1,4 @@
-import { ExtensionContext } from "vscode";
+import { Disposable, ExtensionContext } from "vscode";
 import { GetDifferentValuedKeys } from "../extends/lib";
 import { settingsManager } from "../extension/settings";
 import { System } from "../extension/system";
@@ -12,6 +12,7 @@ import { RemoveSession, Session } from "./session";
 
 // Find a better name
 class UserManager {
+    private subscription: Disposable[] = [];
     private session: Session;
 
     private password: string;
@@ -34,8 +35,12 @@ class UserManager {
 
     constructor(readonly system: System) {
         this.session = new Session(system);
-        this.session.onLogStateChange.event(this.onLogStateChange, this);
-        settingsManager.onSettingsChange.event(this.onSettingsChange, this);
+        this.session.onLogStateChange.event(this.onLogStateChange, this, this.subscription);
+        settingsManager.onSettingsChange.event(this.onSettingsChange, this, this.subscription);
+    }
+
+    public dispose() {
+        this.subscription.forEach((sub) => sub.dispose());
     }
 
     private onLogStateChange(session: Session) {
@@ -224,9 +229,13 @@ export async function OnSystemsChange(system: System[]) {
         }
     }
 
-    const promises = [];
+    const promises: Promise<any>[] = [];
     for (const oldManager of oldManagers) {
-        promises.push(oldManager.logout().then(() => RemoveSession(oldManager.Session)));
+        promises.push(oldManager.logout().then(() => {
+            RemoveSession(oldManager.Session);
+            oldManager.dispose();
+        }));
+
     }
     await Promise.all(promises);
 
