@@ -2,7 +2,6 @@
 import { configManager } from "../modules/config.js";
 import { DownloadContextDirectory, DownloadRemoteFile, DownloadRemoteFolder } from "../transfer/download.js";
 import { TreeItem } from "../ui/treeview/tree.js";
-import path = require("path");
 
 
 export async function OnCommandDownloadRemoteDirectory() {

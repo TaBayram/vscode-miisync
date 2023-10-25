@@ -2,7 +2,6 @@ import { X2jOptions, XMLParser } from 'fast-xml-parser';
 import fetch, { HeadersInit, RequestRedirect, Response } from "node-fetch";
 import logger from '../../ui/logger.js';
 import { GetSession } from '../../user/session.js';
-import { Column, MII, Row } from './responsetypes.js';
 
 export interface Request {
     host: string,
@@ -23,13 +22,13 @@ export interface MIIParams {
     "Session"?: boolean
 }
 
-export abstract class Service {
+export abstract class Service{
     readonly abstract name: string;
     readonly abstract mode: string;
 
     constructor() { }
 
-    abstract call(request: Request, ...args: any): Promise<MII<Row, Column> | any>;
+    abstract call(request: Request, ...args: any): Promise<any>;
     abstract get(host: string, port: number, ...args: any): string;
     protected abstract generateParams(...args: any): string;
 
@@ -65,7 +64,7 @@ export abstract class Service {
         if (auth && session?.auth) {
             headers["Authorization"] = 'Basic ' + session.auth;
         }
-       
+
 
         return fetch(url.toString(), {
             method: body ? "POST" : method,

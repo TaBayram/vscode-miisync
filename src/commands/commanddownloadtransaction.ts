@@ -1,7 +1,7 @@
 import { Range } from "vscode";
 import { configManager } from "../modules/config.js";
 import { GetActiveTextEditor, ShowWarningMessage } from "../modules/vscode.js";
-import { GetTransactionProperties } from "../transfer/request.js";
+import { GetTransactionProperties } from "../transfer/misc.js";
 
 export async function OnCommandDownloadTransactionProperties() {
     const textEditor = GetActiveTextEditor();

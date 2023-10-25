@@ -1,7 +1,36 @@
-import { SystemConfig } from "../modules/config";
+export enum Severity{
+    low = "0-low",
+    medium = "1-medium",
+    high = "2-high",
+    critical = "3-critical"
+}
+
+export interface SystemConfig {
+    name: string,
+    isMain: boolean,
+    severity: Severity
+    host: string,
+    port: number,
+    username: string,
+    password?: string,
+}
+
+export interface UserConfig {
+    systems?: System[],
+    removeFromLocalPath?: string[],
+    remotePath?: string,
+    uploadOnSave?: boolean,
+    downloadOnOpen?: boolean,
+    ignore?: string[],
+    include?: string[],
+    useRootConfig?: boolean,
+    rootConfig?: string,
+}
+
 
 export class System implements SystemConfig {
     name: string;
+    severity: Severity;
     isMain: boolean;
     host: string;
     port: number;

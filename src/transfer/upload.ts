@@ -1,67 +1,66 @@
-import path = require("path");
+import { pathExists, readFile } from 'fs-extra';
+import * as path from 'path';
 import { Uri } from "vscode";
-import { System } from "../extension/system";
+import { System, UserConfig } from "../extension/system";
 import { saveFileService } from "../miiservice/savefileservice";
-import { UserConfig } from "../modules/config";
-import { GetRemotePath } from "../modules/file";
-import { ShowConfirmMessage } from "../modules/vscode";
-import logger from "../ui/logger";
-import statusBar, { Icon } from "../ui/statusbar";
-import { DoesFileExist, DoesFolderExist, Validate } from "./gate";
-import { UploadFolderLimited } from "./limited/upload";
+import { GetRemotePath, PrepareUrisForService } from "../modules/file";
+import { CheckSeverity, CheckSeverityFile, CheckSeverityFolder, SeverityOperation } from '../modules/severity';
+import { ActionReturn, ActionType, StartAction } from './action';
+import { Validate } from "./gate";
+import { UploadComplexLimited } from './limited/uploadcomplex';
 
-export async function UploadFile(uri: Uri, content: string, userConfig: UserConfig, system: System) {
-    if (!await Validate(userConfig, system, uri.fsPath)) {
+export async function UploadFile(uri: Uri, userConfig: UserConfig, system: System, content?: string) {
+    if (!await Validate(userConfig, { system, localPath: uri.fsPath })) {
         return false;
     }
-    const fileName = uri.fsPath.substring(uri.fsPath.lastIndexOf(path.sep)).replace(path.sep, '');
-    const sourcePath = GetRemotePath(uri.fsPath, userConfig);
-    const base64Content = encodeURIComponent(Buffer.from(content || " ").toString('base64'));
-    if (!await DoesFileExist(sourcePath, system) &&
-        !await ShowConfirmMessage("File does not exists. Do you want to create it? \nFile: " + path.basename(sourcePath))) {
-        return false;
-    }
+    const fileName = path.basename(uri.fsPath);
+    const upload = async () => {
+        if (!content) {
+            const exists = await pathExists(uri.fsPath);
+            if (!exists) {
+                return { aborted: true, error: true, message: fileName + " doesn't exist" };
+            }
+            content = (await readFile(uri.fsPath)).toString();
+        }
+        if (!await CheckSeverityFile(uri, SeverityOperation.upload, userConfig, system)) return { aborted: true };
 
+        const sourcePath = GetRemotePath(uri.fsPath, userConfig);
+        const base64Content = encodeURIComponent(Buffer.from(content || " ").toString('base64'));
 
-    statusBar.updateBar('Uploading', Icon.spinLoading, { duration: -1 });
-    const response = await saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
-    if (response) {
-        logger.infoplus(system.name,"Upload File", fileName + ": " + response?.Rowsets?.Messages?.Message);
+        const response = await saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
+        return { aborted: response == null };
     }
-    statusBar.updateBar("Uploaded " + fileName, Icon.success, { duration: 3 });
+    StartAction(ActionType.upload, { name: "Upload File", resource: fileName, system }, { isSimple: true }, upload);
 }
 
-
-export async function UploadFolder(folderUri: Uri | string, userConfig: UserConfig, system: System, showConfirmation: boolean = false) {
-    const folderPath = typeof (folderUri) === "string" ? folderUri : folderUri.fsPath;
+/**
+ * Uses Limited
+ */
+export async function UploadFolder(folderUri: Uri, userConfig: UserConfig, system: System) {
+    const folderPath = folderUri.fsPath;
     const folderName = path.basename(folderPath);
-    if (!await Validate(userConfig, system, folderPath)) {
-        return false;
-    }
-    const sourcePath = GetRemotePath(folderPath, userConfig);
-    const folderExists = await DoesFolderExist(sourcePath, system);
-    if (showConfirmation) {
-        const message = folderExists ? 'Are you sure you want to upload ' + folderName + ' ?' : folderName + ' does not exists. Do you want to create it?';
-        if(!await ShowConfirmMessage(message)) return;
-    }
-    else if (!folderExists && 
-        !await ShowConfirmMessage("Folder does not exists. Do you want to create it?")) {
-        return;
-    }
-    statusBar.updateBar('Uploading', Icon.spinLoading, { duration: -1 });
-    logger.infoplus(system.name,"Upload Folder", folderName + ": Started");
+    if (!await Validate(userConfig, { system, localPath: folderPath })) { return null; }
+    const upload = async () => {
+        if (!await CheckSeverityFolder(folderUri, SeverityOperation.upload, userConfig, system)) return { aborted: true };
 
-    const response = await UploadFolderLimited(folderPath, userConfig, system);
-
-    if (response.aborted) {
-        statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
-        logger.infoplus(system.name,"Upload Folder", folderName + ": Cancelled");
+        const response = await UploadComplexLimited({ path: folderPath, files: [], folders: [] }, userConfig, system);
+        return { aborted: response.aborted };
     }
-    else {
-        statusBar.updateBar('Uploaded', Icon.success, { duration: 1 });
-        logger.infoplus(system.name,"Upload Folder", folderName + ": Completed");
-    }
-
-
+    StartAction(ActionType.upload, { name: "Upload Folder", resource: folderName, system }, { isSimple: false }, upload);
 }
 
+/**
+ * Uses Limited
+ */
+export async function UploadUris(uris: Uri[], userConfig: UserConfig, system: System, processName: string) {
+    const upload = async (): Promise<ActionReturn> => {
+        const folder = await PrepareUrisForService(uris);
+
+        if (!await CheckSeverity(folder, SeverityOperation.upload, userConfig, system)) return { aborted: true };
+
+        const response = await UploadComplexLimited(folder, userConfig, system);
+        return { aborted: response.aborted };
+    }
+
+    StartAction(ActionType.upload, { name: processName, system }, { isSimple: false }, upload);
+}

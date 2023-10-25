@@ -4,13 +4,14 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { CONFIG_PATH, CONFIG_USER_PATH, EXTENSION_NAME } from '../constants.js';
 import { deepEqual } from '../extends/lib.js';
-import { System } from '../extension/system.js';
+import { Severity, System, SystemConfig, UserConfig } from '../extension/system.js';
 import logger from '../ui/logger.js';
 import { GetWorkspaceFolders, SetContextValue, ShowTextDocument } from './vscode';
 
 //todo make port optional
 let joiSystem = Joi.object().keys({
     name: Joi.string().required(),
+    severity: Joi.string().valid(...Object.values(Severity)).default(Severity.medium),
     isMain: Joi.boolean().default(false),
     host: Joi.string().required(),
     port: Joi.number(),
@@ -31,26 +32,6 @@ const configScheme = Joi.object({
 });
 
 
-export interface SystemConfig {
-    name: string,
-    isMain: boolean,
-    host: string,
-    port: number,
-    username: string,
-    password?: string,
-}
-
-export interface UserConfig {
-    systems?: System[],
-    removeFromLocalPath?: string[],
-    remotePath?: string,
-    uploadOnSave?: boolean,
-    downloadOnOpen?: boolean,
-    ignore?: string[],
-    include?: string[],
-    useRootConfig?: boolean,
-    rootConfig?: string,
-}
 
 function GetWorkspaceConfig(): UserConfig {
     const conf = vscode.workspace.getConfiguration(EXTENSION_NAME);
@@ -70,6 +51,7 @@ function GetWorkspaceConfig(): UserConfig {
 const defaultSystem: SystemConfig = {
     name: "dev",
     isMain: false,
+    severity: Severity.medium,
     host: '11.22.33',
     port: 5000,
     username: 'x-user',
@@ -209,6 +191,8 @@ class ConfigManager {
             else if (mainCount > 1) {
                 return new Error("There must be only one main system");
             }
+
+            sys1.severity = sys1.severity || Severity.medium;
         }
 
         return null;

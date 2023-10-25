@@ -1,5 +1,25 @@
 # Change Log
 
+## [0.13.0] - 25/10/2023
+
+### Added
+
+- Multiple file and folder selection support for all mii sync actions.
+- MII Sync Action submenu to workspace view, editor title context.
+- Added severity property to system. There are 4 levels: low, medium, high, critical. With each level, more actions require confirmation.
+
+### Changed
+
+- Grouped the actions in explorer context.
+
+### Removed
+
+- Upload/Download commands in command palete.
+
+### Fixed
+
+- File properties view not updating after opening workspace and after switching system.
+
 ## [0.12.0] - 10/10/2023
 
 ### Added
@@ -37,6 +57,7 @@
 
 - Where upload folder would create normally ignored folder.
 - Where the root folder upload folder path was wrong
+
 
 ## [0.11.4] - 26/07/2023
 

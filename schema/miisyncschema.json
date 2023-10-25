@@ -1,84 +1,90 @@
 {
-    "properties": {
-        "systems": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "minItems": 1,
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "default": "dev",
-                        "description": "name of the system"
-                    },
-                    "isMain": {
-                        "type": "boolean",
-                        "default": false,
-                        "description": "If true the extension will use this system"
-                    },
-                    "host": {
-                        "type": "string",
-                        "default": "10.20.30.40",
-                        "description": "IP of the target system."
-                    },
-                    "port": {
-                        "type": "number",
-                        "default": 50000,
-                        "description": "Port of the target system."
-                    },
-                    "username": {
-                        "type": "string",
-                        "default": "x-name",
-                        "description": "Your username for the target system"
-                    },
-                    "password": {
-                        "type": "string",
-                        "default": "1234",
-                        "description": "Your password for the targetsystem"
-                    }
-                }
-            }
-        },
-        "removeFromLocalPath": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            },
-            "description": "any folder that is between file name and localPath that you want to remove"
-        },
-        "remotePath": {
+  "properties": {
+    "systems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "minItems": 1,
+        "properties": {
+          "name": {
             "type": "string",
-            "description": "Path of the target project"
-        },
-        "ignore": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            },
-            "description": "ignores files/folders matching one of the string. wildcards can be used"
-        },
-        "include": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            },
-            "description": "includes files/folders matching one of the string. wildcards can be used (not ignore). If the same item is added in both ignore and include it will be included."
-        },
-        "useRootConfig": {
+            "default": "dev",
+            "description": "name of the system"
+          },
+          "isMain": {
             "type": "boolean",
-            "description": "Enables use of root config."
-        },
-        "rootConfig": {
+            "default": false,
+            "description": "If true the extension will use this system"
+          },
+          "severity": {
             "type": "string",
-            "description": "Gets the config from other miisync.json file. Can be relative or absolute path. \nMust point to where .vscode is located"
-        },
-        "uploadOnSave": {
-            "type": "boolean",
-            "description": "Uploads the current file to the system whenever you save it."
-        },
-        "downloadOnOpen": {
-            "type": "boolean",
-            "description": "Downloads the file to the system whenever you open it."
+            "enum": ["0-low","1-medium","2-high","3-critical"],
+            "default": "1-medium",
+            "description": "Severity level of the system. The higher the more confirms asked for operations"
+          },
+          "host": {
+            "type": "string",
+            "default": "10.20.30.40",
+            "description": "IP of the target system."
+          },
+          "port": {
+            "type": "number",
+            "default": 50000,
+            "description": "Port of the target system."
+          },
+          "username": {
+            "type": "string",
+            "default": "x-name",
+            "description": "Your username for the target system"
+          },
+          "password": {
+            "type": "string",
+            "default": "1234",
+            "description": "Your password for the targetsystem"
+          }
         }
+      }
+    },
+    "removeFromLocalPath": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "any folder that is between file name and localPath that you want to remove"
+    },
+    "remotePath": {
+      "type": "string",
+      "description": "Path of the target project"
+    },
+    "ignore": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "ignores files/folders matching one of the string. wildcards can be used"
+    },
+    "include": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "includes files/folders matching one of the string. wildcards can be used (not ignore). If the same item is added in both ignore and include it will be included."
+    },
+    "useRootConfig": {
+      "type": "boolean",
+      "description": "Enables use of root config."
+    },
+    "rootConfig": {
+      "type": "string",
+      "description": "Gets the config from other miisync.json file. Can be relative or absolute path. \nMust point to where .vscode is located"
+    },
+    "uploadOnSave": {
+      "type": "boolean",
+      "description": "Uploads the current file to the system whenever you save it."
+    },
+    "downloadOnOpen": {
+      "type": "boolean",
+      "description": "Downloads the file to the system whenever you open it."
     }
+  }
 }

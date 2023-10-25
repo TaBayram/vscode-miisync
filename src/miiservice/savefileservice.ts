@@ -1,5 +1,5 @@
 import { Request, Service } from './abstract/miiservice.js';
-import { MII, RowsetsMessage } from './abstract/responsetypes.js';
+import { MIISafe, RowsetsMessage } from './abstract/responsetypes.js';
 
 class SaveFileService extends Service {
     name: string = "Save File";
@@ -8,7 +8,7 @@ class SaveFileService extends Service {
     async call({ host, port, body }: Request & { body: string }, sourcePath: string) {
         const url = this.get(host, port, sourcePath);
         const { value, error, isError } = await this.fetch(new URL(url), { auth: false, body });
-        let data: MII<null, null, RowsetsMessage> = null;
+        let data: MIISafe<null, null, RowsetsMessage> = null;
         if (!isError) {
             data = this.parseXML(value);
         }

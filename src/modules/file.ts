@@ -1,10 +1,12 @@
 
 import { exists, lstat, readdir } from "fs-extra";
 import ignore from "ignore";
+import * as path from 'path';
+import { Uri } from "vscode";
 import '../extends/string.js';
-import { UserConfig, configManager } from "./config.js";
-import path = require("path");
-import micromatch = require("micromatch");
+import { UserConfig } from "../extension/system.js";
+import { SimpleFolder, SimplePreFolder } from "../types/miisync.js";
+import { configManager } from "./config.js";
 
 export function InsertWeb(path: string) {
     const web = "/WEB";
@@ -40,7 +42,7 @@ export function GetRemotePath(filePath: string, { remotePath, removeFromLocalPat
 
 export function IsSubDirectory(parent: string, child: string) {
     const relative = path.relative(parent, child);
-    return relative && !relative.startsWith('..') && !path.isAbsolute(relative);
+    return (relative != '' && !relative.startsWith('..') && !path.isAbsolute(relative));
 }
 
 /**
@@ -105,11 +107,6 @@ export async function GetAllFilesInDir(startPath: string): Promise<string[]> {
     return files;
 }
 
-export interface SimpleFolder {
-    path: string,
-    files: string[],
-    folders: SimpleFolder[],
-}
 
 export async function GetAllFilesInDirTree(startPath: string): Promise<SimpleFolder> {
     if (!await exists(startPath)) {
@@ -127,10 +124,108 @@ export async function GetAllFilesInDirTree(startPath: string): Promise<SimpleFol
             }));
         }
         else {
-            folder.files.push(name);
+            folder.files.push({path: name});
         }
     }
     await Promise.all(promises);
     return folder;
 }
 
+
+
+export async function PrepareUrisForService(uris: Uri[]): Promise<SimpleFolder> {
+
+    /**
+     * filters child paths (example: if /Folder and /Folder/file is present, we do not need /Folder/file since /Folder will include it anyway)
+     * puts uris inside their parent folder.
+     * finds the root folder path
+     */
+    const uriFolders: { uris: Uri[], path: string }[] = [];
+    let rootFolderPath: string = uris[0].fsPath;
+    for (let x = 0; x < uris.length; x++) {
+        const uriX = uris[x];
+        let hasParent = false;
+        for (let y = 0; y < uris.length; y++) {
+            const uriY = uris[y];
+            if (uriX == uriY) continue;
+            hasParent = IsSubDirectory(uriY.fsPath, uriX.fsPath);
+            if (hasParent) break;
+        }
+        if (!hasParent) {
+            const directoryName = path.dirname(uriX.fsPath);
+            if (IsSubDirectory(directoryName, path.dirname(rootFolderPath))) {
+                rootFolderPath = uriX.fsPath;
+            }
+
+            const folder = uriFolders.find((folder) => folder.path == directoryName);
+            if (folder)
+                folder.uris.push(uriX);
+            else {
+                uriFolders.push({ path: directoryName, uris: [uriX] })
+            }
+        }
+    }
+
+
+    /**
+     * creates simplefolder tree structure and pushes the uris inside for processing 
+     */
+    const rootFolder: SimplePreFolder = { folders: [], files: [], uris: [], path: path.dirname(rootFolderPath) };
+    for (let index = 0; index < uriFolders.length; index++) {
+        const uriFolder = uriFolders[index];
+        const folders = path.relative(rootFolder.path, uriFolder.path).split(path.sep);
+        let depthFolder = rootFolder;
+        if (folders.length != 1 || folders[0] != '') {
+            for (let depth = 0; depth < folders.length; depth++) {
+                const folder = folders[depth];
+                const folderPath = path.join(depthFolder.path, folder);
+                const index = depthFolder.folders.findIndex((fFolder) => fFolder.path == folderPath);
+                if (index != -1) {
+                    depthFolder = depthFolder.folders[index];
+                }
+                else {
+                    const newFolder = { files: [], folders: [], path: folderPath, uris: [] };
+                    depthFolder.folders.push(newFolder);
+                    depthFolder = newFolder;
+                }
+            }
+        }
+        depthFolder.uris.push(...uriFolder.uris)
+    }
+
+    /**
+     * changes uris to file or folder type
+     */
+    await findAllTypes(rootFolder);
+    async function findAllTypes(mainFolder: SimplePreFolder) {
+        const promises: Promise<any>[] = [];
+        for (const folder of mainFolder.folders) {
+            promises.push(findType(folder));
+        }
+        promises.push(findType(mainFolder));
+        await Promise.all(promises);
+    }
+    async function findType(folder: SimplePreFolder) {
+        if (!folder.uris) return 0;
+        for (const uri of folder.uris) {
+            try {
+                const stat = await lstat(uri.fsPath);
+                if (stat.isDirectory()) {
+                    folder.folders.push({ files: [], folders: [], path: uri.fsPath });
+                }
+                else {
+                    folder.files.push({path: uri.fsPath});
+                }
+            } catch (error) {
+                
+            }
+        }
+        folder.uris = undefined;
+        return folder.files.length + folder.folders.length;
+    }
+
+
+
+
+    return rootFolder;
+}

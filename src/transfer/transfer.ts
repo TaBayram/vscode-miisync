@@ -1,69 +1,140 @@
-import { readFile } from "fs-extra";
+import { readFile } from 'fs-extra';
+import * as path from 'path';
 import { Uri } from "vscode";
-import { System } from "../extension/system";
-import { UserConfig, configManager } from "../modules/config";
+import { System, UserConfig } from "../extension/system";
+import { MIISafe, RowsetsMessage } from '../miiservice/abstract/responsetypes';
+import { saveFileService } from '../miiservice/savefileservice';
+import { configManager } from "../modules/config";
+import { GetRemotePath, PrepareUrisForService } from '../modules/file';
+import { CheckSeverity, CheckSeverityFile, CheckSeverityFolder, SeverityOperation } from '../modules/severity';
 import { ShowQuickPick } from "../modules/vscode";
 import logger from "../ui/logger";
 import { QuickPickItem } from "../ui/quickpick";
-import statusBar, { Icon } from "../ui/statusbar";
 import { GetUserManager } from "../user/usermanager";
-import { UploadFolderLimited } from "./limited/upload";
-import { UploadFile } from "./upload";
-import path = require("path");
+import { ActionReturn, ActionType, StartAction } from './action';
+import { Validate } from './gate';
+import { UploadComplexLimited } from './limited/uploadcomplex';
 
 
-export async function TransferFolder(uri: Uri, userConfig: UserConfig) {
-    let picks: QuickPickItem<System>[] = [];
+async function CreateSystemQuickPick(userConfig: UserConfig) {
+    const picks: QuickPickItem<System>[] = [];
     for (const system of userConfig.systems) {
         if (configManager.CurrentSystem != system) {
             picks.push({ label: system.name, description: system.host + ':' + system.port, object: system })
         }
     }
-
     const quickResponses: QuickPickItem<System>[] = await ShowQuickPick(picks, { title: 'Pick System', canPickMany: true });
-    if (quickResponses?.length > 0) {
-        for (const pickItem of quickResponses) {
-            const system = pickItem.object;
-            const user = GetUserManager(system, true);
-            if (!await user.login()) return;
+    return quickResponses;
+}
 
-            statusBar.updateBar('Transfering', Icon.spinLoading, { duration: -1 });
-            logger.infoplus(configManager.CurrentSystem.name, "Transfer Folder", "->" + system.name + ', ' + path.basename(uri.fsPath) + ": Started");
-
-            const response = await UploadFolderLimited(uri.fsPath, userConfig, system);
-
-            if (response.aborted) {
-                statusBar.updateBar('Cancelled', Icon.success, { duration: 1 });
-                logger.infoplus(configManager.CurrentSystem.name, "Transfer Folder", "->" + system.name + ', ' + path.basename(uri.fsPath) + ": Cancelled");
-                break;
-            }
-            else {
-                statusBar.updateBar('Transferred', Icon.success, { duration: 1 });
-                logger.infoplus(configManager.CurrentSystem.name, "Transfer Folder", "->" + system.name + ', ' + path.basename(uri.fsPath) + ": Completed");
-            }
+function GetMostSevereSystem(systems: System[]) {
+    let mostSevereSystem = systems[0];
+    for (const system of systems) {
+        if (parseInt(mostSevereSystem.severity[0]) < parseInt(system.severity[0])) {
+            mostSevereSystem = system;
         }
+    }
+    return mostSevereSystem;
+}
+
+
+export async function TransferFolder(uri: Uri, userConfig: UserConfig) {
+    const folderPath = uri.fsPath;
+    if (!await Validate(userConfig, { localPath: folderPath })) {
+        return null;
+    }
+    const quickResponses: QuickPickItem<System>[] = await CreateSystemQuickPick(userConfig);
+    const sSystem = configManager.CurrentSystem;
+    if (quickResponses?.length > 0) {
+        const systems = quickResponses.map((pick) => pick.object.name).join(', ').enclose('[', ']');
+        const folderName = path.basename(folderPath);
+        const transfer = async (): Promise<ActionReturn> => {
+            const mostSevereSystem = GetMostSevereSystem(quickResponses.map((pick) => pick.object));
+            if (!await CheckSeverityFolder(uri, SeverityOperation.transfer, userConfig, mostSevereSystem)) return { aborted: true };
+
+            for (const pickItem of quickResponses) {
+                const system = pickItem.object;
+                const user = GetUserManager(system, true)!;
+                if (!await user.login()) continue;
+
+                const response = await UploadComplexLimited({ path: folderPath, files: [], folders: [] }, userConfig, system);
+                if (response?.aborted) {
+                    return { aborted: response.aborted }
+                }
+                logger.infoplus(sSystem.name, "Transfer Folder", system.name + ": Uploaded");
+            }
+
+            return { aborted: false };
+        };
+        StartAction(ActionType.transfer, { name: "Transfer Folder", resource: systems + " " + folderName, system: sSystem }, { isSimple: false }, transfer);
     }
 
 }
 
 export async function TransferFile(uri: Uri, userConfig: UserConfig) {
-    let picks: QuickPickItem<System>[] = [];
-    for (const system of userConfig.systems) {
-        if (configManager.CurrentSystem != system) {
-            picks.push({ label: system.name, description: system.host + ':' + system.port, object: system })
-        }
+    if (!await Validate(userConfig, { localPath: uri.fsPath })) {
+        return false;
     }
 
-    const quickResponses: QuickPickItem<System>[] = await ShowQuickPick(picks, { title: 'Pick System', canPickMany: true });
+    const quickResponses: QuickPickItem<System>[] = await CreateSystemQuickPick(userConfig);
+    const sSystem = configManager.CurrentSystem;
     if (quickResponses?.length > 0) {
-        for (const pickItem of quickResponses) {
-            const system = pickItem.object;
-            const user = GetUserManager(system, true);
-            if (!await user.login()) return;
+        const fileName = path.basename(uri.fsPath);
+        const systems = quickResponses.map((pick) => pick.object.name).join(', ').enclose('[', ']');
+        const transfer = async (): Promise<ActionReturn> => {
+            const content = (await readFile(uri.fsPath)).toString();
+            const base64Content = encodeURIComponent(Buffer.from(content || " ").toString('base64'));
+            const sourcePath = GetRemotePath(uri.fsPath, userConfig);
 
-            const content = (await readFile(uri.fsPath)).toString('utf-8');
-            UploadFile(uri, content, userConfig, system);
+            const mostSevereSystem = GetMostSevereSystem(quickResponses.map((pick) => pick.object));
+            if (!await CheckSeverityFile(uri, SeverityOperation.transfer, userConfig, mostSevereSystem)) return { aborted: true };
+
+
+            let response: MIISafe<null, null, RowsetsMessage> = null;
+            for (const pickItem of quickResponses) {
+                const system = pickItem.object;
+                const user = GetUserManager(system, true)!;
+                if (!await user.login()) continue;
+
+                response = await saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
+            }
+
+            return { aborted: false };
         }
+        StartAction(ActionType.transfer, { name: "Transfer File", resource: systems + " " + fileName, system: sSystem }, { isSimple: true }, transfer);
     }
 
+}
+
+
+/**
+ * Uses Limited
+ */
+export async function TransferUris(uris: Uri[], userConfig: UserConfig, processName: string) {
+    const quickResponses: QuickPickItem<System>[] = await CreateSystemQuickPick(userConfig);
+    const sSystem = configManager.CurrentSystem;
+    if (quickResponses?.length > 0) {
+        const systems = quickResponses.map((pick) => pick.object.name).join(', ').enclose('[', ']');
+        const transfer = async (): Promise<ActionReturn> => {
+            const folder = await PrepareUrisForService(uris);
+
+            const mostSevereSystem = GetMostSevereSystem(quickResponses.map((pick) => pick.object));
+            if (!await CheckSeverity(folder, SeverityOperation.transfer, userConfig, mostSevereSystem)) return { aborted: true };
+
+            for (const pickItem of quickResponses) {
+                const system = pickItem.object;
+                const user = GetUserManager(system, true)!;
+                if (!await user.login()) continue;
+
+                const response = await UploadComplexLimited(folder, userConfig, system);
+                if (response?.aborted) {
+                    return { aborted: response.aborted }
+                }
+                logger.infoplus(configManager.CurrentSystem.name, processName, system.name + ": Uploaded");
+            }
+
+            return { aborted: false };
+        };
+        StartAction(ActionType.transfer, { name: processName, resource: systems, system: sSystem }, { isSimple: false }, transfer);
+    }
 }

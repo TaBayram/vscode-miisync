@@ -1,36 +1,37 @@
-import path = require("path");
+import * as path from 'path';
+import { UserConfig } from "../extension/system";
 import { System } from "../extension/system.js";
+import { IsFatalResponse } from '../miiservice/abstract/filters.js';
+import { existsService } from '../miiservice/existsservice.js';
 import { listFoldersService } from "../miiservice/listfoldersservice.js";
-import { readFilePropertiesService } from "../miiservice/readfilepropertiesservice.js";
-import { UserConfig } from "../modules/config.js";
 import { GetRemotePath, ValidatePath } from "../modules/file.js";
 import logger from "../ui/logger.js";
 import { GetUserManager } from "../user/usermanager.js";
 
 export async function DoesRemotePathExist(userConfig: UserConfig, { host, port }: System) {
     let folderPath = GetRemotePath("", userConfig);
-    const folders = await listFoldersService.call({ host: host, port: port }, folderPath);
-    return folders?.Rowsets?.Rowset?.Row?.length > 0;
+    const response = await listFoldersService.call({ host: host, port: port }, folderPath);
+    return response && !IsFatalResponse(response) ? response?.Rowsets?.Rowset?.Row?.length > 0 : false;
 }
 
 export async function DoesFileExist(remoteFilePath: string, { host, port }: System) {
-    const file = await readFilePropertiesService.call({ host, port }, remoteFilePath);
-    return file?.Rowsets?.Rowset?.Row?.length > 0;
+    const response = await existsService.call({ host, port }, remoteFilePath);
+    return response && !IsFatalResponse(response) ?  response?.Rowsets?.Messages?.Message == "1" : false;
 }
 
 export async function DoesFolderExist(remoteFilePath: string, { host, port }: System) {
-    const parentPath = path.dirname(remoteFilePath);
-    const rootFolders = await listFoldersService.call({ host, port }, parentPath);
-    const root = rootFolders.Rowsets.Rowset.Row.find((folder) => folder.Path == remoteFilePath);
-    return root != null;
+    const response = await existsService.call({ host, port }, remoteFilePath);
+    return response && !IsFatalResponse(response) ? response?.Rowsets?.Messages?.Message == "2": false;
 }
 
 export async function DoesProjectExist({ remotePath }: UserConfig, { host, port }: System) {
     const projectName = remotePath.split("/")[0].trim();
     if (projectName != "") {
-        const folders = await listFoldersService.call({ host, port }, projectName);
-        const hasWeb = folders?.Rowsets?.Rowset?.Row?.find((folder) => folder.IsWebDir);
-        return hasWeb != null;
+        const response = await listFoldersService.call({ host, port }, projectName);
+        if(response && !IsFatalResponse(response)){
+            const hasWeb = response?.Rowsets?.Rowset?.Row?.find((folder) => folder.IsWebDir);
+            return hasWeb != null;
+        }
     }
     return false;
 }
@@ -42,25 +43,27 @@ export async function ValidateLogin(system: System) {
     return await userManager.login();
 }
 
+/**
+ * @param check 
+ * @param check.login needs system 
+ * @param check.project needs system
+ * @returns 
+ */
+export async function Validate(config: UserConfig, { system, localPath }: { system?: System, localPath?: string }, check?: { login?: boolean, project?: boolean }): Promise<boolean> {
+    const { login, project } = { ...{ login: true, project: true }, ...check };
 
-export async function Validate(config: UserConfig, system: System, localPath?: string, ignore?: { login?: boolean, remotePath?: boolean, logged?: boolean }): Promise<boolean> {
     if (localPath && !await ValidatePath(localPath, config)) {
         logger.info(path.basename(localPath) + ": path is ignored.");
         return false;
     }
-    if (!(ignore?.login) && !await ValidateLogin(system)) {
+    if (login && system && !await ValidateLogin(system)) {
         logger.error("Session is not valid.");
         return false;
     }
-    if (!(ignore?.remotePath) && !await DoesProjectExist(config, system)) {
+    if (project && system && !await DoesProjectExist(config, system)) {
         logger.error("Project " + config.remotePath.split("/")[0].trim() + " doesn't exist.");
         return false;
     }
-
-    /* if (!(ignore?.remotePath) && !await DoesRemotePathExist(config, system)) {
-        logger.error("Remote path doesn't exist.");
-        return false;
-    } */
 
     return true;
 }

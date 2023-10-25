@@ -1,5 +1,5 @@
 import { Request, Service } from './abstract/miiservice.js';
-import { CurrentUser, GeneralColumn, MII } from './abstract/responsetypes.js';
+import { CurrentUser, GeneralColumn, MIISafe } from './abstract/responsetypes.js';
 
 class CurrentUsersService extends Service {
     name: string;
@@ -8,7 +8,7 @@ class CurrentUsersService extends Service {
     async call({ host, port }: Request) {
         const url = this.get(host, port);
         const { value, error, isError } = await this.fetch(new URL(url));
-        let data: MII<CurrentUser, GeneralColumn> = null;
+        let data: MIISafe<CurrentUser, GeneralColumn> = null;
         if (!isError) {
             data = JSON.parse(value);
         }

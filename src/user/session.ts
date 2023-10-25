@@ -184,5 +184,7 @@ export function GetMainSession() {
 }
 
 export function RemoveSession(session: Session) {
-    sessions.splice(sessions.findIndex((sess) => sess == session));
+    const index = sessions.findIndex((sess) => sess == session);
+    sessions[index].clear();
+    sessions.splice(index);
 }

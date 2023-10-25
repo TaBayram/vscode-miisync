@@ -1,6 +1,6 @@
 import { CancellationToken, ProgressLocation, window } from "vscode";
 
-interface ProgressData {
+export interface ProgressData {
     percent: number,
     end: () => void,
     thenable: Thenable<void>,

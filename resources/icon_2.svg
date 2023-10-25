@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="147.7302 143.738 512.0001 511.999" width="512px" height="511.999px" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <filter id="inner-shadow-filter-0" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%" bx:preset="inner-shadow 1 0 0 0 0 rgba(39,42,254,0.7)">
+      <feOffset dx="0" dy="0"/>
+      <feGaussianBlur stdDeviation="0"/>
+      <feComposite operator="out" in="SourceGraphic"/>
+      <feComponentTransfer result="choke">
+        <feFuncA type="linear" slope="0"/>
+      </feComponentTransfer>
+      <feFlood flood-color="rgba(39,42,254,0.7)" result="color"/>
+      <feComposite operator="in" in="color" in2="choke" result="shadow"/>
+      <feComposite operator="over" in="shadow" in2="SourceGraphic"/>
+    </filter>
+    <radialGradient gradientUnits="userSpaceOnUse" cx="403.73" cy="399.738" r="256" id="gradient-0">
+      <stop offset="0" style="stop-color: rgba(255, 190, 12, 1)"/>
+      <stop offset="1" style="stop-color: rgb(255, 187, 0);"/>
+    </radialGradient>
+    <filter id="spot-light-filter-0" primitiveUnits="objectBoundingBox" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%" bx:preset="spot-light 1 0.5 0.5 1 0.5 0.5 0 67 #ffffff 1 0.3 1.07 0">
+      <feSpecularLighting result="specular-lighting" lighting-color="#ffffff" specularConstant="0.3" specularExponent="1">
+        <feSpotLight x="0.5" y="0.5" z="1" limitingConeAngle="67" pointsAtX="0.5" pointsAtY="0.5" pointsAtZ="0"/>
+      </feSpecularLighting>
+      <feDiffuseLighting result="diffuse-lighting" lighting-color="#ffffff" diffuseConstant="1.07">
+        <feSpotLight x="0.5" y="0.5" z="1" limitingConeAngle="67" pointsAtX="0.5" pointsAtY="0.5" pointsAtZ="0"/>
+      </feDiffuseLighting>
+      <feMerge result="lighting">
+        <feMergeNode in="diffuse-lighting"/>
+        <feMergeNode in="specular-lighting"/>
+      </feMerge>
+      <feComposite in="SourceGraphic" in2="lighting" operator="arithmetic" k1="1" k2="0" k3="0" k4="0"/>
+    </filter>
+    <filter id="gaussian-blur-filter-0" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%" bx:preset="gaussian-blur 1 0.5">
+      <feGaussianBlur stdDeviation="0.5 0.5" edgeMode="none"/>
+    </filter>
+    <filter id="drop-shadow-filter-1" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%" bx:preset="drop-shadow 1 0 0 2 0.5 rgba(0,0,0,0.3)">
+      <title>Drop shadow</title>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="0" dy="0"/>
+      <feComponentTransfer result="offsetblur">
+        <feFuncA id="spread-ctrl" type="linear" slope="1"/>
+      </feComponentTransfer>
+      <feFlood flood-color="rgba(0,0,0,0.3)"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <radialGradient gradientUnits="userSpaceOnUse" cx="384.129" cy="399.737" r="194.945" id="gradient-2" gradientTransform="matrix(0.860495, -0.01116, 0.012968, 0.999916, 48.403954, 4.320655)">
+      <stop offset="0" style="stop-color: rgb(49, 148, 247);"/>
+      <stop offset="1" style="stop-color: rgb(22, 117, 250);"/>
+    </radialGradient>
+    <filter id="drop-shadow-filter-0" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%" bx:preset="drop-shadow 1 0 0 5 0.4 rgba(0,0,0,0.3)">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="5"/>
+      <feOffset dx="0" dy="0"/>
+      <feComponentTransfer result="offsetblur">
+        <feFuncA id="spread-ctrl" type="linear" slope="0.8"/>
+      </feComponentTransfer>
+      <feFlood flood-color="rgba(0,0,0,0.3)"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <path d="M 315.627 230.031 C 305.067 243.782 298.93 257.584 297.234 271.414 C 295.527 285.227 294.238 297.093 293.39 307.012 C 292.531 316.915 291.817 327.185 291.259 337.852 C 290.406 362.689 289.976 385.316 289.976 405.723 C 289.976 489.439 295.979 540.763 307.945 559.692 C 309.943 562.95 312.492 566.197 315.627 569.444 L 168.281 569.444 C 177.101 559.38 182.356 550.286 184.063 542.158 C 185.77 534.035 187.332 524.345 188.755 513.098 C 192.169 489.885 193.882 463.112 193.882 432.786 C 193.882 402.482 193.731 381.74 193.452 370.56 C 193.173 359.386 192.738 348.485 192.169 337.852 C 190.177 285.93 184.208 252.943 174.244 238.895 L 168.281 230.031 L 315.627 230.031 Z M 599.984 230.031 C 589.429 243.782 583.292 257.584 581.585 271.414 C 579.872 285.227 578.6 297.093 577.741 307.012 C 576.893 316.915 576.179 327.185 575.61 337.852 C 574.762 362.689 574.327 385.316 574.327 405.723 C 574.327 489.439 580.319 540.763 592.307 559.692 C 594.293 562.95 596.854 566.197 599.984 569.444 L 452.637 569.444 C 461.44 559.38 466.712 550.286 468.419 542.158 C 470.132 534.035 471.694 524.345 473.117 513.098 C 476.52 489.885 478.227 463.112 478.227 432.786 C 478.227 402.482 478.082 381.74 477.803 370.56 C 477.513 359.386 477.094 348.485 476.52 337.852 C 474.534 285.93 468.553 252.943 458.606 238.895 L 452.637 230.031 L 599.984 230.031 Z" style="text-transform: capitalize; fill: rgb(48, 79, 191); filter: url('#inner-shadow-filter-0');" transform="matrix(1, 0, 0, 1, 0, 5.684341886080802e-14)">
+    <title>II</title>
+  </path>
+  <path class="st0" d="M 431.928 182.07 L 388.224 367.364 L 343.917 311.654 C 248.47 343.615 194.875 396.323 186.93 477.444 C 108.515 363.113 156.163 260.614 255.51 200.569 L 210.255 143.738 L 431.928 182.07 Z M 375.532 617.405 L 419.242 432.111 L 463.543 487.821 C 558.996 455.86 612.536 403.152 620.53 322.03 C 698.946 436.362 651.297 538.861 551.95 598.906 L 597.155 655.737 L 375.532 617.405 Z" style="clip-rule: evenodd; fill-rule: evenodd; fill: url('#gradient-0'); filter: url('#spot-light-filter-0') url('#gaussian-blur-filter-0') url('#drop-shadow-filter-1');" transform="matrix(1, 0, 0, 1, 0, 5.684341886080802e-14)">
+    <title>sync</title>
+  </path>
+  <path d="M 266.06 315.994 C 265.284 335.492 264.894 355.659 264.894 376.491 C 264.894 404.948 265.575 435.609 266.93 468.468 C 268.291 501.327 269.307 519.988 269.987 524.462 C 270.662 528.931 271.589 532.836 272.749 536.172 C 274.886 542.326 278.372 547.938 283.22 553.009 L 201.988 553.009 C 209.357 545.801 213.77 538.058 215.22 529.768 C 216.677 521.494 217.792 513.478 218.568 505.723 C 220.147 489.957 220.933 468.792 220.933 442.22 C 220.933 410.03 220.147 380.636 218.568 354.047 L 215.371 298.957 C 214.205 278.655 209.452 264.229 201.112 255.671 C 198.01 252.469 194.038 249.4 189.184 246.466 L 303.042 246.466 C 310.601 269.3 320.012 293.545 331.259 319.196 L 384.274 435.592 L 465.513 246.466 L 579.074 246.466 C 569.568 252.201 563.365 258.081 560.458 264.1 C 556.162 273.311 553.73 283.994 553.144 296.156 L 551.108 331.609 C 548.586 373.154 547.331 410.03 547.331 442.22 C 547.331 496.178 550.929 530.443 558.126 545.003 C 559.487 547.67 561.234 550.342 563.365 553.009 L 471.621 553.009 C 476.854 545.935 479.817 538.286 480.492 530.063 C 481.195 521.857 481.836 510.543 482.422 496.111 C 484.748 448.691 485.909 414.164 485.909 392.53 C 485.909 356.87 485.423 330.354 484.458 312.993 L 377.295 553.009 L 320.492 429.986 L 266.06 315.994 Z" style="text-transform: capitalize; fill: url('#gradient-2'); filter: url('#drop-shadow-filter-0');" transform="matrix(1, 0, 0, 1, 0, 5.684341886080802e-14)">
+    <title>M</title>
+  </path>
+</svg>
