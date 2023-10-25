@@ -30,6 +30,7 @@ export async function DownloadFile(uri: Uri, userConfig: UserConfig, system: Sys
 
 
         const file = await readFileService.call({ host: system.host, port: system.port }, sourcePath);
+        if (!file) return { aborted: true };
         if (!IsFatalResponse(file)) {
             const payload = file?.Rowsets?.Rowset?.Row?.find((row) => row.Name == "Payload");
             await writeFile(filePath, Buffer.from(payload!.Value, 'base64'), { encoding: "utf8" })
@@ -159,6 +160,7 @@ export async function DownloadRemoteFile({ filePath, name }: { filePath: string,
 
         const localFilePath = path.join(workspaceFolder, chosenFilePath, name);
         const binary = await readFileService.call({ host: system.host, port: system.port }, filePath + '/' + name);
+        if (!binary) return { aborted: true };
         if (!IsFatalResponse(binary)) {
             const payload = binary?.Rowsets?.Rowset?.Row?.find((row) => row.Name == "Payload");
             if (payload) {
@@ -178,6 +180,7 @@ export async function DownloadContextDirectory(userConfig: UserConfig, system: S
     const download = async (): Promise<ActionReturn> => {
         const sourcePath = GetRemotePath("", userConfig);
         const files = await loadFilesInsideService.call({ host: system.host, port: system.port }, sourcePath);
+        if (!files) return { aborted: true };
         if (!IsFatalResponse(files)) {
             remoteDirectoryTree.generateItemsByFiles(files?.Rowsets?.Rowset?.Row || []);
             return { aborted: false };

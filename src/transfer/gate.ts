@@ -11,24 +11,24 @@ import { GetUserManager } from "../user/usermanager.js";
 export async function DoesRemotePathExist(userConfig: UserConfig, { host, port }: System) {
     let folderPath = GetRemotePath("", userConfig);
     const response = await listFoldersService.call({ host: host, port: port }, folderPath);
-    return !IsFatalResponse(response) ? response?.Rowsets?.Rowset?.Row?.length > 0 : false;
+    return response && !IsFatalResponse(response) ? response?.Rowsets?.Rowset?.Row?.length > 0 : false;
 }
 
 export async function DoesFileExist(remoteFilePath: string, { host, port }: System) {
     const response = await existsService.call({ host, port }, remoteFilePath);
-    return!IsFatalResponse(response) ?  response?.Rowsets?.Messages?.Message == "1" : false;
+    return response && !IsFatalResponse(response) ?  response?.Rowsets?.Messages?.Message == "1" : false;
 }
 
 export async function DoesFolderExist(remoteFilePath: string, { host, port }: System) {
     const response = await existsService.call({ host, port }, remoteFilePath);
-    return !IsFatalResponse(response) ? response?.Rowsets?.Messages?.Message == "2": false;
+    return response && !IsFatalResponse(response) ? response?.Rowsets?.Messages?.Message == "2": false;
 }
 
 export async function DoesProjectExist({ remotePath }: UserConfig, { host, port }: System) {
     const projectName = remotePath.split("/")[0].trim();
     if (projectName != "") {
         const response = await listFoldersService.call({ host, port }, projectName);
-        if(!IsFatalResponse(response)){
+        if(response && !IsFatalResponse(response)){
             const hasWeb = response?.Rowsets?.Rowset?.Row?.find((folder) => folder.IsWebDir);
             return hasWeb != null;
         }

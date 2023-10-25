@@ -13,7 +13,7 @@ export async function GetFileProperties(uri: Uri, userConfig: UserConfig, system
     if (!await ValidatePath(uri.fsPath, userConfig)) return null;
     const sourcePath = GetRemotePath(uri.fsPath, userConfig);
     const response = await readFilePropertiesService.call({ host: system.host, port: system.port }, sourcePath);
-    if (!IsFatalResponse(response) && response?.Rowsets?.Rowset?.Row) {
+    if (response && !IsFatalResponse(response) && response?.Rowsets?.Rowset?.Row) {
         filePropertiesTree.generateItems(response.Rowsets.Rowset.Row[0]);
         return response;
     }

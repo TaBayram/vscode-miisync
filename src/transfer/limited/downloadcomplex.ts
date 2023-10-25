@@ -69,7 +69,7 @@ export async function DownloadComplexLimited(folder: ComplexFolder, getPath: (it
             const sourcePath = mainFolder.isRemotePath ? mainFolder.path : GetRemotePath(mainFolder.path, userConfig);
             const parentPath = path.dirname(sourcePath) == "." ? "" : path.dirname(sourcePath);
             const parentFolder = await listFoldersService.call({ host: system.host, port: system.port }, parentPath);
-            if (IsFatalResponse(parentFolder)) return;
+            if (!parentFolder || IsFatalResponse(parentFolder)) return;
             const folder = parentFolder?.Rowsets?.Rowset?.Row?.find((folder: Folder) => folder.Path == sourcePath);
             mainFolder.folder = folder;
         }
@@ -80,7 +80,7 @@ export async function DownloadComplexLimited(folder: ComplexFolder, getPath: (it
                     if (aborted) return;
                     const files = await listFilesService.call({ host: system.host, port: system.port }, mainFolder.folder.Path);
                     if (aborted) return;
-                    if (IsFatalResponse(files)) return;
+                    if (!files || IsFatalResponse(files)) return;
                     mainFolder.files = files?.Rowsets?.Rowset?.Row?.map((cFile) => { return { file: cFile, path: null } }) || [];
 
                 })
@@ -91,7 +91,7 @@ export async function DownloadComplexLimited(folder: ComplexFolder, getPath: (it
                     if (aborted) return;
                     const folders = await listFoldersService.call({ host: system.host, port: system.port }, mainFolder.folder.Path);
                     if (aborted) return;
-                    if (IsFatalResponse(folders)) return;
+                    if (!folders || IsFatalResponse(folders)) return;
                     mainFolder.folders = folders?.Rowsets?.Rowset?.Row?.map((cFolder) => { return { folder: cFolder, path: null, files: [], folders: [] } }) || [];
 
                     for (const folder of mainFolder.folders) {
@@ -133,7 +133,7 @@ export async function DownloadComplexLimited(folder: ComplexFolder, getPath: (it
         const remotePath = file ? (file.FilePath + "/" + file.ObjectName) : GetRemotePath(path, userConfig);
         const response = await readFileService.call({ host: system.host, port: system.port }, remotePath);
         if (aborted) return;
-        if (!IsFatalResponse(response)) {
+        if (response && !IsFatalResponse(response)) {
             const payload = response?.Rowsets?.Rowset?.Row.find((row) => row.Name == "Payload");
             if (payload) {
                 outputFile(filePath, Buffer.from(payload.Value, 'base64'), { encoding: "utf8" }).catch(error => logger.error(error));

@@ -24,6 +24,7 @@ export async function DeleteFile(uri: Uri, userConfig: UserConfig, system: Syste
         if (!await CheckSeverityFile(uri, SeverityOperation.delete, userConfig, system)) return { aborted: true };
 
         const response = await deleteBatchService.call({ host: system.host, port: system.port }, sourcePath);
+        if (!response) return { aborted: true };
         if (!IsFatalResponse(response)) {
             await blowoutService.call({ host: system.host, port: system.port }, sourcePath);
             return { aborted: false };
@@ -46,6 +47,7 @@ export async function DeleteFolder(uri: Uri, userConfig: UserConfig, system: Sys
 
 
         const response = await deleteBatchService.call({ host: system.host, port: system.port }, sourcePath);
+        if (!response) return { aborted: true };
         if (!IsFatalResponse(response)) {
             await blowoutService.call({ host: system.host, port: system.port }, sourcePath);
             return { aborted: false };

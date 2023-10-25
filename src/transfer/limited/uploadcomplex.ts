@@ -92,7 +92,7 @@ export async function UploadComplexLimited(folder: SimpleFolder, userConfig: Use
     async function createFolder(file: string) {
         const folderPath = GetRemotePath(file, userConfig);
         const exist = await existsService.call({ host: system.host, port: system.port }, folderPath);
-        if (!IsFatalResponse(exist) && exist?.Rowsets?.Messages?.Message != "2") {
+        if (exist && !IsFatalResponse(exist) && exist?.Rowsets?.Messages?.Message != "2") {
             return createFolderService.call({ host: system.host, port: system.port }, folderPath);
         }
     }
