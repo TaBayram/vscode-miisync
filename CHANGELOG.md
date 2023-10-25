@@ -1,8 +1,6 @@
 # Change Log
 
-## [Unreleased]
-
-## [0.13.0]
+## [0.13.0] - 25/10/2023
 
 ### Added
 
@@ -17,6 +15,10 @@
 ### Removed
 
 - Upload/Download commands in command palete.
+
+### Fixed
+
+- File properties view not updating after opening workspace and after switching system.
 
 ## [0.12.0] - 10/10/2023
 
