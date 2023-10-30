@@ -22,7 +22,10 @@ class LogInService extends Service {
         }
         else{
             // get auth cookie
-            await this.fetch(new URL(this.generateURL(host, port)), { auth: false, sessionCookies: false, method: 'POST' });
+            const {value, error, isError } = await this.fetch(new URL(this.generateURL(host, port)), { auth: false, sessionCookies: false, method: 'POST' });
+            if(isError){
+                return null;
+            }
        
             url = this.get(host, port, { Session: true }) + '&' + this.generateParams(user.name, user.password);
         }

@@ -4,7 +4,7 @@ import { MIISafe, RowsetsMessage } from './abstract/responsetypes.js';
 
 
 class ExistsService extends Service {
-    name: string = "List Files";
+    name: string = "Exists";
     mode: string = "/XMII/Catalog?Mode=Exists&Class=Content";
 
     /**

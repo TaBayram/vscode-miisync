@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.13.1] - 30/10/2023
+
+### Changed
+
+- view and sub menu icons.
+
 ## [0.13.0] - 25/10/2023
 
 ### Added
