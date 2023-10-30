@@ -60,7 +60,7 @@ export async function CheckSeverity(folder: ComplexFolder, type: SeverityOperati
     if ("folder" in handlerType) {
         if (handlerType.newFolder) {
             const rootExists = await DoesFolderExist(rootPath, system);
-            if (rootExists) {
+            if (!rootExists) {
                 text = constructMessage({ name: rootFolder, isNew: !rootExists }, system, type);
                 return await handlerType.newFolder(text);
             }
@@ -84,7 +84,7 @@ export async function CheckSeverityFile(uri: Uri, type: SeverityOperation, userC
         if (handlerType.newFile) {
             const fileExist = await DoesFileExist(remotePath, system);
             text = constructMessage({ name, isNew: !fileExist }, system, type);
-            if (fileExist) {
+            if (!fileExist) {
                 return await handlerType.newFile(text);
             }
         }
@@ -107,7 +107,7 @@ export async function CheckSeverityFolder(uri: Uri, type: SeverityOperation, use
         if (handlerType.newFolder) {
             const folderExist = await DoesFolderExist(remotePath, system);
             text = constructMessage({ name, isNew: !folderExist }, system, type);
-            if (folderExist) {
+            if (!folderExist) {
                 return await handlerType.newFolder(text);
             }
         }
