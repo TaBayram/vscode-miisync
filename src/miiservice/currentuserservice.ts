@@ -2,7 +2,7 @@ import { Request, Service } from './abstract/miiservice.js';
 import { CurrentUser, GeneralColumn, MIISafe } from './abstract/responsetypes.js';
 
 class CurrentUsersService extends Service {
-    name: string;
+    name: string = "Current Users";;
     mode: string = "XMII/Illuminator?service=admin&mode=SessionList&content-type=text/json";
 
     async call({ host, port }: Request) {
