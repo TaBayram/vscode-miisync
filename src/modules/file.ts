@@ -124,7 +124,7 @@ export async function GetAllFilesInDirTree(startPath: string): Promise<SimpleFol
             }));
         }
         else {
-            folder.files.push({path: name});
+            folder.files.push({ path: name });
         }
     }
     await Promise.all(promises);
@@ -141,7 +141,7 @@ export async function PrepareUrisForService(uris: Uri[]): Promise<SimpleFolder> 
      * finds the root folder path
      */
     const uriFolders: { uris: Uri[], path: string }[] = [];
-    let rootFolderPath: string = uris[0].fsPath;
+    let rootFolderPath: string = (await lstat(uris[0].fsPath)).isDirectory() ? uris[0].fsPath : path.dirname(uris[0].fsPath);
     for (let x = 0; x < uris.length; x++) {
         const uriX = uris[x];
         let hasParent = false;
@@ -152,16 +152,22 @@ export async function PrepareUrisForService(uris: Uri[]): Promise<SimpleFolder> 
             if (hasParent) break;
         }
         if (!hasParent) {
-            const directoryName = path.dirname(uriX.fsPath);
-            if (IsSubDirectory(directoryName, path.dirname(rootFolderPath))) {
-                rootFolderPath = uriX.fsPath;
+            const directoryPath = path.dirname(uriX.fsPath);
+            if (directoryPath != rootFolderPath) {
+                if (IsSubDirectory(directoryPath, rootFolderPath)) {
+                    rootFolderPath = directoryPath;
+                }
+                else if (!IsSubDirectory(rootFolderPath, directoryPath)) {
+                    const relation = path.relative(rootFolderPath, directoryPath).match(/\.\./g)?.join('/') || '';
+                    rootFolderPath = path.resolve(rootFolderPath, relation);
+                }
             }
 
-            const folder = uriFolders.find((folder) => folder.path == directoryName);
+            const folder = uriFolders.find((folder) => folder.path == directoryPath);
             if (folder)
                 folder.uris.push(uriX);
             else {
-                uriFolders.push({ path: directoryName, uris: [uriX] })
+                uriFolders.push({ path: directoryPath, uris: [uriX] })
             }
         }
     }
@@ -170,7 +176,7 @@ export async function PrepareUrisForService(uris: Uri[]): Promise<SimpleFolder> 
     /**
      * creates simplefolder tree structure and pushes the uris inside for processing 
      */
-    const rootFolder: SimplePreFolder = { folders: [], files: [], uris: [], path: path.dirname(rootFolderPath) };
+    const rootFolder: SimplePreFolder = { folders: [], files: [], uris: [], path: rootFolderPath};
     for (let index = 0; index < uriFolders.length; index++) {
         const uriFolder = uriFolders[index];
         const folders = path.relative(rootFolder.path, uriFolder.path).split(path.sep);
@@ -214,10 +220,10 @@ export async function PrepareUrisForService(uris: Uri[]): Promise<SimpleFolder> 
                     folder.folders.push({ files: [], folders: [], path: uri.fsPath });
                 }
                 else {
-                    folder.files.push({path: uri.fsPath});
+                    folder.files.push({ path: uri.fsPath });
                 }
             } catch (error) {
-                
+
             }
         }
         folder.uris = undefined;

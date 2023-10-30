@@ -399,7 +399,7 @@
         {
           "id": "miisyncbar",
           "title": "MII Sync",
-          "icon": "resources/icon_view.svg"
+          "icon": "resources/icon_black.svg"
         }
       ]
     },

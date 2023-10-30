@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.13.2] - 30/10/2023
+
+### Fixed
+
+- Selection of multiple files wouldn't find the parent folder which resulted in not doing the action properly.
+- Medium severity showing confirmation on existing resource insted of new.
+
 ## [0.13.1] - 30/10/2023
 
 ### Changed
