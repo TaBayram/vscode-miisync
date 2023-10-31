@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.13.3] - 31/10/2023
+
+### Fixed
+
+- Downloading remote folder would also download non-web directories.
+
 ## [0.13.2] - 30/10/2023
 
 ### Fixed

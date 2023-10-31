@@ -32,36 +32,42 @@ export async function DownloadComplexLimited(folder: ComplexFolder, getPath: (it
         return { aborted: true, };
     }
 
-    limitManager.startProgress();
-    limitManager.createWindow('Preparing Download', () => aborted = true)
     let fileCount = 0;
     let promises: Promise<any>[] = [];
+    try {
+        limitManager.startProgress();
+        limitManager.createWindow('Preparing Download', () => aborted = true)
+        
+        await getChildren(folder);
+        do {
+            await Promise.all(promises);
+        }
+        while (limitManager.OngoingCount != 0);
 
-    await getChildren(folder);
-    do {
-        await Promise.all(promises);
-    }
-    while (limitManager.OngoingCount != 0);
 
+        if (aborted) {
+            limitManager.endProgress();
+            return { aborted };
+        }
+        limitManager.createWindow('Downloading', () => aborted = true)
+        limitManager.MaxQueue = 0;
+        limitManager.Finished = 0;
+        promises = [];
 
-    if (aborted) {
+        await downloadFiles(folder);
+        do {
+            await Promise.all(promises);
+        }
+        while (limitManager.OngoingCount != 0);
+
         limitManager.endProgress();
+
         return { aborted };
+    } catch (error: any) {
+        limitManager.endProgress();
+        throw Error(error);
     }
-    limitManager.createWindow('Downloading', () => aborted = true)
-    limitManager.MaxQueue = 0;
-    limitManager.Finished = 0;
-    promises = [];
 
-    await downloadFiles(folder);
-    do {
-        await Promise.all(promises);
-    }
-    while (limitManager.OngoingCount != 0);
-
-    limitManager.endProgress();
-
-    return { aborted };
 
     async function getChildren(mainFolder: ComplexFolder) {
         if (aborted) return;
@@ -81,7 +87,8 @@ export async function DownloadComplexLimited(folder: ComplexFolder, getPath: (it
                     const files = await listFilesService.call({ host: system.host, port: system.port }, mainFolder.folder.Path);
                     if (aborted) return;
                     if (!files || IsFatalResponse(files)) return;
-                    mainFolder.files = files?.Rowsets?.Rowset?.Row?.map((cFile) => { return { file: cFile, path: null } }) || [];
+                    mainFolder.files = files?.Rowsets?.Rowset?.Row?.
+                        map((cFile) => { return { file: cFile, path: null } }) || [];
 
                 })
                 promises.push(filePromise);
@@ -92,7 +99,9 @@ export async function DownloadComplexLimited(folder: ComplexFolder, getPath: (it
                     const folders = await listFoldersService.call({ host: system.host, port: system.port }, mainFolder.folder.Path);
                     if (aborted) return;
                     if (!folders || IsFatalResponse(folders)) return;
-                    mainFolder.folders = folders?.Rowsets?.Rowset?.Row?.map((cFolder) => { return { folder: cFolder, path: null, files: [], folders: [] } }) || [];
+                    mainFolder.folders = folders?.Rowsets?.Rowset?.Row?.
+                        filter((cFolder) => cFolder.IsWebDir).
+                        map((cFolder) => { return { folder: cFolder, path: null, files: [], folders: [] } }) || [];
 
                     for (const folder of mainFolder.folders) {
                         promises.push(limitManager.newRemote(() => getChildren(folder)));

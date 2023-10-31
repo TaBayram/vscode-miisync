@@ -22,10 +22,24 @@ export async function UploadComplexLimited(folder: SimpleFolder, userConfig: Use
     let aborted = false;
 
     const promises: Promise<any>[] = [];
-    limitManager.startProgress();
-    limitManager.createWindow('Uploading', () => aborted = true)
+    try {
+        limitManager.startProgress();
+        limitManager.createWindow('Uploading', () => aborted = true)
 
-    await fillEmptyFolders(folder);
+        await fillEmptyFolders(folder);
+        await uploadRecursive(folder);
+        do {
+            await Promise.all(promises);
+        }
+        while (limitManager.OngoingCount != 0);
+
+        limitManager.endProgress();
+        return { aborted };
+    } catch (error: any) {
+        limitManager.endProgress();
+        throw Error(error);
+    }
+
     async function fillEmptyFolders(mainFolder: SimpleFolder) {
         const promises: Promise<any>[] = [];
         for (const folder of mainFolder.folders) {
@@ -43,18 +57,6 @@ export async function UploadComplexLimited(folder: SimpleFolder, userConfig: Use
         folder.folders = filledFolder.folders;
         return 1;
     }
-
-    await uploadRecursive(folder);
-    do {
-        await Promise.all(promises);
-    }
-    while (limitManager.OngoingCount != 0);
-
-    limitManager.endProgress();
-
-    return {
-        aborted
-    };
 
     async function uploadRecursive(folder: SimpleFolder) {
         if (aborted) return;

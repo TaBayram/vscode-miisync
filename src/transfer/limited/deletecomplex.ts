@@ -19,19 +19,24 @@ export async function DeleteComplexLimited(folder: SimpleFolder, userConfig: Use
     let aborted = false;
 
     const promises: Promise<any>[] = [];
-    limitManager.startProgress();
-    limitManager.createWindow('Deleting', () => aborted = true)
+    try {
+        limitManager.startProgress();
+        limitManager.createWindow('Deleting', () => aborted = true)
 
-    await deleteRecursive(folder);
-    do {
-        await Promise.all(promises);
+        await deleteRecursive(folder);
+        do {
+            await Promise.all(promises);
+        }
+        while (limitManager.OngoingCount != 0);
+
+        limitManager.endProgress();
+        return {
+            aborted
+        };
+    } catch (error: any) {
+        limitManager.endProgress();
+        throw Error(error);
     }
-    while (limitManager.OngoingCount != 0);
-
-    limitManager.endProgress();
-    return {
-        aborted
-    };
 
     async function deleteRecursive(folder: SimpleFolder) {
         if (aborted) return;

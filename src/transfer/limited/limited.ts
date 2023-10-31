@@ -4,6 +4,7 @@ import pLimit = require("p-limit");
 
 export interface LimitedReturn<T> {
     aborted: boolean,
+    error?: Error,
     data?: T
 }
 

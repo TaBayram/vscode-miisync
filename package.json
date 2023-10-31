@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayramNTT/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.13.1",
+  "version": "0.13.3",
   "license": "MIT",
   "engines": {
     "vscode": "^1.83.1"
