@@ -40,11 +40,11 @@ export async function StartAction(type: ActionType, { name, resource, system }: 
             logger.infoplus(system.name, name, GetStateMessage("Started", resource));
         const { aborted, error, message } = await actionPromise();
         if (error) {
-            statusBar.updateBar("Error", Icon.error, { duration: 2 });
+            statusBar.updateBar("Error", Icon.error, { duration: 3 });
             logger.errorPlus(system.name, name, message || "");
         }
         else if (aborted) {
-            statusBar.updateBar("Cancelled", Icon.close, { duration: 2 });
+            statusBar.updateBar("Cancelled", Icon.close, { duration: 3 });
             logger.infoplus(system.name, name, GetStateMessage("Cancelled", resource));
         }
         else {
@@ -52,6 +52,7 @@ export async function StartAction(type: ActionType, { name, resource, system }: 
             logger.infoplus(system.name, name, GetStateMessage("Completed", resource));
         }
     } catch (error: any) {
+        statusBar.updateBar("Error", Icon.error, { duration: 3 });
         logger.toastError(error);
     }
 }
