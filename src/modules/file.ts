@@ -202,14 +202,14 @@ export async function PrepareUrisForService(uris: Uri[]): Promise<SimpleFolder> 
     /**
      * changes uris to file or folder type
      */
-    await findAllTypes(rootFolder);
-    async function findAllTypes(mainFolder: SimplePreFolder) {
+    await Promise.all(findAllTypes(rootFolder));
+    function findAllTypes(mainFolder: SimplePreFolder): Promise<any>[] {
         const promises: Promise<any>[] = [];
         for (const folder of mainFolder.folders) {
-            promises.push(findType(folder));
+            promises.push(...findAllTypes(folder));
         }
         promises.push(findType(mainFolder));
-        await Promise.all(promises);
+        return promises;
     }
     async function findType(folder: SimplePreFolder) {
         if (!folder.uris) return 0;

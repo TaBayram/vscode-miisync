@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.13.4] - 01/11/2023
+
+### Added
+
+- Current system to `Transfer` options
+
+### Fixed
+
+- Where too deep files in the selection wouldn't get uploaded.
+
 ## [0.13.3] - 31/10/2023
 
 ### Fixed

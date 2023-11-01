@@ -19,5 +19,5 @@ export async function OnCommandUploadGitChanges() {
     //const commit = await repos[0].getCommit('HEAD');
 
     const files = changes.filter((change) => (change.status != Status.DELETED && change?.uri)).map(change => change.uri);
-    await UploadUris(files, userConfig, configManager.CurrentSystem, "Upload Git Changes");
+    await UploadUris(files, userConfig, configManager.CurrentSystem, "Upload Git Changes: " + files.length);
 }

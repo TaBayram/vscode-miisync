@@ -1,6 +1,6 @@
 import { readFile } from 'fs-extra';
 import * as path from 'path';
-import { Uri } from "vscode";
+import { QuickPickItemKind, Uri } from "vscode";
 import { System, UserConfig } from "../extension/system";
 import { MIISafe, RowsetsMessage } from '../miiservice/abstract/responsetypes';
 import { saveFileService } from '../miiservice/savefileservice';
@@ -23,7 +23,9 @@ async function CreateSystemQuickPick(userConfig: UserConfig) {
             picks.push({ label: system.name, description: system.host + ':' + system.port, object: system })
         }
     }
-    const quickResponses: QuickPickItem<System>[] = await ShowQuickPick(picks, { title: 'Pick System', canPickMany: true });
+    picks.push({ kind: QuickPickItemKind.Separator, label: 'Current', object: null })
+    picks.push({ label:configManager.CurrentSystem.name, description: configManager.CurrentSystem.toHost(), object: configManager.CurrentSystem })
+    const quickResponses: QuickPickItem<System>[] = await ShowQuickPick(picks, { title: 'Transfer: Pick System', canPickMany: true });
     return quickResponses;
 }
 
