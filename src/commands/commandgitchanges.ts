@@ -1,7 +1,7 @@
 import { extensions } from "vscode";
 import { configManager } from "../modules/config.js";
 import { UploadUris } from "../transfer/upload.js";
-import { GitExtension, Status } from "../types/git.js";
+import { GitExtension, Repository, Status } from "../types/git.js";
 
 
 
@@ -13,8 +13,10 @@ export async function OnCommandUploadGitChanges() {
     const gitExtension = extensions.getExtension<GitExtension>('vscode.git')!.exports;
     const git = gitExtension.getAPI(1);
 
-    const repos = git.repositories;
-    const changes = await repos[0].diffWithHEAD();
+    const repo: Repository = git.repositories[0];
+    const changes = repo.state.workingTreeChanges;
+    //const changes = await repo.diffWithHEAD();
+
 
     //const commit = await repos[0].getCommit('HEAD');
 

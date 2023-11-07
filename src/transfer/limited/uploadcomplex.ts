@@ -60,9 +60,9 @@ export async function UploadComplexLimited(folder: SimpleFolder, userConfig: Use
 
     async function uploadRecursive(folder: SimpleFolder) {
         if (aborted) return;
-        if (!await ValidatePath(folder.path, userConfig)) return;
+        const isIgnored = !await ValidatePath(folder.path, userConfig);;
         const totalSubItems = folder.files.length + folder.folders.length;
-        if (totalSubItems != 1) {
+        if (!isIgnored && totalSubItems != 1) {
             await limitManager.newRemote(() => {
                 if (aborted) return;
                 return createFolder(folder.path);

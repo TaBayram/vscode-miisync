@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.13.5] - 07/11/2023
+
+### Fixed
+
+-  `Upload Git Changes` stopping because of the root folder being ignored even though the children aren't normally ignored.
+-  `Upload Git Changes` not uploading new files.
+
 ## [0.13.4] - 01/11/2023
 
 ### Added
