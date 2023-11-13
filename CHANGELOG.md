@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.13.6] - 13/11/2023
+
+### Fixed
+
+-  'Upload Selection' not working properly
+
 ## [0.13.5] - 07/11/2023
 
 ### Fixed
