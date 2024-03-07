@@ -280,7 +280,7 @@
         {
           "command": "miisync.downloadtransactionproperties",
           "group": "mii",
-          "when": "editorLangId == 'javascript'"
+          "when": "editorLangId == 'javascript' || editorLangId == 'typescript'"
         }
       ],
       "view/title": [
@@ -318,7 +318,7 @@
         },
         {
           "command": "miisync.openscreen",
-          "when": "view == remotedirectory && viewItem == index.html",
+          "when": "view == remotedirectory && viewItem =~ /index.*html/ ",
           "group": "inline@0"
         },
         {
@@ -336,7 +336,7 @@
         {
           "command": "miisync.openscreen",
           "group": "aa@1",
-          "when": "miisync.enabled && resourceFilename == index.html"
+          "when": "miisync.enabled && resourceFilename =~ /index.*html/"
         },
         {
           "command": "miisync.uploadbroad",
