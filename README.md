@@ -3,7 +3,6 @@
 
 This extension tries to be a replacement for the web side of the standart mii workbench.
 
-**Made by NTT Data Business Solutions Turkiye MII Team**
 
 ## Usage
 
