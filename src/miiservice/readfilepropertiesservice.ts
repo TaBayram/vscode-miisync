@@ -1,3 +1,4 @@
+import { MIIServer } from '../extension/system';
 import { Request, Service } from './abstract/miiservice';
 import { FileProperties, GeneralColumn2, MIISafe } from './abstract/responsetypes';
   
@@ -6,8 +7,8 @@ class ReadFilePropertiesService extends Service {
     name: string = "File Properties";
     mode: string = "XMII/Catalog?Mode=ListFileProperties&Content-Type=text/xml";
 
-    async call({ host, port }: Request, folderPath: string) {
-        const url = this.get(host, port, folderPath);
+    async call(request: Request, folderPath: string) {
+        const url = this.get(request, folderPath);
         const { value, error, isError } = await this.fetch(new URL(url));
         let data: MIISafe<FileProperties, GeneralColumn2> = null;
         if (!isError) {
@@ -18,8 +19,8 @@ class ReadFilePropertiesService extends Service {
     /**
      * Needs WEB path!
      */
-    get(host: string, port: number, filePath: string) {
-        return this.generateURL(host, port, "http") + `&${this.generateParams(filePath)}&__=${new Date().getTime()}`;
+    get(server: MIIServer, filePath: string) {
+        return this.generateURL(server) + `&${this.generateParams(filePath)}&__=${new Date().getTime()}`;
     }
     protected generateParams(file: string) {
         return "ObjectName=" + file;

@@ -12,7 +12,7 @@ import { filePropertiesTree } from "../ui/treeview/filepropertiestree";
 export async function GetFileProperties(uri: Uri, userConfig: UserConfig, system: System) {
     if (!await ValidatePath(uri.fsPath, userConfig)) return null;
     const sourcePath = GetRemotePath(uri.fsPath, userConfig);
-    const response = await readFilePropertiesService.call({ host: system.host, port: system.port }, sourcePath);
+    const response = await readFilePropertiesService.call(system, sourcePath);
     if (response && !IsFatalResponse(response) && response?.Rowsets?.Rowset?.Row) {
         filePropertiesTree.generateItems(response.Rowsets.Rowset.Row[0]);
         return response;
@@ -22,7 +22,7 @@ export async function GetFileProperties(uri: Uri, userConfig: UserConfig, system
 
 export async function GetTransactionProperties(path: string, system: System) {
 
-    const response = await loadFileService.call({ host: system.host, port: system.port }, path);
+    const response = await loadFileService.call(system, path);
     if ('Transaction' in response && response?.Transaction) {
         CreateTransactionMarkdown(response.Transaction);
     }

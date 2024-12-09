@@ -23,10 +23,10 @@ export async function DeleteFile(uri: Uri, userConfig: UserConfig, system: Syste
         }
         if (!await CheckSeverityFile(uri, SeverityOperation.delete, userConfig, system)) return { aborted: true };
 
-        const response = await deleteBatchService.call({ host: system.host, port: system.port }, sourcePath);
+        const response = await deleteBatchService.call(system, sourcePath);
         if (!response) return { aborted: true };
         if (!IsFatalResponse(response)) {
-            await blowoutService.call({ host: system.host, port: system.port }, sourcePath);
+            await blowoutService.call(system, sourcePath);
             return { aborted: false };
         }
         return { aborted: true, error: true, message: response.Rowsets.FatalError };
@@ -46,10 +46,10 @@ export async function DeleteFolder(uri: Uri, userConfig: UserConfig, system: Sys
         if (!await CheckSeverityFolder(uri, SeverityOperation.delete, userConfig, system)) return { aborted: true };
 
 
-        const response = await deleteBatchService.call({ host: system.host, port: system.port }, sourcePath);
+        const response = await deleteBatchService.call(system, sourcePath);
         if (!response) return { aborted: true };
         if (!IsFatalResponse(response)) {
-            await blowoutService.call({ host: system.host, port: system.port }, sourcePath);
+            await blowoutService.call(system, sourcePath);
             return { aborted: false };
         }
         return { aborted: true, error: true, message: response.Rowsets.FatalError };

@@ -1,3 +1,4 @@
+import { MIIServer } from '../extension/system.js';
 import { Request, Service } from './abstract/miiservice.js';
 
 
@@ -6,18 +7,18 @@ class LogOutService extends Service {
     mode: string = "XMII/Illuminator?service=logout";
     //Works ME: manufacturing/logout
 
-    async call({ host, port }: Request) {
-        const url = this.get(host, port);
+    async call(request: Request) {
+        const url = this.get(request);
         const { value, error, isError } = await this.fetch(new URL(url), { auth: false, convertResponse: 'none', redirect: 'manual' });
         if (!isError) {
-            if (value.redirected && value.url == this.generateIP(host, port) + "/XMII/goService.jsp") {
+            if (value.redirected && value.url == this.generateIP(request) + "/XMII/goService.jsp") {
                 return value;
             }
             return null;
         }
     }
-    get(host: string, port: number) {
-        return this.generateURL(host, port, "http");
+    get(server: MIIServer) {
+        return this.generateURL(server);
     }
     protected generateParams(objectName: string) {
         return "ObjectName=" + objectName;

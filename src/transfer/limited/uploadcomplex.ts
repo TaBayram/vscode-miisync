@@ -93,16 +93,16 @@ export async function UploadComplexLimited(folder: SimpleFolder, userConfig: Use
 
     async function createFolder(file: string) {
         const folderPath = GetRemotePath(file, userConfig);
-        const exist = await existsService.call({ host: system.host, port: system.port }, folderPath);
+        const exist = await existsService.call(system, folderPath);
         if (exist && !IsFatalResponse(exist) && exist?.Rowsets?.Messages?.Message != "2") {
-            return createFolderService.call({ host: system.host, port: system.port }, folderPath);
+            return createFolderService.call(system, folderPath);
         }
     }
 
     async function saveFile(file: string, content: Buffer) {
         const sourcePath = GetRemotePath(file, userConfig);
         const base64Content = encodeURIComponent(content.length != 0 ? content.toString('base64') : Buffer.from(" ").toString('base64'));
-        return saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
+        return saveFileService.call({ ...system, body: "Content=" + base64Content }, sourcePath);
     }
 
 }

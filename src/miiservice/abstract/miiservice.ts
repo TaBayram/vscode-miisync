@@ -1,11 +1,10 @@
 import { X2jOptions, XMLParser } from 'fast-xml-parser';
 import fetch, { HeadersInit, RequestRedirect, Response } from "node-fetch";
+import { MIIServer } from '../../extension/system.js';
 import logger from '../../ui/logger.js';
 import { GetSession } from '../../user/session.js';
 
-export interface Request {
-    host: string,
-    port: number,
+export interface Request extends MIIServer {
     body?: string
 }
 
@@ -22,21 +21,21 @@ export interface MIIParams {
     "Session"?: boolean
 }
 
-export abstract class Service{
+export abstract class Service {
     readonly abstract name: string;
     readonly abstract mode: string;
 
     constructor() { }
 
     abstract call(request: Request, ...args: any): Promise<any>;
-    abstract get(host: string, port: number, ...args: any): string;
+    abstract get(system: MIIServer, ...args: any): string;
     protected abstract generateParams(...args: any): string;
 
-    protected generateURL(host: string, port: number, protocol: 'http' | 'https' = 'http') {
-        return `${this.generateIP(host, port, protocol)}/${this.mode}`;
+    protected generateURL(server: MIIServer) {
+        return `${this.generateIP(server)}/${this.mode}`;
     }
-    protected generateIP(host: string, port: number, protocol: 'http' | 'https' = 'http') {
-        return `${protocol}://${host}:${port}`;
+    protected generateIP({ host, port, protocol = "http" }: MIIServer) {
+        return `${protocol}://${host}${port ? ':' + port : ''}`;
     }
 
     protected async fetch(url: URL, settings?: FetchSettings): Promise<{ value: any, error: Error, isError: boolean, data?: any }> {

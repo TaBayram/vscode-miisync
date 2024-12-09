@@ -27,7 +27,7 @@ export async function UploadFile(uri: Uri, userConfig: UserConfig, system: Syste
         const sourcePath = GetRemotePath(uri.fsPath, userConfig);
         const base64Content = encodeURIComponent(Buffer.from(content || " ").toString('base64'));
 
-        const response = await saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
+        const response = await saveFileService.call({ ...system, body: "Content=" + base64Content }, sourcePath);
         return { aborted: response == null };
     }
     StartAction(ActionType.upload, { name: "Upload File", resource: fileName, system }, { isSimple: true }, upload);

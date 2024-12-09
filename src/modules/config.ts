@@ -15,6 +15,7 @@ let joiSystem = Joi.object().keys({
     isMain: Joi.boolean().default(false),
     host: Joi.string().required(),
     port: Joi.number(),
+    protocol: Joi.string().valid('http', 'https').default('http'),
     username: Joi.string().required(),
     password: Joi.string(),
 });
@@ -54,6 +55,7 @@ const defaultSystem: SystemConfig = {
     severity: Severity.medium,
     host: '11.22.33',
     port: 5000,
+    protocol: 'http',
     username: 'x-user',
     password: '1234'
 };

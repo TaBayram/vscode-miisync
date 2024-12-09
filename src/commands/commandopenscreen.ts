@@ -13,12 +13,12 @@ export async function OnCommandOpenScreen(obj: Uri | TreeItem) {
     if (obj) {
         if ('fsPath' in obj) {
             const remotePath = GetRemotePath(obj.fsPath, userConfig, false);
-            openScreenService.call({ host: configManager.CurrentSystem.host, port: configManager.CurrentSystem.port }, remotePath);
+            openScreenService.call(configManager.CurrentSystem, remotePath);
             return;
         }
         if ('data' in obj) {
             const remotePath = RemoveWeb(obj.data.filePath + '/' + obj.data.name);
-            openScreenService.call({ host: configManager.CurrentSystem.host, port: configManager.CurrentSystem.port }, remotePath);
+            openScreenService.call(configManager.CurrentSystem, remotePath);
             return;
         }
     }
@@ -28,7 +28,7 @@ export async function OnCommandOpenScreen(obj: Uri | TreeItem) {
     const name = await FindFileInDir(workspaceUri.fsPath, 'index.html');
     if (!name) return;
     const remotePath = GetRemotePath(name, userConfig, false);
-    openScreenService.call({ host: configManager.CurrentSystem.host, port: configManager.CurrentSystem.port }, remotePath);
+    openScreenService.call(configManager.CurrentSystem, remotePath);
 
 
 }

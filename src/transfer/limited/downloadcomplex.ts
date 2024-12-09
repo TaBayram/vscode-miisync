@@ -74,7 +74,7 @@ export async function DownloadComplexLimited(folder: ComplexFolder, getPath: (it
         if (!mainFolder.folder) {
             const sourcePath = mainFolder.isRemotePath ? mainFolder.path : GetRemotePath(mainFolder.path, userConfig);
             const parentPath = path.dirname(sourcePath) == "." ? "" : path.dirname(sourcePath);
-            const parentFolder = await listFoldersService.call({ host: system.host, port: system.port }, parentPath);
+            const parentFolder = await listFoldersService.call(system, parentPath);
             if (!parentFolder || IsFatalResponse(parentFolder)) return;
             const folder = parentFolder?.Rowsets?.Rowset?.Row?.find((folder: Folder) => folder.Path == sourcePath);
             mainFolder.folder = folder;
@@ -84,7 +84,7 @@ export async function DownloadComplexLimited(folder: ComplexFolder, getPath: (it
                 fileCount += mainFolder.folder.ChildFileCount;
                 const filePromise = limitManager.newRemote(async () => {
                     if (aborted) return;
-                    const files = await listFilesService.call({ host: system.host, port: system.port }, mainFolder.folder.Path);
+                    const files = await listFilesService.call(system, mainFolder.folder.Path);
                     if (aborted) return;
                     if (!files || IsFatalResponse(files)) return;
                     mainFolder.files = files?.Rowsets?.Rowset?.Row?.
@@ -96,7 +96,7 @@ export async function DownloadComplexLimited(folder: ComplexFolder, getPath: (it
             if (mainFolder.folder.ChildFolderCount != 0) {
                 const folderPromise = limitManager.newRemote(async () => {
                     if (aborted) return;
-                    const folders = await listFoldersService.call({ host: system.host, port: system.port }, mainFolder.folder.Path);
+                    const folders = await listFoldersService.call(system, mainFolder.folder.Path);
                     if (aborted) return;
                     if (!folders || IsFatalResponse(folders)) return;
                     mainFolder.folders = folders?.Rowsets?.Rowset?.Row?.
@@ -140,7 +140,7 @@ export async function DownloadComplexLimited(folder: ComplexFolder, getPath: (it
     async function downloadFile({ file, path }: { path: string; file?: File; }) {
         const filePath = path || getPath(file);
         const remotePath = file ? (file.FilePath + "/" + file.ObjectName) : GetRemotePath(path, userConfig);
-        const response = await readFileService.call({ host: system.host, port: system.port }, remotePath);
+        const response = await readFileService.call(system, remotePath);
         if (aborted) return;
         if (response && !IsFatalResponse(response)) {
             const payload = response?.Rowsets?.Rowset?.Row.find((row) => row.Name == "Payload");

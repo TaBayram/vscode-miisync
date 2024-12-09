@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.14.0] - 09/12/2024
+
+### Added
+
+- `Protocol` setting to system
+
+### Changed
+
+- `Port` is no longer required.
+
 ## [0.13.6] - 13/11/2023
 
 ### Fixed

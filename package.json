@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/TaBayram/vscode-miisync",
   "icon": "resources/icon.png",
-  "version": "0.13.6",
+  "version": "0.14.1",
   "license": "MIT",
   "engines": {
     "vscode": "^1.83.1"
@@ -478,7 +478,12 @@
                 },
                 "severity": {
                   "type": "string",
-                  "enum": ["0-low","1-medium","2-high","3-critical"],
+                  "enum": [
+                    "0-low",
+                    "1-medium",
+                    "2-high",
+                    "3-critical"
+                  ],
                   "default": "1-medium",
                   "description": "Severity level of the system. The higher the more confirms asked for operations"
                 },
@@ -497,6 +502,15 @@
                   "default": 50000,
                   "description": "Port of the target MII system."
                 },
+                "protocol": {
+                  "type": "string",
+                  "enum": [
+                    "http",
+                    "https"
+                  ],
+                  "default": "http",
+                  "description": "Protocol of the target system."
+                },
                 "username": {
                   "type": "string",
                   "default": "x-name",
@@ -513,6 +527,7 @@
                 "isMain": false,
                 "host": "11.22.33.44",
                 "port": 50000,
+                "protocol": "http",
                 "username": "x-name",
                 "password": "1234"
               }

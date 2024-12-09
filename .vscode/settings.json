@@ -12,5 +12,7 @@
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit",
         "source.fixAll": "always"
-    }
+    },
+    "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+    "javascript.experimental.updateImportsOnPaste": true
 }

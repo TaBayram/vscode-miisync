@@ -29,7 +29,7 @@ export async function DownloadFile(uri: Uri, userConfig: UserConfig, system: Sys
         if (!await CheckSeverityFile(uri, SeverityOperation.download, userConfig, system)) return { aborted: true };
 
 
-        const file = await readFileService.call({ host: system.host, port: system.port }, sourcePath);
+        const file = await readFileService.call(system, sourcePath);
         if (!file) return { aborted: true };
         if (!IsFatalResponse(file)) {
             const payload = file?.Rowsets?.Rowset?.Row?.find((row) => row.Name == "Payload");
@@ -159,7 +159,7 @@ export async function DownloadRemoteFile({ filePath, name }: { filePath: string,
         const workspaceFolder = GetCurrentWorkspaceFolder().fsPath;
 
         const localFilePath = path.join(workspaceFolder, chosenFilePath, name);
-        const binary = await readFileService.call({ host: system.host, port: system.port }, filePath + '/' + name);
+        const binary = await readFileService.call(system, filePath + '/' + name);
         if (!binary) return { aborted: true };
         if (!IsFatalResponse(binary)) {
             const payload = binary?.Rowsets?.Rowset?.Row?.find((row) => row.Name == "Payload");
@@ -179,7 +179,7 @@ export async function DownloadContextDirectory(userConfig: UserConfig, system: S
     }
     const download = async (): Promise<ActionReturn> => {
         const sourcePath = GetRemotePath("", userConfig);
-        const files = await loadFilesInsideService.call({ host: system.host, port: system.port }, sourcePath);
+        const files = await loadFilesInsideService.call(system, sourcePath);
         if (!files) return { aborted: true };
         if (!IsFatalResponse(files)) {
             remoteDirectoryTree.generateItemsByFiles(files?.Rowsets?.Rowset?.Row || []);

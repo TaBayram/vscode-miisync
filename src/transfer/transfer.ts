@@ -98,7 +98,7 @@ export async function TransferFile(uri: Uri, userConfig: UserConfig) {
                 const user = GetUserManager(system, true)!;
                 if (!await user.login()) continue;
 
-                response = await saveFileService.call({ host: system.host, port: system.port, body: "Content=" + base64Content }, sourcePath);
+                response = await saveFileService.call({ ...system, body: "Content=" + base64Content }, sourcePath);
             }
 
             return { aborted: false };
