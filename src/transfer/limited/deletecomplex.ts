@@ -69,9 +69,9 @@ export async function DeleteComplexLimited(folder: SimpleFolder, userConfig: Use
 
     async function deleteResource(localPath: string) {
         const remotePath = GetRemotePath(localPath, userConfig);
-        const response = await deleteBatchService.call({ host: system.host, port: system.port }, remotePath);
+        const response = await deleteBatchService.call(system, remotePath);
         if (response) {
-            await blowoutService.call({ host: system.host, port: system.port }, remotePath);
+            await blowoutService.call(system, remotePath);
         }
         return response;
     }

@@ -47,7 +47,7 @@ async function CheckFileDifference(document: vscode.TextDocument, fileProp: File
     if (system.username != modifiedUser) {
         if (saidNoToTheseDocuments.find((no) => no.fsPath === document.uri.fsPath && no.modifiedTime == fileProp.Modified && no.modifiedUser == fileProp.ModifiedBy)) return;
 
-        const file = await readFileService.call({ host: system.host, port: system.port }, sourcePath);
+        const file = await readFileService.call(system, sourcePath);
         if (!file || IsFatalResponse(file)) return;
         const payload = file?.Rowsets?.Rowset?.Row?.find((row) => row.Name == "Payload");
         if (!payload) return;

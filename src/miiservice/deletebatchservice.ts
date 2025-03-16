@@ -1,3 +1,4 @@
+import { MIIServer } from '../extension/system.js';
 import { Request, Service } from './abstract/miiservice.js';
 import { MIISafe, RowsetsMessage } from './abstract/responsetypes.js';
 
@@ -6,8 +7,8 @@ class DeleteBatchService extends Service {
     mode: string = "XMII/Catalog?Mode=BatchDelete&Class=Content&Content-Type=text/xml";
     optionals: string = "&TemporaryFile=false&Notify=true"
 
-    async call({ host, port }: Request, sourcePath: string) {
-        const url = this.get(host, port, sourcePath);
+    async call(request: Request, sourcePath: string) {
+        const url = this.get(request, sourcePath);
         const { value, error, isError } = await this.fetch(new URL(url));
         let data: MIISafe<null, null, RowsetsMessage> = null;
         if (!isError) {
@@ -15,8 +16,8 @@ class DeleteBatchService extends Service {
         }
         return data;
     }
-    get(host: string, port: number, sourcePath: string) {
-        return this.generateURL(host, port, "http") + this.optionals + `&${this.generateParams(sourcePath)}&__=${new Date().getTime()}`;
+    get(server: MIIServer, sourcePath: string) {
+        return this.generateURL(server) + this.optionals + `&${this.generateParams(sourcePath)}&__=${new Date().getTime()}`;
     }
     protected generateParams(objectName: string) {
         return "ObjectName=" + objectName;

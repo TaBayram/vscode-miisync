@@ -5,12 +5,16 @@ export enum Severity{
     critical = "3-critical"
 }
 
-export interface SystemConfig {
+export interface MIIServer {
+    host: string,
+    port: number,
+    protocol?: 'http' | 'https',
+}
+
+export interface SystemConfig extends MIIServer {
     name: string,
     isMain: boolean,
     severity: Severity
-    host: string,
-    port: number,
     username: string,
     password?: string,
 }
@@ -34,6 +38,7 @@ export class System implements SystemConfig {
     isMain: boolean;
     host: string;
     port: number;
+    protocol?: 'http' | 'https'
     username: string;
     password?: string;
 

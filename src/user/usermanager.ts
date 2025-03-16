@@ -123,7 +123,7 @@ class UserManager {
             return true;
         }
         await this.setAuth();
-        const response = await logInService.call({ host: this.system.host, port: this.system.port }, false, { name: this.system.username, password: (this.system.password || this.password) });
+        const response = await logInService.call(this.system, false, { name: this.system.username, password: (this.system.password || this.password) });
         this.awaitsLogin = false;
 
         if (response) {
@@ -141,7 +141,7 @@ class UserManager {
 
     async refreshLogin(useCookies = true) {
         if (useCookies && this.session.loadCookiesIfCookedIn(10)) { return true; }
-        const response = await logInService.call({ host: this.system.host, port: this.system.port }, true);
+        const response = await logInService.call(this.system, true);
         if (response) {
             this.session.haveCookies(response);
             return true;
@@ -150,7 +150,7 @@ class UserManager {
     }
 
     async logout() {
-        await logOutService.call({ host: this.system.host, port: this.system.port });
+        await logOutService.call(this.system);
         logger.info('Log out for ' + this.system.name);
         this.session.clear();
         this.IsLoggedin = false;

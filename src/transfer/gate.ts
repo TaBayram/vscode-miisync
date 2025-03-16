@@ -8,26 +8,26 @@ import { GetRemotePath, ValidatePath } from "../modules/file.js";
 import logger from "../ui/logger.js";
 import { GetUserManager } from "../user/usermanager.js";
 
-export async function DoesRemotePathExist(userConfig: UserConfig, { host, port }: System) {
+export async function DoesRemotePathExist(userConfig: UserConfig, system: System) {
     let folderPath = GetRemotePath("", userConfig);
-    const response = await listFoldersService.call({ host: host, port: port }, folderPath);
+    const response = await listFoldersService.call(system, folderPath);
     return response && !IsFatalResponse(response) ? response?.Rowsets?.Rowset?.Row?.length > 0 : false;
 }
 
-export async function DoesFileExist(remoteFilePath: string, { host, port }: System) {
-    const response = await existsService.call({ host, port }, remoteFilePath);
+export async function DoesFileExist(remoteFilePath: string, system: System) {
+    const response = await existsService.call(system, remoteFilePath);
     return response && !IsFatalResponse(response) ?  response?.Rowsets?.Messages?.Message == "1" : false;
 }
 
-export async function DoesFolderExist(remoteFilePath: string, { host, port }: System) {
-    const response = await existsService.call({ host, port }, remoteFilePath);
+export async function DoesFolderExist(remoteFilePath: string, system: System) {
+    const response = await existsService.call(system, remoteFilePath);
     return response && !IsFatalResponse(response) ? response?.Rowsets?.Messages?.Message == "2": false;
 }
 
-export async function DoesProjectExist({ remotePath }: UserConfig, { host, port }: System) {
+export async function DoesProjectExist({ remotePath }: UserConfig, system: System) {
     const projectName = remotePath.split("/")[0].trim();
     if (projectName != "") {
-        const response = await listFoldersService.call({ host, port }, projectName);
+        const response = await listFoldersService.call(system, projectName);
         if(response && !IsFatalResponse(response)){
             const hasWeb = response?.Rowsets?.Rowset?.Row?.find((folder) => folder.IsWebDir);
             return hasWeb != null;

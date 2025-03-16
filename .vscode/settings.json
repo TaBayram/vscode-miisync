@@ -10,7 +10,9 @@
     "typescript.tsc.autoDetect": "off",
 
     "editor.codeActionsOnSave": {
-        "source.organizeImports": true,
+        "source.organizeImports": "explicit",
         "source.fixAll": "always"
-    }
+    },
+    "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+    "javascript.experimental.updateImportsOnPaste": true
 }

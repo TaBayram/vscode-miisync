@@ -15,6 +15,6 @@ export async function OnCommandDownloadProject(){
         logger.error("Remote Path doesn't exist");
         return;
     }
-    exportProjectService.call({host: configManager.CurrentSystem.host, port: configManager.CurrentSystem.port}, parentPath);
+    exportProjectService.call(configManager.CurrentSystem, parentPath);
     return;
 }
